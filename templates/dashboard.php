@@ -5,13 +5,13 @@ $baseUrl = rtrim(base_url(), '/');
 ob_start();
 ?>
 <h1>Dashboard</h1>
-<p style="color: var(--muted); margin-bottom: 1.5rem;">Your webhooks. <a href="<?= e($baseUrl) ?>/admin/webhooks">Manage</a></p>
-<?php if (empty($webhooks)): ?>
+<?php if (empty($webhooks)) { ?>
     <div class="empty-state">
-        <p>You have no webhooks yet.</p>
+        <p>You have no webhooks yet. Create one to get started and receive HTTP requests at a unique URL.</p>
         <a href="<?= e($baseUrl) ?>/admin/webhooks" class="btn btn-primary">Create webhook</a>
     </div>
-<?php else: ?>
+<?php } else { ?>
+<p style="color: var(--muted); margin-bottom: 1.5rem;">Your webhooks. <a href="<?= e($baseUrl) ?>/admin/webhooks">Manage all</a></p>
     <?php foreach (array_slice($webhooks, 0, 5) as $w): ?>
         <div class="card">
             <h3><?= e($w->name) ?></h3>
@@ -25,7 +25,7 @@ ob_start();
     <?php if (count($webhooks) > 5): ?>
         <p><a href="<?= e($baseUrl) ?>/admin/webhooks">View all (<?= count($webhooks) ?>)</a></p>
     <?php endif; ?>
-<?php endif; ?>
+<?php } ?>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/layout.php';

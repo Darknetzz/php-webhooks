@@ -121,11 +121,15 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         if ($name !== '') {
             try {
                 WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic);
+                redirect(base_url() . '/admin/webhooks');
             } catch (Throwable $e) {
-                $createError = $config['debug'] ? $e->getMessage() : 'Slug may already exist.';
+                $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
+                $createName = $name;
+                $createSlug = $rawSlug;
+                $createDescription = $desc;
+                $createIsPublic = $isPublic;
             }
         }
-        redirect(base_url() . '/admin/webhooks');
     }
     $webhooks = WebhookRepository::listForUser($user->id);
     require dirname(__DIR__) . '/templates/admin_webhooks.php';

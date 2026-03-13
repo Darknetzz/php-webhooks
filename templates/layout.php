@@ -17,7 +17,7 @@ $config = config();
             <nav>
                 <?php $user = auth()->user(); if ($user): ?>
                     <a href="<?= e(base_url()) ?>/">Dashboard</a>
-                    <a href="<?= e(base_url()) ?>/admin/webhooks">My Webhooks</a>
+                    <a href="<?= e(base_url()) ?>/admin/webhooks">Create Webhook</a>
                     <span class="user"><?= e($user->username) ?></span>
                     <a href="<?= e(base_url()) ?>/logout">Log out</a>
                 <?php else: ?>

@@ -1,11 +1,15 @@
 <?php
-$title = 'My Webhooks';
+$title = 'Create Webhook';
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
 $createError = $createError ?? null;
+$createName = $createName ?? '';
+$createSlug = $createSlug ?? '';
+$createDescription = $createDescription ?? '';
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
 ob_start();
 ?>
-<h1>My Webhooks</h1>
+<h1>Create Webhook</h1>
 <?php if ($createError): ?>
     <div class="error-msg"><?= e($createError) ?></div>
 <?php endif; ?>
@@ -15,21 +19,21 @@ ob_start();
     <form method="post" action="">
         <div class="form-group">
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" required placeholder="My API hook">
+            <input type="text" id="name" name="name" required placeholder="My API hook" value="<?= e($createName) ?>">
         </div>
         <div class="form-group">
             <label for="slug">Slug (URL path)</label>
-            <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only">
+            <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only" value="<?= e($createSlug) ?>">
             <div class="hint">Used in URL. Leave empty to generate from name.</div>
             <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($baseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
         </div>
         <div class="form-group">
             <label for="description">Description (optional)</label>
-            <textarea id="description" name="description" placeholder="What this webhook is for"></textarea>
+            <textarea id="description" name="description" placeholder="What this webhook is for"><?= e($createDescription) ?></textarea>
         </div>
         <div class="form-group">
             <label class="checkbox-label">
-                <input type="checkbox" name="is_public" value="1" checked>
+                <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                 List on public page (anyone can see the URL)
             </label>
         </div>
@@ -61,9 +65,10 @@ ob_start();
 
 <?php if (empty($webhooks)): ?>
     <div class="empty-state">
-        <p>No webhooks yet. Create one above.</p>
+        <p>No webhooks yet. Use the form above to create one.</p>
     </div>
 <?php else: ?>
+    <h2 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem;">Your webhooks</h2>
     <?php foreach ($webhooks as $w): ?>
         <div class="card">
             <h3><?= e($w->name) ?></h3>
