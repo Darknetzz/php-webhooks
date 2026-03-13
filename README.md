@@ -162,6 +162,13 @@ templates/        # PHP templates
 data/             # SQLite DB (created automatically, gitignored)
 ```
 
+## Publishing the image (CI)
+
+The repo includes a GitHub Actions workflow (`.github/workflows/docker-publish.yml`) that builds and pushes the image on push to `main` and on release publish.
+
+- **ghcr.io:** Uses `GITHUB_TOKEN`. In the repo go to Settings → Actions → General and set "Workflow permissions" to "Read and write packages". The image is `ghcr.io/<owner>/<repo>:latest` (and branch/tag).
+- **Docker Hub:** Add repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The image is `docker.io/<DOCKERHUB_USERNAME>/webhooks`. If these secrets are not set, only ghcr.io is published.
+
 ## License
 
 MIT.
