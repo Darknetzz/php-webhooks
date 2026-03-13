@@ -51,6 +51,18 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 - **Behind a reverse proxy** (e.g. Nginx Proxy Manager): Set `APP_URL` to the public URL (e.g. `https://webhooks.roste.org`). The proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so the app uses that URL for links and redirects.
 - **Direct access** (e.g. `http://web01/webhooks/public/`): You can use the app without setting `APP_URL`, or set it to the direct URL. Links and redirects are derived from the current request, so you stay on the same base URL you used to open the app.
 
+### Reverse proxy when the app is at a subpath
+
+If the proxy forwards to a **path** on the backend (e.g. `http://backend/webhooks/public/`), the app must know that base path so it can route `/login` correctly and build links. It does this in two ways:
+
+1. **`X-Forwarded-Prefix`** (recommended): In your proxy (e.g. NPM Plus), add a **custom header** for this host:  
+   `X-Forwarded-Prefix` = `/webhooks/public`  
+   (use the same path as in “Forward Hostname / IP / Path”, without a trailing slash). The app then strips this prefix from the request path for routing and uses it for `base_url()`.
+
+2. **`APP_URL` with path**: Set `APP_URL` to the full public URL including the subpath, e.g. `https://webhooks.roste.org/webhooks/public`. The app derives the base path from the URL path and uses it the same way.
+
+The backend must still route requests for that path to `public/index.php` (see *Document root must be public/*). Once that is set up, the header or `APP_URL` path makes routing and links work correctly.
+
 ### URL rewriting
 
 - **Apache**: Use the provided `public/.htaccess` and ensure `mod_rewrite` is enabled.
