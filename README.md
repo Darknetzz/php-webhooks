@@ -33,6 +33,13 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
 
 **Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
 
+**Pre-built images** (when the repo publishes them): pull from GitHub Container Registry or Docker Hub instead of building locally:
+   ```bash
+   docker pull ghcr.io/<owner>/<repo>:latest
+   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks ghcr.io/<owner>/<repo>:latest
+   ```
+   Replace `<owner>/<repo>` with the GitHub repo (e.g. `myorg/webhooks`). If Docker Hub is configured, the image is also published as `docker.io/<username>/webhooks`.
+
 **Build and run without Compose:**
    ```bash
    docker build -t webhooks .
