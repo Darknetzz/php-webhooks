@@ -68,6 +68,15 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 - **Public vs private**: When creating/editing a webhook, “List on public page” controls whether it appears on the home page for unauthenticated users. The endpoint always accepts requests; this only affects visibility of the URL on the site.
 - **View requests**: Log in → My Webhooks → “View requests” on a webhook to see all received requests and expand details (headers, body, etc.).
 
+## Troubleshooting
+
+**“Database error” in the browser:** To see the actual error (e.g. permissions, path, or MySQL connection), either:
+
+1. Set `APP_DEBUG=1` in `.env`, then open `{APP_URL}/--db-check` in the browser. You’ll get a plain-text message with the real error. Set `APP_DEBUG=0` again afterwards.
+2. Check the server’s PHP error log for lines starting with `Webhooks DB error:`.
+
+**CLI check:** From the project root run `php check-db.php` (or `sudo -u www-data php check-db.php` to test as the web server user).
+
 ## Project structure
 
 ```

@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
+// Prefer $_ENV (from .env) so config works when putenv() is disabled (e.g. on some hosts)
+$env = static fn (string $key, string $default = '') => $_ENV[$key] ?? (getenv($key) ?: $default);
+
 return [
-    'env' => getenv('APP_ENV') ?: 'production',
-    'debug' => filter_var(getenv('APP_DEBUG') ?: '0', FILTER_VALIDATE_BOOL),
-    'url' => rtrim(getenv('APP_URL') ?: 'http://localhost', '/'),
-    'secret' => getenv('APP_SECRET') ?: null,
+    'env' => $env('APP_ENV', 'production'),
+    'debug' => filter_var($env('APP_DEBUG', '0'), FILTER_VALIDATE_BOOL),
+    'url' => rtrim($env('APP_URL', 'http://localhost'), '/'),
+    'secret' => $env('APP_SECRET', '') ?: null,
 
     'database' => [
-        'driver' => getenv('DB_DRIVER') ?: 'sqlite',
+        'driver' => $env('DB_DRIVER', 'sqlite'),
         'sqlite' => [
-            'path' => getenv('DB_PATH') ?: __DIR__ . '/../data/database.sqlite',
+            'path' => $env('DB_PATH', '') ?: __DIR__ . '/../data/database.sqlite',
         ],
         'mysql' => [
-            'host' => getenv('DB_HOST') ?: '127.0.0.1',
-            'port' => (int) (getenv('DB_PORT') ?: 3306),
-            'dbname' => getenv('DB_NAME') ?: 'webhooks',
-            'user' => getenv('DB_USER') ?: '',
-            'password' => getenv('DB_PASSWORD') ?: '',
-            'charset' => getenv('DB_CHARSET') ?: 'utf8mb4',
+            'host' => $env('DB_HOST', '127.0.0.1'),
+            'port' => (int) $env('DB_PORT', '3306'),
+            'dbname' => $env('DB_NAME', 'webhooks'),
+            'user' => $env('DB_USER', ''),
+            'password' => $env('DB_PASSWORD', ''),
+            'charset' => $env('DB_CHARSET', 'utf8mb4'),
         ],
     ],
 

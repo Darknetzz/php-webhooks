@@ -17,6 +17,19 @@ if ($scriptName !== '' && $uri !== $scriptName && strpos($uri, $scriptName) === 
     $uri = substr($uri, strlen($scriptName)) ?: '/';
 }
 $uri = '/' . trim((string) $uri, '/');
+
+// Debug-only: show actual DB error (only when APP_DEBUG=1)
+if ($config['debug'] && $uri === '/--db-check') {
+    header('Content-Type: text/plain; charset=utf-8');
+    try {
+        db()->migrate();
+        echo "OK. Database is ready.\n";
+    } catch (Throwable $e) {
+        echo "Error: " . $e->getMessage() . "\n";
+    }
+    exit;
+}
+
 if (preg_match('#^/w/([a-zA-Z0-9_-]+)$#', $uri, $m)) {
     $slug = $m[1];
     require dirname(__DIR__) . '/public/receive_webhook.php';
