@@ -109,10 +109,13 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
+        $name = trim((string) $_POST['name']);
         $rawSlug = trim((string) ($_POST['slug'] ?? ''));
         $slug = $rawSlug !== '' ? preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlug) : '';
-        $slug = $slug !== '' ? $slug : 'webhook-' . time();
-        $name = trim((string) $_POST['name']);
+        if ($slug === '') {
+            $slugFromName = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
+            $slug = $slugFromName !== '' ? $slugFromName : 'webhook-' . time();
+        }
         $desc = trim((string) ($_POST['description'] ?? ''));
         $isPublic = isset($_POST['is_public']);
         if ($name !== '') {

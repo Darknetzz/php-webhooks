@@ -20,7 +20,8 @@ ob_start();
         <div class="form-group">
             <label for="slug">Slug (URL path)</label>
             <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only">
-            <div class="hint">Used in URL: <?= e($baseUrl) ?>/w/<strong>slug</strong>. Leave empty to auto-generate.</div>
+            <div class="hint">Used in URL. Leave empty to generate from name.</div>
+            <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($baseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
         </div>
         <div class="form-group">
             <label for="description">Description (optional)</label>
@@ -35,6 +36,28 @@ ob_start();
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 </div>
+<script>
+(function () {
+    var nameEl = document.getElementById('name');
+    var slugEl = document.getElementById('slug');
+    var previewEl = document.getElementById('slug-preview');
+    function slugify(s) {
+        return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
+    }
+    function updatePreview() {
+        var slug = (slugEl && slugEl.value.trim()) || '';
+        if (!slug && nameEl && nameEl.value.trim()) {
+            slug = slugify(nameEl.value.trim()) || 'webhook-' + Math.floor(Date.now() / 1000);
+        }
+        if (!slug) slug = 'my-api-hook';
+        if (previewEl) previewEl.textContent = slug;
+    }
+    if (nameEl) nameEl.addEventListener('input', updatePreview);
+    if (nameEl) nameEl.addEventListener('change', updatePreview);
+    if (slugEl) slugEl.addEventListener('input', updatePreview);
+    updatePreview();
+})();
+</script>
 
 <?php if (empty($webhooks)): ?>
     <div class="empty-state">
