@@ -9,7 +9,7 @@ services:
   webhooks:
     image: darknetz/php-webhooks:latest
     ports:
-      - "80:80"
+      - "8567:80"
     environment:
       APP_ENV: production
       APP_DEBUG: "0"
