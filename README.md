@@ -12,20 +12,40 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 
 ## Requirements
 
-- PHP 8.0+
-- PDO with SQLite (default) or MySQL
+- PHP 8.0+ with PDO (SQLite or MySQL), **or** Docker
 
 ## Installation
 
+### Docker (recommended)
+
+The image uses Apache with document root set to `public/`, so routes like `/login` work without extra server config. Ideal behind a reverse proxy (e.g. Nginx Proxy Manager): point the proxy at the container (host:port or service name), no path needed.
+
+1. Clone the repo and create `.env` from the example:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit `.env`: set `APP_URL` to your public URL (e.g. `https://webhooks.example.com`).
+3. Run with Docker Compose:
+   ```bash
+   docker compose up -d
+   ```
+4. Open the app in a browser (e.g. `http://localhost:8080` or your proxy URL). If no users exist, you'll get the onboarding page. Log in and create webhooks under **My Webhooks**; each gets a URL like `{APP_URL}/w/{slug}`.
+
+**Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
+
+**Build and run without Compose:**
+   ```bash
+   docker build -t webhooks .
+   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks webhooks
+   ```
+
+### Without Docker
+
 1. Clone or copy the project to your web root or a subdirectory.
-2. Copy `.env.example` to `.env` and set at least:
-   - `APP_URL` – full URL to the app (e.g. `http://localhost` or `https://yourdomain.com/webhooks`)
-   - `APP_SECRET` (optional, for future use)
-3. **SQLite (default):** Ensure a writable `data/` directory exists (e.g. `mkdir -p data`). The web server user (e.g. `www-data`) must be able to write to it. If the project is already deployed as that user, no `chown` is needed; otherwise run `chown www-data:www-data data` (requires root/sudo).
-4. Point your web server document root to the `public` folder (or run the built-in server from the project root, see below).
-5. Open the app in a browser. If no users exist, you’ll get the onboarding page to create the first owner account.
-6. Log in and create webhooks under **My Webhooks**. Each webhook gets a URL like:
-   `{APP_URL}/w/{slug}`
+2. Copy `.env.example` to `.env` and set at least `APP_URL`.
+3. **SQLite (default):** Create a writable `data/` directory; the web server user must be able to write to it (e.g. `chown www-data:www-data data`).
+4. Point the web server document root to the `public` folder (see *URL rewriting* and *Document root* below).
+5. Open the app in a browser; complete onboarding if needed, then create webhooks. Each webhook gets a URL like `{APP_URL}/w/{slug}`.
 
 ## Configuration
 
@@ -51,21 +71,11 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 - **Behind a reverse proxy** (e.g. Nginx Proxy Manager): Set `APP_URL` to the public URL (e.g. `https://webhooks.roste.org`). The proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so the app uses that URL for links and redirects.
 - **Direct access** (e.g. `http://web01/webhooks/public/`): You can use the app without setting `APP_URL`, or set it to the direct URL. Links and redirects are derived from the current request, so you stay on the same base URL you used to open the app.
 
-### Reverse proxy when the app is at a subpath
+### App at a subpath (without Docker)
 
-If the proxy forwards to a **path** on the backend (e.g. `http://backend/webhooks/public/`), the app must know that base path so it can route `/login` correctly and build links. It does this in two ways:
+If you run the app **without Docker** and the proxy forwards to a path on the backend (e.g. `http://backend/webhooks/public/`), or you access it at `http://web01/webhooks/public/`, the backend must route that path to `public/index.php`. With **Docker**, the container serves from `/`; point the proxy at the container with no path.
 
-1. **`X-Forwarded-Prefix`** (recommended): In your proxy (e.g. NPM Plus), add a **custom header** for this host:  
-   `X-Forwarded-Prefix` = `/webhooks/public`  
-   (use the same path as in “Forward Hostname / IP / Path”, without a trailing slash). The app then strips this prefix from the request path for routing and uses it for `base_url()`.
-
-2. **`APP_URL` with path**: Set `APP_URL` to the full public URL including the subpath, e.g. `https://webhooks.roste.org/webhooks/public`. The app derives the base path from the URL path and uses it the same way.
-
-The backend must still route requests for that path to `public/index.php` (see below).
-
-**If even direct access shows the wrong page:** e.g. you visit `http://web01/webhooks/public/login` and see the server’s root `index.php`, the backend is not routing `/webhooks/public/*` to this app. Add the appropriate snippet so that path is handled by the app:
-
-- **Apache** (default vhost, doc root is e.g. `/var/www/html`): use the snippet in `deploy/apache-subpath.conf.example`. Copy it to `/etc/apache2/conf-available/webhooks-subpath.conf`, then run `sudo a2enconf webhooks-subpath` and `sudo systemctl reload apache2`. Adjust the paths in the file if the app lives elsewhere.
+- **Apache** (default vhost, doc root e.g. `/var/www/html`): use `deploy/apache-subpath.conf.example`. Copy to `/etc/apache2/conf-available/webhooks-subpath.conf`, then `sudo a2enconf webhooks-subpath` and `sudo systemctl reload apache2`. Adjust paths in the file if the app lives elsewhere.
 - **Nginx**: add the `location` block from `deploy/nginx-subpath.conf.example` inside your default `server { }` and set the correct `fastcgi_pass`.
 
 After that, direct `http://web01/webhooks/public/login` and the proxy will work.
@@ -86,9 +96,9 @@ After that, direct `http://web01/webhooks/public/login` and the proxy will work.
   ```
   Then set `APP_URL=http://localhost:8000` in `.env`.
 
-### Document root must be `public/`
+### Document root must be `public/` (without Docker)
 
-**If `/login` or other routes show the wrong page (e.g. another site’s index), the app is not in the front controller.** The document root for this app must point at the **`public`** directory, not the project root.
+**With Docker**, the image already uses `public/` as document root. **Without Docker**, if `/login` or other routes show the wrong page, the document root must point at the **`public`** directory, not the project root.
 
 - **Apache** – set `DocumentRoot` to the full path to `public`:
   ```apache
@@ -114,7 +124,7 @@ After that, direct `http://web01/webhooks/public/login` and the proxy will work.
 
 ## Troubleshooting
 
-**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to `public/index.php`. Use the snippet in `deploy/apache-subpath.conf.example` (Apache) or `deploy/nginx-subpath.conf.example` (Nginx) in your default vhost; see the “Reverse proxy when the app is at a subpath” section above.
+**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to `public/index.php`. Use the snippet in `deploy/apache-subpath.conf.example` (Apache) or `deploy/nginx-subpath.conf.example` (Nginx) in your default vhost; see “App at a subpath” above.
 
 **“Database error” in the browser:** To see the actual error (e.g. permissions, path, or MySQL connection), either:
 
