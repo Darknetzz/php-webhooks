@@ -2,7 +2,18 @@
 
 declare(strict_types=1);
 
-$envFile = dirname(__DIR__) . '/.env';
+$projectRoot = dirname(__DIR__);
+spl_autoload_register(static function (string $class) use ($projectRoot): void {
+    if (strpos($class, 'App\\') !== 0) {
+        return;
+    }
+    $file = $projectRoot . '/src/' . str_replace('\\', '/', substr($class, 4)) . '.php';
+    if (is_file($file)) {
+        require_once $file;
+    }
+});
+
+$envFile = $projectRoot . '/.env';
 if (is_file($envFile) && is_readable($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -21,4 +32,4 @@ if (is_file($envFile) && is_readable($envFile)) {
     }
 }
 
-require_once dirname(__DIR__) . '/src/helpers.php';
+require_once $projectRoot . '/src/helpers.php';
