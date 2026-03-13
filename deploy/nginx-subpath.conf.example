@@ -1,0 +1,19 @@
+# Include this inside the default server { } block on web01 so that
+# http://web01/webhooks/public/login (and any path under /webhooks/public) runs the app.
+# Without this, the server serves the doc root index.php instead.
+#
+# Adjust the paths if your app is not under /var/www/html/webhooks.
+# Replace the fastcgi_pass line with your PHP-FPM socket or upstream.
+
+location /webhooks/public {
+    alias /var/www/html/webhooks/public;
+    index index.php;
+    try_files $uri $uri/ @webhooks_front;
+}
+location @webhooks_front {
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/html/webhooks/public/index.php;
+    fastcgi_param SCRIPT_NAME /webhooks/public/index.php;
+    fastcgi_param REQUEST_URI $request_uri;
+    fastcgi_pass unix:/run/php/php-fpm.sock;   # or 127.0.0.1:9000
+}

@@ -1,0 +1,23 @@
+# Include this in web01's default vhost (or in a conf.d file) so that
+# http://web01/webhooks/public/login (and any path under /webhooks/public) runs the app.
+# Without this, the server serves the doc root index.php instead.
+#
+# On Debian/Ubuntu: copy to /etc/apache2/conf-available/webhooks-subpath.conf
+# then: sudo a2enconf webhooks-subpath && sudo systemctl reload apache2
+#
+# Adjust the paths if your app is not under /var/www/html/webhooks.
+
+<IfModule mod_alias.c>
+    Alias /webhooks/public /var/www/html/webhooks/public
+</IfModule>
+<Directory /var/www/html/webhooks/public>
+    Options -Indexes +FollowSymLinks
+    AllowOverride All
+    Require all granted
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ /webhooks/public/index.php [L,QSA]
+    </IfModule>
+</Directory>
