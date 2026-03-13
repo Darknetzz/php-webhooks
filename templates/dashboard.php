@@ -16,7 +16,10 @@ ob_start();
     <?php foreach (array_slice($webhooks, 0, 5) as $w): ?>
         <div class="card">
             <h3><?= e($w->name) ?></h3>
-            <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
+            <div class="webhook-url-wrap">
+                <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
+                <button type="button" class="btn-copy-webhook" title="Copy URL">Copy</button>
+            </div>
             <div class="card-actions">
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost">Edit</a>

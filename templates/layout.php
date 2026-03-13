@@ -36,5 +36,24 @@ $config = config();
     <footer class="site-footer">
         <div class="container">Self-hosted webhook receiver</div>
     </footer>
+    <script>
+    document.body.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-copy-webhook');
+        if (!btn) return;
+        var wrap = btn.closest('.webhook-url-wrap');
+        var urlEl = wrap && wrap.querySelector('.webhook-url');
+        if (!urlEl) return;
+        var url = urlEl.textContent.trim();
+        navigator.clipboard.writeText(url).then(function () {
+            var label = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(function () {
+                btn.textContent = label;
+                btn.classList.remove('copied');
+            }, 1500);
+        });
+    });
+    </script>
 </body>
 </html>

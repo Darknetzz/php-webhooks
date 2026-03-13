@@ -19,7 +19,10 @@ ob_start();
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
+            <div class="webhook-url-wrap">
             <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
+            <button type="button" class="btn-copy-webhook" title="Copy URL">Copy</button>
+        </div>
             <p class="meta">POST, GET, or any method — requests are logged for the owner.</p>
         </div>
     <?php endforeach; ?>

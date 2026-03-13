@@ -226,13 +226,43 @@ h1, h2 {
     flex-wrap: wrap;
 }
 
+.webhook-url-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
 .webhook-url {
     font-size: 0.85rem;
     word-break: break-all;
     background: var(--bg);
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
-    margin: 0.5rem 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-copy-webhook {
+    flex-shrink: 0;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+    font-family: var(--font);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-copy-webhook:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+.btn-copy-webhook.copied {
+    color: var(--success);
+    border-color: var(--success);
 }
 
 .table-wrap {

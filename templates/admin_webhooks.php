@@ -76,7 +76,10 @@ ob_start();
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
+            <div class="webhook-url-wrap">
             <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
+            <button type="button" class="btn-copy-webhook" title="Copy URL">Copy</button>
+        </div>
             <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
             <div class="card-actions">
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
