@@ -1,0 +1,24 @@
+# Stack-friendly: no .env file required. Set environment variables in your
+# platform (Portainer, etc.) or below. Use this when the stack project dir
+# has no .env (e.g. "env file .env not found").
+#
+# Portainer: add variables in the stack editor under "Environment variables",
+# or paste this and set APP_URL in the environment section.
+
+services:
+  webhooks:
+    image: darknetz/php-webhooks:latest
+    ports:
+      - "80:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "0"
+      APP_URL: ${APP_URL:-https://webhooks.example.com}
+      DB_DRIVER: sqlite
+      DB_PATH: /var/www/html/data/database.sqlite
+    volumes:
+      - webhooks_data:/var/www/html/data
+    restart: unless-stopped
+
+volumes:
+  webhooks_data:

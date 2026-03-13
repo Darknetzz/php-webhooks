@@ -50,6 +50,8 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
    ```
    Create a `.env` with at least `APP_URL=https://your-domain.com`, then run `docker compose up -d`.
 
+**Stack deploy (Portainer, etc.) – "env file .env not found":** The default compose expects a `.env` file in the stack directory. Two options: (1) Create that file there (e.g. `/data/compose/101/.env`) with at least `APP_URL=https://your-domain.com`. (2) Use `docker-compose.stack.yml` instead: it does not use `env_file` or a `.env` mount. Paste the contents of `docker-compose.stack.yml` as your stack definition and set `APP_URL` (and optionally `APP_DEBUG`, etc.) in your platform’s “Environment variables” for the stack. The app reads config from the container environment.
+
 **Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
 
 **Pre-built images:** Pull from Docker Hub or GitHub Container Registry instead of building locally:
@@ -152,7 +154,9 @@ After that, direct `http://web01/webhooks/public/login` and the proxy will work.
 
 **`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to `public/index.php`. Use the snippet in `deploy/apache-subpath.conf.example` (Apache) or `deploy/nginx-subpath.conf.example` (Nginx) in your default vhost; see “App at a subpath” above.
 
-**“Database error” in the browser:** To see the actual error (e.g. permissions, path, or MySQL connection), either:
+**"env file .env not found" (stack deploy):** Use `docker-compose.stack.yml` or create `.env` in the stack directory. See "Stack deploy" under Docker.
+
+**"Database error" in the browser:** To see the actual error (e.g. permissions, path, or MySQL connection), either:
 
 1. Set `APP_DEBUG=1` in `.env`, then open `{APP_URL}/--db-check` in the browser. You’ll get a plain-text message with the real error. Set `APP_DEBUG=0` again afterwards.
 2. Check the server’s PHP error log for lines starting with `Webhooks DB error:`.
