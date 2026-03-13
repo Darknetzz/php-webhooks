@@ -2,6 +2,7 @@
 $title = 'Edit webhook';
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
+$webhookBaseUrl = rtrim(webhook_base_url(), '/');
 ob_start();
 ?>
 <h1>Edit webhook</h1>
@@ -14,7 +15,7 @@ ob_start();
         <div class="form-group">
             <label for="slug">Slug (URL path)</label>
             <input type="text" id="slug" name="slug" value="<?= e($webhook->slug) ?>" pattern="[a-zA-Z0-9_-]+">
-            <div class="hint"><?= e($baseUrl) ?>/w/<strong id="slug-preview"><?= e($webhook->slug) ?></strong></div>
+            <div class="hint"><?= e($webhookBaseUrl) ?>/w/<strong id="slug-preview"><?= e($webhook->slug) ?></strong></div>
         </div>
         <div class="form-group">
             <label for="description">Description</label>

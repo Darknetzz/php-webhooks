@@ -9,6 +9,8 @@ return [
     'env' => $env('APP_ENV', 'production'),
     'debug' => filter_var($env('APP_DEBUG', '0'), FILTER_VALIDATE_BOOL),
     'url' => rtrim($env('APP_URL', 'http://localhost'), '/'),
+    /** Public URL for webhook endpoints (e.g. https://webhooks.example.com). If set, webhook URLs in the UI use this; otherwise APP_URL is used. */
+    'url_public' => $env('APP_URL_PUBLIC', '') !== '' ? rtrim($env('APP_URL_PUBLIC', ''), '/') : null,
     'secret' => $env('APP_SECRET', '') ?: null,
 
     'database' => [

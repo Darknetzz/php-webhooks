@@ -64,6 +64,16 @@ if (!function_exists('base_url')) {
     }
 }
 
+/** Base URL for webhook endpoints (e.g. in UI and curl examples). Use APP_URL_PUBLIC when set, otherwise base_url(). */
+if (!function_exists('webhook_base_url')) {
+    function webhook_base_url(): string
+    {
+        $config = config();
+        $public = $config['url_public'] ?? null;
+        return $public !== null && $public !== '' ? $public : base_url();
+    }
+}
+
 if (!function_exists('redirect')) {
     function redirect(string $url, int $code = 302): never
     {

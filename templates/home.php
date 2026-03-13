@@ -2,6 +2,7 @@
 $title = 'Webhooks';
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
+$webhookBaseUrl = rtrim(webhook_base_url(), '/');
 ob_start();
 ?>
 <h1>Public Webhooks</h1>
@@ -18,7 +19,7 @@ ob_start();
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
-            <div class="webhook-url"><?= e($baseUrl) ?>/w/<?= e($w->slug) ?></div>
+            <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
             <p class="meta">POST, GET, or any method — requests are logged for the owner.</p>
         </div>
     <?php endforeach; ?>

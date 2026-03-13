@@ -2,19 +2,20 @@
 $title = 'Requests: ' . e($webhook->name);
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
+$webhookBaseUrl = rtrim(webhook_base_url(), '/');
 ob_start();
 ?>
 <h1>Requests: <?= e($webhook->name) ?></h1>
 <p class="meta" style="margin-bottom: 1rem;">
     <a href="<?= e($baseUrl) ?>/admin/webhooks">← Webhooks</a>
     &nbsp;·&nbsp;
-    <span class="webhook-url"><?= e($baseUrl) ?>/w/<?= e($webhook->slug) ?></span>
+    <span class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($webhook->slug) ?></span>
 </p>
 
 <?php if (empty($requests)): ?>
     <div class="empty-state">
         <p>No requests yet. Send a request to the webhook URL to see it here.</p>
-        <p><code>curl -X POST "<?= e($baseUrl) ?>/w/<?= e($webhook->slug) ?>" -d '{"test": true}'</code></p>
+        <p><code class="code">curl -X POST "<?= e($webhookBaseUrl) ?>/w/<?= e($webhook->slug) ?>" -d '{"test": true}'</code></p>
     </div>
 <?php else: ?>
     <div class="table-wrap">

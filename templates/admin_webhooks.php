@@ -2,6 +2,7 @@
 $title = 'Create Webhook';
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
+$webhookBaseUrl = rtrim(webhook_base_url(), '/');
 $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
@@ -25,7 +26,7 @@ ob_start();
             <label for="slug">Slug (URL path)</label>
             <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only" value="<?= e($createSlug) ?>">
             <div class="hint">Used in URL. Leave empty to generate from name.</div>
-            <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($baseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
+            <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
         </div>
         <div class="form-group">
             <label for="description">Description (optional)</label>
@@ -75,7 +76,7 @@ ob_start();
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
-            <div class="webhook-url"><?= e($baseUrl) ?>/w/<?= e($w->slug) ?></div>
+            <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
             <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
             <div class="card-actions">
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
