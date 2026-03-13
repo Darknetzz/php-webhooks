@@ -29,7 +29,26 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
    ```bash
    docker compose up -d
    ```
-4. Open the app in a browser (e.g. `http://localhost:8080` or your proxy URL). If no users exist, you'll get the onboarding page. Log in and create webhooks under **My Webhooks**; each gets a URL like `{APP_URL}/w/{slug}`.
+4. Open the app in a browser (e.g. `http://localhost:8567` or your proxy URL). If no users exist, you'll get the onboarding page. Log in and create webhooks under **My Webhooks**; each gets a URL like `{APP_URL}/w/{slug}`.
+
+**Docker Compose example** (from the repo root; the repo includes `docker-compose.yml`):
+   ```yaml
+   services:
+     webhooks:
+       image: darknetz/php-webhooks:latest   # or build: . to build from source
+       ports:
+         - "8080:80"
+       env_file:
+         - .env
+       volumes:
+         - webhooks_data:/var/www/html/data
+         - ./.env:/var/www/html/.env:ro
+       restart: unless-stopped
+
+   volumes:
+     webhooks_data:
+   ```
+   Create a `.env` with at least `APP_URL=https://your-domain.com`, then run `docker compose up -d`.
 
 **Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
 
