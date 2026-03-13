@@ -2,7 +2,7 @@
 #
 # ghcr.io: uses GITHUB_TOKEN; enable "Read and write packages" in repo Settings → Actions → General.
 # Docker Hub: add secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (Access Token from hub.docker.com).
-#   Image will be docker.io/<DOCKERHUB_USERNAME>/webhooks
+#   Image will be docker.io/<DOCKERHUB_USERNAME>/php-webhooks
 
 name: Docker publish
 
@@ -67,7 +67,7 @@ jobs:
         id: meta-dh
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/webhooks
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/php-webhooks
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}

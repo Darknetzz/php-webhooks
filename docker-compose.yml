@@ -6,7 +6,7 @@ services:
   webhooks:
     build: .
     ports:
-      - "8080:80"
+      - "8567:80"
     env_file:
       - .env
     volumes:

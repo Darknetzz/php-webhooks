@@ -33,12 +33,12 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
 
 **Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
 
-**Pre-built images** (when the repo publishes them): pull from GitHub Container Registry or Docker Hub instead of building locally:
+**Pre-built images:** Pull from Docker Hub or GitHub Container Registry instead of building locally:
    ```bash
-   docker pull ghcr.io/<owner>/<repo>:latest
-   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks ghcr.io/<owner>/<repo>:latest
+   docker pull darknetz/php-webhooks:latest
+   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks darknetz/php-webhooks:latest
    ```
-   Replace `<owner>/<repo>` with the GitHub repo (e.g. `myorg/webhooks`). If Docker Hub is configured, the image is also published as `docker.io/<username>/webhooks`.
+   Image: [darknetz/php-webhooks](https://hub.docker.com/repository/docker/darknetz/php-webhooks). For ghcr.io use `ghcr.io/<owner>/<repo>:latest` when the repo publishes it.
 
 **Build and run without Compose:**
    ```bash
@@ -167,7 +167,7 @@ data/             # SQLite DB (created automatically, gitignored)
 The repo includes a GitHub Actions workflow (`.github/workflows/docker-publish.yml`) that builds and pushes the image on push to `main` and on release publish.
 
 - **ghcr.io:** Uses `GITHUB_TOKEN`. In the repo go to Settings → Actions → General and set "Workflow permissions" to "Read and write packages". The image is `ghcr.io/<owner>/<repo>:latest` (and branch/tag).
-- **Docker Hub:** Add repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The image is `docker.io/<DOCKERHUB_USERNAME>/webhooks`. If these secrets are not set, only ghcr.io is published.
+- **Docker Hub:** Add repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The image is `docker.io/<DOCKERHUB_USERNAME>/php-webhooks` (e.g. [darknetz/php-webhooks](https://hub.docker.com/repository/docker/darknetz/php-webhooks)). If these secrets are not set, only ghcr.io is published.
 
 ## License
 
