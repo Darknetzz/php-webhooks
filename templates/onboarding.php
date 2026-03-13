@@ -12,7 +12,7 @@ ob_start();
     <form method="post" action="">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required autofocus value="<?= e($_POST['username'] ?? '') ?>">
+            <input type="text" id="username" name="username" required autofocus placeholder="e.g. admin" value="<?= e($_POST['username'] ?? '') ?>">
         </div>
         <div class="form-group">
             <label for="password">Password</label>
