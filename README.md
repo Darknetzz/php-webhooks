@@ -162,12 +162,28 @@ templates/        # PHP templates
 data/             # SQLite DB (created automatically, gitignored)
 ```
 
-## Publishing the image (CI)
+## Publishing the image
 
-The repo includes a GitHub Actions workflow (`.github/workflows/docker-publish.yml`) that builds and pushes the image on push to `main` and on release publish.
+### Local pre-push hook (no GitHub Actions)
 
-- **ghcr.io:** Uses `GITHUB_TOKEN`. In the repo go to Settings → Actions → General and set "Workflow permissions" to "Read and write packages". The image is `ghcr.io/<owner>/<repo>:latest` (and branch/tag).
-- **Docker Hub:** Add one repository secret, `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The workflow uses the image name `darknetz/php-webhooks` from the workflow file; you can override with repo variables `DOCKERHUB_USERNAME` and `DOCKERHUB_IMAGE` if needed. If `DOCKERHUB_TOKEN` is not set, only ghcr.io is published.
+Build and push the image from your machine when you push `main`. Uses your existing `docker login`.
+
+1. **One-time:** log in to Docker Hub (and ghcr.io if you use it):
+   ```bash
+   docker login
+   docker login ghcr.io   # optional, for GitHub Container Registry
+   ```
+2. **Install the hook:**
+   ```bash
+   cp scripts/pre-push.sample .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+   ```
+3. On every `git push` to `main`, the hook runs `scripts/docker-build-push.sh`: it builds the image and pushes `darknetz/php-webhooks:latest` (and `:tag` if the commit is tagged). To also push to ghcr.io, set `GHCR_IMAGE=ghcr.io/owner/repo` in your environment before pushing.
+
+You can also run the script manually: `./scripts/docker-build-push.sh`.
+
+### GitHub Actions (optional)
+
+The repo also includes `.github/workflows/docker-publish.yml` if you prefer CI to build and push on push/release. See the workflow file and repo Settings → Secrets for setup.
 
 ## License
 
