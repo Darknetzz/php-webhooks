@@ -21,7 +21,8 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 2. Copy `.env.example` to `.env` and set at least:
    - `APP_URL` – full URL to the app (e.g. `http://localhost` or `https://yourdomain.com/webhooks`)
    - `APP_SECRET` (optional, for future use)
-3. Point your web server document root to the `public` folder (or run the built-in server from the project root, see below).
+3. **SQLite (default):** Create a writable `data/` directory so the app can create the database file: `mkdir -p data && chmod 755 data`. If the app runs under a different user (e.g. `www-data`), run `chown www-data:www-data data`.
+4. Point your web server document root to the `public` folder (or run the built-in server from the project root, see below).
 4. Open the app in a browser. If no users exist, you’ll get the onboarding page to create the first owner account.
 5. Log in and create webhooks under **My Webhooks**. Each webhook gets a URL like:
    `{APP_URL}/w/{slug}`
