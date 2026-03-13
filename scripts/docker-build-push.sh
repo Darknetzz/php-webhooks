@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 # Build and push Docker image to Docker Hub (and optionally ghcr.io).
-# Run manually or from a git pre-push hook. Requires: docker login first.
+# Uses DOCKERHUB_TOKEN from .env if set; otherwise uses existing docker login.
 
 set -e
 
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || repo_root="."
+[ -f "$repo_root/.env" ] && set -a && . "$repo_root/.env" && set +a
+
 IMAGE="${DOCKER_IMAGE:-darknetz/php-webhooks}"
+DOCKERHUB_USER="${DOCKERHUB_USERNAME:-darknetz}"
 GHCR_IMAGE="${GHCR_IMAGE:-}"   # set to ghcr.io/owner/repo to also push there
+
+if [ -n "$DOCKERHUB_TOKEN" ]; then
+  echo "Logging in to Docker Hub ..."
+  echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+fi
 
 echo "Building $IMAGE ..."
 docker build -t "$IMAGE:latest" .
