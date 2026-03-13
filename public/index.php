@@ -47,6 +47,9 @@ if (preg_match('#^/w/([a-zA-Z0-9_-]+)$#', $uri, $m)) {
     exit;
 }
 
+// Start session before any output (templates call auth() which needs session)
+auth();
+
 // Ensure DB and tables exist
 try {
     db()->migrate();
