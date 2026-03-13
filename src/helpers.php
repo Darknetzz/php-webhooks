@@ -42,48 +42,6 @@ if (!function_exists('e')) {
     }
 }
 
-/**
- * Base path prefix for the app (e.g. '' or '/webhooks/public').
- * Used for routing (strip from REQUEST_URI) and for link generation.
- * Priority: X-Forwarded-Prefix (reverse proxy) → path from APP_URL → SCRIPT_NAME directory.
- */
-if (!function_exists('app_base_path')) {
-    function app_base_path(): string
-    {
-        $prefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? null;
-        if ($prefix !== null && $prefix !== '') {
-            $prefix = '/' . trim((string) $prefix, '/');
-            return $prefix === '/' ? '' : $prefix;
-        }
-        $configured = config()['url'] ?? '';
-        if ($configured !== '') {
-            $path = parse_url($configured, PHP_URL_PATH);
-            if ($path !== null && $path !== '' && $path !== '/') {
-                return rtrim($path, '/');
-            }
-        }
-        $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
-        return ($scriptDir !== '' && $scriptDir !== '/') ? $scriptDir : '';
-    }
-}
-
-/**
- * Request path for routing (path only, no query string). Base path is stripped.
- * Example: REQUEST_URI /webhooks/public/login → /login
- */
-if (!function_exists('request_path')) {
-    function request_path(): string
-    {
-        $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-        $uri = $uri === null || $uri === false ? '/' : $uri;
-        $base = app_base_path();
-        if ($base !== '' && strpos($uri, $base) === 0) {
-            $uri = substr($uri, strlen($base)) ?: '/';
-        }
-        return '/' . trim((string) $uri, '/');
-    }
-}
-
 /** Base URL for links/redirects: uses APP_URL when request host matches, else derived from request (for direct access e.g. web01/webhooks/public). */
 if (!function_exists('base_url')) {
     function base_url(): string
@@ -93,8 +51,8 @@ if (!function_exists('base_url')) {
         $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? '';
         $host = is_string($host) ? trim(explode(',', $host)[0]) : '';
         $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? 'http');
-        $basePath = app_base_path();
-        $requestBase = $scheme . '://' . $host . $basePath;
+        $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+        $requestBase = $scheme . '://' . $host . ($scriptDir !== '' && $scriptDir !== '/' ? $scriptDir : '');
         if ($configured !== '' && $host !== '') {
             $configuredHost = parse_url($configured, PHP_URL_HOST);
             $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;

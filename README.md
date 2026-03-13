@@ -61,7 +61,14 @@ If the proxy forwards to a **path** on the backend (e.g. `http://backend/webhook
 
 2. **`APP_URL` with path**: Set `APP_URL` to the full public URL including the subpath, e.g. `https://webhooks.roste.org/webhooks/public`. The app derives the base path from the URL path and uses it the same way.
 
-The backend must still route requests for that path to `public/index.php` (see *Document root must be public/*). Once that is set up, the header or `APP_URL` path makes routing and links work correctly.
+The backend must still route requests for that path to `public/index.php` (see below).
+
+**If even direct access shows the wrong page:** e.g. you visit `http://web01/webhooks/public/login` and see the server’s root `index.php`, the backend is not routing `/webhooks/public/*` to this app. Add the appropriate snippet so that path is handled by the app:
+
+- **Apache** (default vhost, doc root is e.g. `/var/www/html`): use the snippet in `deploy/apache-subpath.conf.example`. Copy it to `/etc/apache2/conf-available/webhooks-subpath.conf`, then run `sudo a2enconf webhooks-subpath` and `sudo systemctl reload apache2`. Adjust the paths in the file if the app lives elsewhere.
+- **Nginx**: add the `location` block from `deploy/nginx-subpath.conf.example` inside your default `server { }` and set the correct `fastcgi_pass`.
+
+After that, direct `http://web01/webhooks/public/login` and the proxy will work.
 
 ### URL rewriting
 
@@ -106,6 +113,8 @@ The backend must still route requests for that path to `public/index.php` (see *
 - **View requests**: Log in → My Webhooks → “View requests” on a webhook to see all received requests and expand details (headers, body, etc.).
 
 ## Troubleshooting
+
+**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to `public/index.php`. Use the snippet in `deploy/apache-subpath.conf.example` (Apache) or `deploy/nginx-subpath.conf.example` (Nginx) in your default vhost; see the “Reverse proxy when the app is at a subpath” section above.
 
 **“Database error” in the browser:** To see the actual error (e.g. permissions, path, or MySQL connection), either:
 
