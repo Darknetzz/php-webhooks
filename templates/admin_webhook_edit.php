@@ -1,7 +1,7 @@
 <?php
 $title = 'Edit webhook';
 $config = config();
-$baseUrl = rtrim($config['url'], '/');
+$baseUrl = rtrim(base_url(), '/');
 ob_start();
 ?>
 <h1>Edit webhook</h1>

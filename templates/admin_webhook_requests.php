@@ -1,7 +1,7 @@
 <?php
 $title = 'Requests: ' . e($webhook->name);
 $config = config();
-$baseUrl = rtrim($config['url'], '/');
+$baseUrl = rtrim(base_url(), '/');
 ob_start();
 ?>
 <h1>Requests: <?= e($webhook->name) ?></h1>

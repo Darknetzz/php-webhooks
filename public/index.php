@@ -59,7 +59,7 @@ try {
     header('Content-Type: text/plain; charset=utf-8');
     echo "Database error. Check that the database is configured correctly (see .env) and that the database server is running.\n\n";
     echo "To see the exact error: set APP_DEBUG=1 in .env, then open this URL in your browser:\n";
-    echo $config['url'] . "/--db-check\n";
+    echo base_url() . "/--db-check\n";
     exit;
 }
 
@@ -71,7 +71,7 @@ if (UserRepository::count() === 0) {
         if ($username !== '' && strlen($password) >= 8) {
             UserRepository::create($username, $password, User::ROLE_SUPERADMIN);
             auth()->login($username, $password);
-            redirect($config['url'] . '/');
+            redirect(base_url() . '/');
         }
     }
     require dirname(__DIR__) . '/templates/onboarding.php';
@@ -81,12 +81,12 @@ if (UserRepository::count() === 0) {
 // Auth routes
 if ($uri === '/login') {
     if (auth()->check()) {
-        redirect($config['url'] . '/');
+        redirect(base_url() . '/');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = auth()->login((string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''));
         if ($user) {
-            redirect($config['url'] . ($_POST['redirect'] ?? '/'));
+            redirect(base_url() . ($_POST['redirect'] ?? '/'));
         }
         $loginError = 'Invalid username or password.';
     }
@@ -96,14 +96,14 @@ if ($uri === '/login') {
 
 if ($uri === '/logout') {
     auth()->logout();
-    redirect($config['url'] . '/');
+    redirect(base_url() . '/');
 }
 
 // Admin: webhooks CRUD
 if (preg_match('#^/admin/webhooks$#', $uri)) {
     $user = auth()->requireAdmin();
     if (!$user) {
-        redirect($config['url'] . '/login?redirect=' . urlencode($uri));
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $rawSlug = trim((string) ($_POST['slug'] ?? ''));
@@ -119,7 +119,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createError = $config['debug'] ? $e->getMessage() : 'Slug may already exist.';
             }
         }
-        redirect($config['url'] . '/admin/webhooks');
+        redirect(base_url() . '/admin/webhooks');
     }
     $webhooks = WebhookRepository::listForUser($user->id);
     require dirname(__DIR__) . '/templates/admin_webhooks.php';
@@ -129,12 +129,12 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
 if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
     $user = auth()->requireAdmin();
     if (!$user) {
-        redirect($config['url'] . '/login?redirect=' . urlencode($uri));
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
     if (!$webhook || !WebhookRepository::userOwns($id, $user->id)) {
-        redirect($config['url'] . '/admin/webhooks');
+        redirect(base_url() . '/admin/webhooks');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         WebhookRepository::update($id, [
@@ -143,7 +143,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
             'description' => trim((string) ($_POST['description'] ?? '')),
             'is_public' => isset($_POST['is_public']),
         ]);
-        redirect($config['url'] . '/admin/webhooks');
+        redirect(base_url() . '/admin/webhooks');
     }
     require dirname(__DIR__) . '/templates/admin_webhook_edit.php';
     exit;
@@ -152,27 +152,27 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
 if (preg_match('#^/admin/webhooks/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = auth()->requireAdmin();
     if (!$user) {
-        redirect($config['url'] . '/login?redirect=' . urlencode('/admin/webhooks'));
+        redirect(base_url() . '/login?redirect=' . urlencode('/admin/webhooks'));
     }
     $id = (int) $m[1];
     if (WebhookRepository::userOwns($id, $user->id)) {
         WebhookRepository::delete($id);
     }
-    redirect($config['url'] . '/admin/webhooks');
+    redirect(base_url() . '/admin/webhooks');
 }
 
 if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
     $user = auth()->requireAdmin();
     if (!$user) {
-        redirect($config['url'] . '/login?redirect=' . urlencode($uri));
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
     if (!$webhook || !WebhookRepository::userOwns($id, $user->id)) {
-        redirect($config['url'] . '/admin/webhooks');
+        redirect(base_url() . '/admin/webhooks');
     }
     $requests = WebhookRequestRepository::listForWebhook($id);
-    $baseUrl = rtrim($config['url'], '/');
+    $baseUrl = rtrim(base_url(), '/');
     require dirname(__DIR__) . '/templates/admin_webhook_requests.php';
     exit;
 }

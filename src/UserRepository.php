@@ -11,7 +11,7 @@ class UserRepository
         $pdo = db()->pdo();
         $stmt = $pdo->prepare('SELECT id, username, role, created_at, updated_at FROM users WHERE id = ?');
         $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row ? User::fromRow($row) : null;
     }
 
@@ -20,7 +20,7 @@ class UserRepository
         $pdo = db()->pdo();
         $stmt = $pdo->prepare('SELECT id, username, role, created_at, updated_at FROM users WHERE username = ?');
         $stmt->execute([$username]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row ? User::fromRow($row) : null;
     }
 
@@ -29,7 +29,7 @@ class UserRepository
         $pdo = db()->pdo();
         $stmt = $pdo->prepare('SELECT password_hash FROM users WHERE id = ?');
         $stmt->execute([$userId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $row ? $row['password_hash'] : '';
     }
 
@@ -40,7 +40,7 @@ class UserRepository
 
     public static function create(string $username, string $password, string $role = User::ROLE_ADMIN): User
     {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $hash = password_hash($password, \PASSWORD_DEFAULT);
         $now = date('Y-m-d H:i:s');
         $pdo = db()->pdo();
         $stmt = $pdo->prepare('INSERT INTO users (username, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');

@@ -46,6 +46,11 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 | `DB_PASSWORD` | MySQL password                      | -              |
 | `DB_CHARSET` | MySQL charset                        | utf8mb4        |
 
+### Proxy and direct access
+
+- **Behind a reverse proxy** (e.g. Nginx Proxy Manager): Set `APP_URL` to the public URL (e.g. `https://webhooks.roste.org`). The proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so the app uses that URL for links and redirects.
+- **Direct access** (e.g. `http://web01/webhooks/public/`): You can use the app without setting `APP_URL`, or set it to the direct URL. Links and redirects are derived from the current request, so you stay on the same base URL you used to open the app.
+
 ### URL rewriting
 
 - **Apache**: Use the provided `public/.htaccess` and ensure `mod_rewrite` is enabled.

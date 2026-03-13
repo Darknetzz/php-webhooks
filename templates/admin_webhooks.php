@@ -1,7 +1,7 @@
 <?php
 $title = 'My Webhooks';
 $config = config();
-$baseUrl = rtrim($config['url'], '/');
+$baseUrl = rtrim(base_url(), '/');
 $createError = $createError ?? null;
 ob_start();
 ?>

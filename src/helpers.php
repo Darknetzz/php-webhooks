@@ -42,6 +42,28 @@ if (!function_exists('e')) {
     }
 }
 
+/** Base URL for links/redirects: uses APP_URL when request host matches, else derived from request (for direct access e.g. web01/webhooks/public). */
+if (!function_exists('base_url')) {
+    function base_url(): string
+    {
+        $config = config();
+        $configured = rtrim((string) ($config['url'] ?? ''), '/');
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? '';
+        $host = is_string($host) ? trim(explode(',', $host)[0]) : '';
+        $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? 'http');
+        $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
+        $requestBase = $scheme . '://' . $host . ($scriptDir !== '' && $scriptDir !== '/' ? $scriptDir : '');
+        if ($configured !== '' && $host !== '') {
+            $configuredHost = parse_url($configured, PHP_URL_HOST);
+            $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;
+            if ($configuredHost !== null && $configuredHost !== false && strcasecmp($configuredHost, $requestHost) === 0) {
+                return $configured;
+            }
+        }
+        return $requestBase;
+    }
+}
+
 if (!function_exists('redirect')) {
     function redirect(string $url, int $code = 302): never
     {
