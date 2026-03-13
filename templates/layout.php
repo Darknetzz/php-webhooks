@@ -18,8 +18,17 @@ $config = config();
                 <?php $user = auth()->user(); if ($user): ?>
                     <a href="<?= e(base_url()) ?>/">Dashboard</a>
                     <a href="<?= e(base_url()) ?>/admin/webhooks">Create Webhook</a>
-                    <span class="user"><?= e($user->username) ?></span>
-                    <a href="<?= e(base_url()) ?>/logout">Log out</a>
+                    <div class="user-dropdown">
+                        <button type="button" class="user-dropdown-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="user-menu" id="user-dropdown-btn">
+                            <span class="user-avatar" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($user->username, 0, 1))) ?></span>
+                            <span class="user-name"><?= e($user->username) ?></span>
+                        </button>
+                        <div class="user-dropdown-menu" id="user-menu" role="menu" aria-labelledby="user-dropdown-btn" hidden>
+                            <a href="<?= e(base_url()) ?>/profile" role="menuitem">Profile</a>
+                            <a href="<?= e(base_url()) ?>/settings" role="menuitem">Settings</a>
+                            <a href="<?= e(base_url()) ?>/logout" role="menuitem">Log out</a>
+                        </div>
+                    </div>
                 <?php else: ?>
                     <a href="<?= e(base_url()) ?>/">Webhooks</a>
                     <a href="<?= e(base_url()) ?>/login">Log in</a>
@@ -54,6 +63,33 @@ $config = config();
             }, 1500);
         });
     });
+
+    (function () {
+        var trigger = document.getElementById('user-dropdown-btn');
+        var menu = document.getElementById('user-menu');
+        if (!trigger || !menu) return;
+        function open() {
+            menu.hidden = false;
+            trigger.setAttribute('aria-expanded', 'true');
+        }
+        function close() {
+            menu.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+        function toggle() {
+            if (menu.hidden) open(); else close();
+        }
+        trigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggle();
+        });
+        document.addEventListener('click', function () {
+            if (!menu.hidden) close();
+        });
+        menu.addEventListener('click', function (e) {
+            if (e.target.tagName === 'A') close();
+        });
+    })();
     </script>
 </body>
 </html>
