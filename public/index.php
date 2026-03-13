@@ -46,8 +46,9 @@ try {
     error_log('Webhooks DB error: ' . $e->getMessage());
     http_response_code(500);
     header('Content-Type: text/plain; charset=utf-8');
-    echo 'Database error. Check that the database is configured correctly ';
-    echo '(see .env) and that the database server is running.';
+    echo "Database error. Check that the database is configured correctly (see .env) and that the database server is running.\n\n";
+    echo "To see the exact error: set APP_DEBUG=1 in .env, then open this URL in your browser:\n";
+    echo $config['url'] . "/--db-check\n";
     exit;
 }
 
