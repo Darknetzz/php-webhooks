@@ -167,7 +167,7 @@ data/             # SQLite DB (created automatically, gitignored)
 The repo includes a GitHub Actions workflow (`.github/workflows/docker-publish.yml`) that builds and pushes the image on push to `main` and on release publish.
 
 - **ghcr.io:** Uses `GITHUB_TOKEN`. In the repo go to Settings → Actions → General and set "Workflow permissions" to "Read and write packages". The image is `ghcr.io/<owner>/<repo>:latest` (and branch/tag).
-- **Docker Hub:** Add repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The image is `docker.io/<DOCKERHUB_USERNAME>/php-webhooks` (e.g. [darknetz/php-webhooks](https://hub.docker.com/repository/docker/darknetz/php-webhooks)). If these secrets are not set, only ghcr.io is published.
+- **Docker Hub:** Add one repository secret, `DOCKERHUB_TOKEN` (create an Access Token at hub.docker.com). The workflow uses the image name `darknetz/php-webhooks` from the workflow file; you can override with repo variables `DOCKERHUB_USERNAME` and `DOCKERHUB_IMAGE` if needed. If `DOCKERHUB_TOKEN` is not set, only ghcr.io is published.
 
 ## License
 

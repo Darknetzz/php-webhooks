@@ -1,8 +1,8 @@
 # Build and push Docker image to ghcr.io and Docker Hub
 #
 # ghcr.io: uses GITHUB_TOKEN; enable "Read and write packages" in repo Settings → Actions → General.
-# Docker Hub: add secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (Access Token from hub.docker.com).
-#   Image will be docker.io/<DOCKERHUB_USERNAME>/php-webhooks
+# Docker Hub: add one secret DOCKERHUB_TOKEN (Access Token from hub.docker.com). Username and image
+#   are set below in env; override with repo variables DOCKERHUB_USERNAME / DOCKERHUB_IMAGE if needed.
 
 name: Docker publish
 
@@ -14,6 +14,8 @@ on:
 
 env:
   REGISTRY_GHCR: ghcr.io
+  DOCKERHUB_USERNAME: darknetz
+  DOCKERHUB_IMAGE: darknetz/php-webhooks
 
 jobs:
   build-and-push:
@@ -63,11 +65,11 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Docker meta (Docker Hub)
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != ''
+        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
         id: meta-dh
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/php-webhooks
+          images: ${{ vars.DOCKERHUB_IMAGE || env.DOCKERHUB_IMAGE }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
@@ -75,14 +77,14 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != ''
+        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME || env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push to Docker Hub
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != ''
+        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
         uses: docker/build-push-action@v6
         with:
           context: .
