@@ -1,0 +1,16 @@
+# Apache vhost for webhooks.roste.org
+# Document root MUST be the app's public/ directory so /login and other routes work.
+# Enable: a2ensite webhooks.roste.org && systemctl reload apache2
+
+<VirtualHost *:80>
+    ServerName webhooks.roste.org
+    DocumentRoot /var/www/html/webhooks/public
+
+    <Directory /var/www/html/webhooks/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/webhooks-error.log
+    CustomLog ${APACHE_LOG_DIR}/webhooks-access.log combined
+</VirtualHost>

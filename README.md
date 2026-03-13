@@ -67,6 +67,26 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
   ```
   Then set `APP_URL=http://localhost:8000` in `.env`.
 
+### Document root must be `public/`
+
+**If `/login` or other routes show the wrong page (e.g. another site’s index), the app is not in the front controller.** The document root for this app must point at the **`public`** directory, not the project root.
+
+- **Apache** – set `DocumentRoot` to the full path to `public`:
+  ```apache
+  DocumentRoot /var/www/html/webhooks/public
+  <Directory /var/www/html/webhooks/public>
+      AllowOverride All
+      Require all granted
+  </Directory>
+  ```
+- **Nginx** – set `root` to the full path to `public`:
+  ```nginx
+  root /var/www/html/webhooks/public;
+  location / {
+      try_files $uri $uri/ /index.php?$query_string;
+  }
+  ```
+
 ## Usage
 
 - **Receive webhooks**: Any HTTP request to `{APP_URL}/w/{slug}` is logged (method, headers, body, query string, IP) and answered with `200` and `{"ok":true,"received":true}`. No auth required to send; only creating/editing/deleting webhooks and viewing request logs requires admin login.
