@@ -20,9 +20,14 @@ if (($dbConfig['driver'] ?? '') === 'sqlite') {
     if ($path !== '' && $path[0] !== '/' && preg_match('#^[A-Za-z]:#', $path) === 0) {
         $path = __DIR__ . '/' . $path;
     }
+    $dir = dirname($path);
     echo "SQLite path: " . $path . "\n";
-    echo "Dir exists: " . (is_dir(dirname($path)) ? 'yes' : 'no') . "\n";
-    echo "Dir writable: " . (is_writable(dirname($path)) ? 'yes' : 'no') . "\n";
+    echo "Dir exists: " . (is_dir($dir) ? 'yes' : 'no') . "\n";
+    $writable = is_dir($dir) && is_writable($dir);
+    echo "Dir writable (by current user " . get_current_user() . "): " . ($writable ? 'yes' : 'no') . "\n";
+    if (!$writable && get_current_user() !== 'www-data') {
+        echo "  (To test web server permissions, run: sudo -u www-data php " . basename(__FILE__) . ")\n";
+    }
 }
 
 echo "\nConnecting...\n";
