@@ -23,6 +23,10 @@ class Database
     {
         if ($this->driver === 'sqlite') {
             $path = $config['sqlite']['path'] ?? __DIR__ . '/../data/database.sqlite';
+            // Resolve relative paths against project root so DB_PATH works regardless of CWD
+            if ($path !== '' && $path[0] !== '/' && preg_match('#^[A-Za-z]:#', $path) === 0) {
+                $path = dirname(__DIR__) . '/' . $path;
+            }
             $dir = dirname($path);
             if (!is_dir($dir)) {
                 mkdir($dir, 0755, true);

@@ -30,8 +30,11 @@ try {
     if ($config['debug']) {
         throw $e;
     }
+    error_log('Webhooks DB error: ' . $e->getMessage());
     http_response_code(500);
-    echo 'Database error.';
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Database error. Check that the database is configured correctly ';
+    echo '(see .env) and that the database server is running.';
     exit;
 }
 

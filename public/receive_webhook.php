@@ -7,6 +7,7 @@ declare(strict_types=1);
 try {
     db()->migrate();
 } catch (Throwable $e) {
+    error_log('Webhooks DB error: ' . $e->getMessage());
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Service unavailable']);
