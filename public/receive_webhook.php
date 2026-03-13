@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\WebhookRepository;
+use App\WebhookRequestRepository;
+
 // Included from index.php; $slug is set, bootstrap already loaded.
 
 try {

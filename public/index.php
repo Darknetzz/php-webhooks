@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config/bootstrap.php';
 
+use App\User;
+use App\UserRepository;
+use App\WebhookRepository;
+use App\WebhookRequestRepository;
+
 $config = config();
 if ($config['debug']) {
     error_reporting(E_ALL);
