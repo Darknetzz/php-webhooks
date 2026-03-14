@@ -38,6 +38,13 @@ class UserRepository
         return (int) db()->pdo()->query('SELECT COUNT(*) FROM users')->fetchColumn();
     }
 
+    /** @return User[] */
+    public static function listAll(): array
+    {
+        $stmt = db()->pdo()->query('SELECT id, username, role, created_at, updated_at FROM users ORDER BY username');
+        return array_map([User::class, 'fromRow'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
     public static function create(string $username, string $password, string $role = User::ROLE_ADMIN): User
     {
         $hash = password_hash($password, \PASSWORD_DEFAULT);
@@ -50,5 +57,45 @@ class UserRepository
             throw new \RuntimeException('Failed to load created user');
         }
         return $user;
+    }
+
+    public static function update(int $id, array $data): void
+    {
+        $allowed = ['username', 'role'];
+        $set = [];
+        $params = [];
+        foreach ($allowed as $k) {
+            if (!array_key_exists($k, $data)) {
+                continue;
+            }
+            $set[] = "$k = ?";
+            $params[] = $data[$k];
+        }
+        if (array_key_exists('password', $data) && (string) $data['password'] !== '') {
+            $set[] = 'password_hash = ?';
+            $params[] = password_hash((string) $data['password'], \PASSWORD_DEFAULT);
+        }
+        if (empty($set)) {
+            return;
+        }
+        $set[] = 'updated_at = ?';
+        $params[] = date('Y-m-d H:i:s');
+        $params[] = $id;
+        $sql = 'UPDATE users SET ' . implode(', ', $set) . ' WHERE id = ?';
+        db()->pdo()->prepare($sql)->execute($params);
+    }
+
+    /** @return int Number of users with role superadmin */
+    public static function countSuperAdmins(): int
+    {
+        $pdo = db()->pdo();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE role = ?');
+        $stmt->execute([User::ROLE_SUPERADMIN]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function delete(int $id): void
+    {
+        db()->pdo()->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);
     }
 }

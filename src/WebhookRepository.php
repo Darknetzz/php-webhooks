@@ -39,6 +39,30 @@ class WebhookRepository
         return array_map([Webhook::class, 'fromRow'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
+    /**
+     * List all webhooks with owner username (for admin panel).
+     * @return array<int, array{webhook: Webhook, owner_username: string}>
+     */
+    public static function listAllWithOwner(): array
+    {
+        $pdo = db()->pdo();
+        $stmt = $pdo->query('
+            SELECT w.id, w.user_id, w.slug, w.name, w.description, w.is_public, w.created_at, w.updated_at,
+                   u.username AS owner_username
+            FROM webhooks w
+            JOIN users u ON u.id = w.user_id
+            ORDER BY w.created_at DESC
+        ');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = [];
+        foreach ($rows as $row) {
+            $owner = $row['owner_username'];
+            unset($row['owner_username']);
+            $result[] = ['webhook' => Webhook::fromRow($row), 'owner_username' => $owner];
+        }
+        return $result;
+    }
+
     public static function create(int $userId, string $slug, string $name, string $description = '', bool $isPublic = true): Webhook
     {
         $now = date('Y-m-d H:i:s');
@@ -89,5 +113,23 @@ class WebhookRepository
         $stmt = db()->pdo()->prepare('SELECT 1 FROM webhooks WHERE id = ? AND user_id = ?');
         $stmt->execute([$webhookId, $userId]);
         return $stmt->fetch() !== false;
+    }
+
+    /** Generate a random URL-safe slug (hex, 10–30 chars). Retries until unique. */
+    public static function generateRandomSlug(int $minLength = 10, int $maxLength = 30): string
+    {
+        $minLength = max(10, min(30, $minLength));
+        $maxLength = max($minLength, min(30, $maxLength));
+        $maxAttempts = 20;
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $len = random_int($minLength, $maxLength);
+            $slug = bin2hex(random_bytes((int) ceil($len / 2)));
+            $slug = substr($slug, 0, $len);
+            if (self::findBySlug($slug) === null) {
+                return $slug;
+            }
+        }
+        // Fallback: add timestamp to reduce collision chance
+        return bin2hex(random_bytes(8)) . substr((string) time(), -4);
     }
 }

@@ -132,10 +132,15 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $name = trim((string) $_POST['name']);
         $rawSlug = trim((string) ($_POST['slug'] ?? ''));
+        $slugFromNameChecked = isset($_POST['slug_from_name']);
         $slug = $rawSlug !== '' ? preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlug) : '';
         if ($slug === '') {
-            $slugFromName = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
-            $slug = $slugFromName !== '' ? $slugFromName : 'webhook-' . time();
+            if ($slugFromNameChecked) {
+                $slugFromName = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
+                $slug = $slugFromName !== '' ? $slugFromName : WebhookRepository::generateRandomSlug();
+            } else {
+                $slug = WebhookRepository::generateRandomSlug();
+            }
         }
         $desc = trim((string) ($_POST['description'] ?? ''));
         $isPublic = isset($_POST['is_public']);
@@ -149,10 +154,12 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createSlug = $rawSlug;
                 $createDescription = $desc;
                 $createIsPublic = $isPublic;
+                $createSlugFromName = $slugFromNameChecked;
             }
         }
     }
     $webhooks = WebhookRepository::listForUser($user->id);
+    $createSlugFromName = $createSlugFromName ?? true;
     require dirname(__DIR__) . '/templates/admin_webhooks.php';
     exit;
 }

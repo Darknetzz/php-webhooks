@@ -8,6 +8,7 @@ $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
 $createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createSlugFromName = $createSlugFromName ?? true;
 ob_start();
 ?>
 <h1>Create Webhook</h1>
@@ -17,49 +18,93 @@ ob_start();
 
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Create webhook</h2>
-    <form method="post" action="">
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" required placeholder="My API hook" value="<?= e($createName) ?>">
+    <form method="post" action="" id="create-webhook-form">
+        <div class="form-section">
+            <h3 class="form-section-title">Basic</h3>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required placeholder="My API hook" value="<?= e($createName) ?>">
+            </div>
+            <div class="form-group">
+                <label for="description">Description (optional)</label>
+                <textarea id="description" name="description" placeholder="What this webhook is for"><?= e($createDescription) ?></textarea>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="slug">Slug (URL path)</label>
-            <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only" value="<?= e($createSlug) ?>">
-            <div class="hint">Used in URL. Leave empty to generate from name.</div>
-            <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
+        <div class="form-section">
+            <h3 class="form-section-title">URL</h3>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="slug_from_name" id="slug_from_name" value="1" <?= $createSlugFromName ? 'checked' : '' ?>>
+                    Create slug from name
+                </label>
+                <div class="hint">When checked, the URL path is derived from the name if you leave the slug empty. When unchecked, a random slug (10–30 characters) is generated.</div>
+            </div>
+            <div class="form-group" id="slug-field-wrap">
+                <label for="slug">Custom slug (optional)</label>
+                <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only" value="<?= e($createSlug) ?>">
+                <div class="hint">Letters, numbers, underscore, hyphen only. Overrides “Create slug from name” when set.</div>
+                <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
+            </div>
+            <div class="form-group" id="random-slug-hint" style="display: none;">
+                <div class="hint">A random URL (e.g. <code id="random-slug-sample">a1b2c3d4e5f6</code>) will be generated when you create the webhook.</div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="description">Description (optional)</label>
-            <textarea id="description" name="description" placeholder="What this webhook is for"><?= e($createDescription) ?></textarea>
-        </div>
-        <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
-                List on public page (anyone can see the URL)
-            </label>
+        <div class="form-section">
+            <h3 class="form-section-title">Visibility</h3>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
+                    List on public page (anyone can see the URL)
+                </label>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 </div>
 <script>
 (function () {
+    var form = document.getElementById('create-webhook-form');
     var nameEl = document.getElementById('name');
     var slugEl = document.getElementById('slug');
+    var slugFromNameEl = document.getElementById('slug_from_name');
+    var slugFieldWrap = document.getElementById('slug-field-wrap');
+    var randomSlugHint = document.getElementById('random-slug-hint');
     var previewEl = document.getElementById('slug-preview');
+    var randomSampleEl = document.getElementById('random-slug-sample');
     function slugify(s) {
         return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
     }
+    function randomHexSample(len) {
+        var hex = '0123456789abcdef';
+        var out = '';
+        for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
+        return out;
+    }
+    function updateSlugVisibility() {
+        var fromName = slugFromNameEl && slugFromNameEl.checked;
+        if (slugFieldWrap) slugFieldWrap.style.display = fromName ? 'block' : 'none';
+        if (randomSlugHint) randomSlugHint.style.display = fromName ? 'none' : 'block';
+        if (randomSampleEl) randomSampleEl.textContent = randomHexSample(16);
+        if (!fromName && slugEl) slugEl.value = '';
+    }
     function updatePreview() {
+        if (!previewEl) return;
+        var fromName = slugFromNameEl && slugFromNameEl.checked;
         var slug = (slugEl && slugEl.value.trim()) || '';
+        if (!fromName && !slug) {
+            previewEl.textContent = '(random)';
+            return;
+        }
         if (!slug && nameEl && nameEl.value.trim()) {
             slug = slugify(nameEl.value.trim()) || 'webhook-' + Math.floor(Date.now() / 1000);
         }
         if (!slug) slug = 'my-api-hook';
-        if (previewEl) previewEl.textContent = slug;
+        previewEl.textContent = slug;
     }
-    if (nameEl) nameEl.addEventListener('input', updatePreview);
-    if (nameEl) nameEl.addEventListener('change', updatePreview);
+    if (slugFromNameEl) slugFromNameEl.addEventListener('change', function() { updateSlugVisibility(); updatePreview(); });
+    if (nameEl) { nameEl.addEventListener('input', updatePreview); nameEl.addEventListener('change', updatePreview); }
     if (slugEl) slugEl.addEventListener('input', updatePreview);
+    updateSlugVisibility();
     updatePreview();
 })();
 </script>
