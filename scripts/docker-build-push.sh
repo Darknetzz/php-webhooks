@@ -16,13 +16,20 @@ if [ -n "$DOCKERHUB_TOKEN" ]; then
   echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
 fi
 
-echo "Building $IMAGE ..."
-docker build -t "$IMAGE:latest" .
+# Version for image (shown in docker logs at startup)
+GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null)" || GIT_COMMIT=unknown
+GIT_TAG="$(git describe --tags --exact-match 2>/dev/null)" || true
 
-# Optional: tag with git version
-if tag=$(git describe --tags --exact-match 2>/dev/null); then
-  docker tag "$IMAGE:latest" "$IMAGE:$tag"
-  to_push="$IMAGE:latest $IMAGE:$tag"
+echo "Building $IMAGE ..."
+docker build -t "$IMAGE:latest" \
+  --build-arg "GIT_COMMIT=$GIT_COMMIT" \
+  --build-arg "GIT_TAG=$GIT_TAG" \
+  .
+
+# Optional: tag image with git tag if we're on a tagged commit
+if [ -n "$GIT_TAG" ]; then
+  docker tag "$IMAGE:latest" "$IMAGE:$GIT_TAG"
+  to_push="$IMAGE:latest $IMAGE:$GIT_TAG"
 else
   to_push="$IMAGE:latest"
 fi

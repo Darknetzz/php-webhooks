@@ -61,6 +61,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-ghcr.outputs.tags }}
           labels: ${{ steps.meta-ghcr.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_TAG=${{ github.event.release.tag_name || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -91,5 +94,8 @@ jobs:
           push: true
           tags: ${{ steps.meta-dh.outputs.tags }}
           labels: ${{ steps.meta-dh.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_TAG=${{ github.event.release.tag_name || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
