@@ -1,5 +1,5 @@
-# Include this inside the default server { } block on web01 so that
-# http://web01/webhooks/public/login (and any path under /webhooks/public) runs the app.
+# Include this inside the default server { } block on <yourserver> so that
+# http://<yourserver>/webhooks/public/login (and any path under /webhooks/public) runs the app.
 # Without this, the server serves the doc root index.php instead.
 #
 # Adjust the paths if your app is not under /var/www/html/webhooks.

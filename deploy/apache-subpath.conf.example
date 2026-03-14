@@ -1,5 +1,5 @@
-# Include this in web01's default vhost (or in a conf.d file) so that
-# http://web01/webhooks/public/login (and any path under /webhooks/public) runs the app.
+# Include this in <yourserver>'s default vhost (or in a conf.d file) so that
+# http://<yourserver>/webhooks/public/login (and any path under /webhooks/public) runs the app.
 # Without this, the server serves the doc root index.php instead.
 #
 # On Debian/Ubuntu: copy to /etc/apache2/conf-available/webhooks-subpath.conf

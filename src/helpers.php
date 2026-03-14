@@ -42,7 +42,7 @@ if (!function_exists('e')) {
     }
 }
 
-/** Base URL for links/redirects: uses APP_URL when request host matches, else derived from request (for direct access e.g. web01/webhooks/public). */
+/** Base URL for links/redirects: uses APP_URL when request host matches, else derived from request (for direct access e.g. <yourserver>/webhooks/public). */
 if (!function_exists('base_url')) {
     function base_url(): string
     {

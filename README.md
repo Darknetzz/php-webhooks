@@ -106,7 +106,7 @@ Set these in a `.env` file in the project root (or pass them to the container). 
 |----------|--------------|---------|
 | `APP_ENV` | Environment name (e.g. `production`). | `production` |
 | `APP_DEBUG` | Show PHP errors in the browser: `0` or `1`. Use `1` only for debugging; use `{APP_URL}/--db-check` to see DB errors. | `0` |
-| `APP_URL` | **Required.** Full base URL of the app with no trailing slash (e.g. `https://webhooks.example.com` or `http://web01/webhooks/public`). Used for login redirects, links, and webhook URLs. | `http://localhost` |
+| `APP_URL` | **Required.** Full base URL of the app with no trailing slash (e.g. `https://webhooks.example.com` or `http://<yourserver>/webhooks/public`). Used for login redirects, links, and webhook URLs. | `http://localhost` |
 | `APP_SECRET` | Optional secret key for the app. Leave empty if not used. | — |
 | `APP_BASE_PATH` | Optional. Subpath where the app is served (e.g. `webhooks/public` for `http://host/webhooks/public/`). Only set if links or redirects are wrong (e.g. behind a proxy that doesn’t set the request path correctly). Normally the app detects the path from the request. | — |
 | `APP_URL_PUBLIC` | Optional. Public URL used for webhook endpoints in the UI and examples. Set when `APP_URL` is internal (e.g. `http://backend/`) but webhooks must be called at a different public URL. If unset, `APP_URL` is used. | — |
@@ -143,16 +143,16 @@ Used by `scripts/docker-build-push.sh` when building and pushing the image from 
 ### Proxy and direct access
 
 - **Behind a reverse proxy** (e.g. Nginx Proxy Manager): Set `APP_URL` to the public URL (e.g. `https://webhooks.roste.org`). The proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so the app uses that URL for links and redirects.
-- **Direct access** (e.g. `http://web01/webhooks/public/`): You can use the app without setting `APP_URL`, or set it to the direct URL. Links and redirects are derived from the current request, so you stay on the same base URL you used to open the app.
+- **Direct access** (e.g. `http://<yourserver>/webhooks/public/`): You can use the app without setting `APP_URL`, or set it to the direct URL. Links and redirects are derived from the current request, so you stay on the same base URL you used to open the app.
 
 ### App at a subpath (without Docker)
 
-If you run the app **without Docker** and the proxy forwards to a path on the backend (e.g. `http://backend/webhooks/public/`), or you access it at `http://web01/webhooks/public/`, the backend must route that path to `public/index.php`. With **Docker**, the container serves from `/`; point the proxy at the container with no path.
+If you run the app **without Docker** and the proxy forwards to a path on the backend (e.g. `http://backend/webhooks/public/`), or you access it at `http://<yourserver>/webhooks/public/`, the backend must route that path to `public/index.php`. With **Docker**, the container serves from `/`; point the proxy at the container with no path.
 
 - **Apache** (default vhost, doc root e.g. `/var/www/html`): use `deploy/apache-subpath.conf.example`. Copy to `/etc/apache2/conf-available/webhooks-subpath.conf`, then `sudo a2enconf webhooks-subpath` and `sudo systemctl reload apache2`. Adjust paths in the file if the app lives elsewhere.
 - **Nginx**: add the `location` block from `deploy/nginx-subpath.conf.example` inside your default `server { }` and set the correct `fastcgi_pass`.
 
-After that, direct `http://web01/webhooks/public/login` and the proxy will work.
+After that, direct `http://<yourserver>/webhooks/public/login` and the proxy will work.
 
 ### URL rewriting
 
