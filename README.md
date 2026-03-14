@@ -149,7 +149,16 @@ Used by `scripts/docker-build-push.sh` when building and pushing the image from 
 
 If you run the app **without Docker** and the proxy forwards to a path on the backend (e.g. `http://backend/webhooks/public/`), or you access it at `http://<yourserver>/webhooks/public/`, the backend must route that path to `public/index.php`. With **Docker**, the container serves from `/`; point the proxy at the container with no path.
 
-- **Apache** (default vhost, doc root e.g. `/var/www/html`): use `deploy/apache-subpath.conf.example`. Copy to `/etc/apache2/conf-available/webhooks-subpath.conf`, then `sudo a2enconf webhooks-subpath` and `sudo systemctl reload apache2`. Adjust paths in the file if the app lives elsewhere.
+- **Apache** (doc root e.g. `/var/www/html`): Add an Alias and Directory so `/webhooks/public` is served by the app; `public/.htaccess` (no RewriteBase) does the rewrite. Example — copy to `/etc/apache2/conf-available/webhooks.conf`, then `sudo a2enconf webhooks` and `sudo systemctl reload apache2`:
+  ```apache
+  Alias /webhooks/public /var/www/html/webhooks/public
+  <Directory /var/www/html/webhooks/public>
+      Options -Indexes +FollowSymLinks
+      AllowOverride All
+      Require all granted
+  </Directory>
+  ```
+  Adjust paths if the app lives elsewhere.
 - **Nginx**: add the `location` block from `deploy/nginx-subpath.conf.example` inside your default `server { }` and set the correct `fastcgi_pass`.
 
 After that, direct `http://<yourserver>/webhooks/public/login` and the proxy will work.
@@ -198,7 +207,7 @@ After that, direct `http://<yourserver>/webhooks/public/login` and the proxy wil
 
 ## Troubleshooting
 
-**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to `public/index.php`. Use the snippet in `deploy/apache-subpath.conf.example` (Apache) or `deploy/nginx-subpath.conf.example` (Nginx) in your default vhost; see “App at a subpath” above.
+**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to the app (Apache: Alias + Directory with AllowOverride All so `public/.htaccess` runs; Nginx: see `deploy/nginx-subpath.conf.example`). See “App at a subpath” above.
 
 **"env file .env not found" (stack deploy):** Use `docker-compose.stack.yml` or create `.env` in the stack directory. See "Stack deploy" under Docker.
 
