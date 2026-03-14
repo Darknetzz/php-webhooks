@@ -133,7 +133,7 @@ ob_start();
     if (picker) {
         picker.addEventListener('input', function () {
             var hex = this.value;
-            var hover = shadeHex(hex, -15);
+            var hover = shadeHex(hex, -12);
             localStorage.setItem(STORAGE_ACCENT, hex);
             localStorage.setItem(STORAGE_ACCENT_HOVER, hover);
             applyAccent(hex, hover);
@@ -144,11 +144,21 @@ ob_start();
         });
     }
 
-    function shadeHex(hex, percent) {
+    function shadeHex(hex, pct) {
         var num = parseInt(hex.slice(1), 16);
-        var r = Math.max(0, Math.min(255, ((num >> 16) & 0xff) + percent));
-        var g = Math.max(0, Math.min(255, ((num >> 8) & 0xff) + percent));
-        var b = Math.max(0, Math.min(255, (num & 0xff) + percent));
+        var r = (num >> 16) & 0xff;
+        var g = (num >> 8) & 0xff;
+        var b = num & 0xff;
+        var f = 1 - Math.abs(pct) / 100;
+        if (pct < 0) {
+            r = Math.round(r * f);
+            g = Math.round(g * f);
+            b = Math.round(b * f);
+        } else {
+            r = Math.round(r + (255 - r) * (1 - f));
+            g = Math.round(g + (255 - g) * (1 - f));
+            b = Math.round(b + (255 - b) * (1 - f));
+        }
         return '#' + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 })();
