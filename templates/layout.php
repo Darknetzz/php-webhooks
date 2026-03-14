@@ -8,6 +8,16 @@ $config = config();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($title) ?></title>
+    <script>
+    (function(){
+        var t=localStorage.getItem('webhooks_theme')||'dark';
+        var a=localStorage.getItem('webhooks_accent')||'#22d3ee';
+        var h=localStorage.getItem('webhooks_accent_hover')||'#06b6d4';
+        document.documentElement.dataset.theme=t;
+        document.documentElement.style.setProperty('--accent',a);
+        document.documentElement.style.setProperty('--accent-hover',h);
+    })();
+    </script>
     <link rel="stylesheet" href="<?= e(base_url()) ?>/assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>

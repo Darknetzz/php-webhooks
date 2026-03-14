@@ -12,6 +12,14 @@
     --font: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
 
+[data-theme="light"] {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: #e4e4e7;
+    --text: #18181b;
+    --muted: #71717a;
+}
+
 * {
     box-sizing: border-box;
 }

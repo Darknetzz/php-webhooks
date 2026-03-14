@@ -110,6 +110,15 @@ if ($uri === '/profile') {
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
+    require dirname(__DIR__) . '/templates/profile.php';
+    exit;
+}
+
+if ($uri === '/settings') {
+    $user = auth()->user();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
     $passwordError = null;
     $passwordSuccess = false;
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
@@ -128,15 +137,6 @@ if ($uri === '/profile') {
             UserRepository::update($user->id, ['password' => $newPass]);
             $passwordSuccess = true;
         }
-    }
-    require dirname(__DIR__) . '/templates/profile.php';
-    exit;
-}
-
-if ($uri === '/settings') {
-    $user = auth()->user();
-    if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     require dirname(__DIR__) . '/templates/settings.php';
     exit;
