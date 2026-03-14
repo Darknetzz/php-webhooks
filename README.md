@@ -40,6 +40,24 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
          - "8080:80"
        env_file:
          - .env
+       environment:
+         - APP_ENV=production
+         - APP_DEBUG=0
+         - APP_URL=https://webhooks.example.com
+         - APP_SECRET=
+         # Optional: set if app is behind proxy at a subpath
+         - APP_BASE_PATH=
+         # Optional: public URL for webhook endpoints (default: APP_URL)
+         - APP_URL_PUBLIC=
+         - DB_DRIVER=sqlite
+         - DB_PATH=/var/www/html/data/database.sqlite
+         # MySQL (when DB_DRIVER=mysql):
+         # - DB_HOST=127.0.0.1
+         # - DB_PORT=3306
+         # - DB_NAME=webhooks
+         # - DB_USER=
+         # - DB_PASSWORD=
+         # - DB_CHARSET=utf8mb4
        volumes:
          - webhooks_data:/var/www/html/data
          - ./.env:/var/www/html/.env:ro
@@ -48,7 +66,7 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
    volumes:
      webhooks_data:
    ```
-   Create a `.env` with at least `APP_URL=https://your-domain.com`, then run `docker compose up -d`.
+   Set the variables above in the compose file or in a `.env` file (at least `APP_URL`). Then run `docker compose up -d`.
 
 **Stack deploy (Portainer, etc.) – "env file .env not found":** The default compose expects a `.env` file in the stack directory. Two options: (1) Create that file there (e.g. `/data/compose/101/.env`) with at least `APP_URL=https://your-domain.com`. (2) Use `docker-compose.stack.yml` instead: it does not use `env_file` or a `.env` mount. Paste the contents of `docker-compose.stack.yml` as your stack definition and set `APP_URL` (and optionally `APP_DEBUG`, etc.) in your platform’s “Environment variables” for the stack. The app reads config from the container environment.
 
