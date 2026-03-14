@@ -16,13 +16,13 @@ ob_start();
 ?>
 <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
     <h1 style="margin: 0;">Webhooks</h1>
-    <button type="button" class="btn btn-primary" id="btn-add-webhook" aria-controls="create-modal"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
+    <button type="button" class="btn btn-primary btn-add-webhook" id="btn-add-webhook" aria-controls="create-modal"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
 </div>
 
 <?php if (empty($webhooks)): ?>
     <div class="empty-state">
         <p>You have no webhooks yet. Create one to receive HTTP requests at a unique URL.</p>
-        <button type="button" class="btn btn-primary" id="btn-add-webhook-empty"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
+        <button type="button" class="btn btn-primary btn-add-webhook" id="btn-add-webhook-empty"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
     </div>
 <?php else: ?>
     <div class="webhook-cards">

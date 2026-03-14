@@ -217,9 +217,16 @@ h1, h2 {
     font-family: inherit;
     font-size: 0.9rem;
     cursor: pointer;
-    border: none;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
     text-decoration: none;
-    transition: background 0.15s;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn:hover {
+    color: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .btn .icon {
@@ -230,22 +237,29 @@ h1, h2 {
 .btn-primary {
     background: var(--accent);
     color: var(--bg);
+    border-color: var(--accent);
 }
 
 .btn-primary:hover {
     background: var(--accent-hover);
     color: var(--bg);
+    border-color: var(--accent-hover);
 }
 
 .btn-ghost {
-    background: transparent;
+    border-color: var(--border);
     color: var(--muted);
-    border: 1px solid var(--border);
 }
 
 .btn-ghost:hover {
     background: var(--surface);
     color: var(--text);
+    border-color: var(--border);
+}
+
+.page-header .btn-primary,
+.btn-add-webhook {
+    margin: 0.5rem 0;
 }
 
 .btn-danger {
@@ -407,6 +421,17 @@ h1, h2 {
     border-radius: 4px;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.requests-url-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+a.btn-webhook-action {
+    text-decoration: none;
 }
 
 .btn-webhook-action .icon {

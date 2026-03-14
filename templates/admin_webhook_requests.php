@@ -5,14 +5,14 @@ $baseUrl = rtrim(base_url(), '/');
 $webhookBaseUrl = rtrim(webhook_base_url(), '/');
 ob_start();
 ?>
-<div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+<div class="page-header" style="margin-bottom: 1rem;">
     <h1 style="margin: 0;">Requests: <?= e($webhook->name) ?></h1>
-    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
 </div>
-<p class="meta" style="margin-bottom: 1rem;">
+<p class="meta requests-url-line" style="margin-bottom: 1rem;">
     <a href="<?= e($baseUrl) ?>/">← Webhooks</a>
-    &nbsp;·&nbsp;
+    <span aria-hidden="true">·</span>
     <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; require __DIR__ . '/partials/webhook_url_block.php'; ?>
+    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
 </p>
 
 <?php if (empty($requests)): ?>
