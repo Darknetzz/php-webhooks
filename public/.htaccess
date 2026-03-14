@@ -1,8 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # If the app is in a subpath (e.g. /webhooks/public), set RewriteBase to that path so rewrites hit this index.php:
-    # RewriteBase /webhooks/public
-    RewriteBase /
+    # No RewriteBase: target is relative to this directory, so works at doc root and subpath (e.g. /webhooks/public)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L,QSA]

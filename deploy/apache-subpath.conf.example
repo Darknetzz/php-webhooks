@@ -14,10 +14,4 @@
     Options -Indexes +FollowSymLinks
     AllowOverride All
     Require all granted
-    <IfModule mod_rewrite.c>
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule ^ /webhooks/public/index.php [L,QSA]
-    </IfModule>
 </Directory>
