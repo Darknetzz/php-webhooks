@@ -102,6 +102,24 @@ if ($uri === '/logout') {
     redirect(base_url() . '/');
 }
 
+if ($uri === '/profile') {
+    $user = auth()->user();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    require dirname(__DIR__) . '/templates/profile.php';
+    exit;
+}
+
+if ($uri === '/settings') {
+    $user = auth()->user();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    require dirname(__DIR__) . '/templates/settings.php';
+    exit;
+}
+
 // Admin: webhooks CRUD
 if (preg_match('#^/admin/webhooks$#', $uri)) {
     $user = auth()->requireAdmin();
