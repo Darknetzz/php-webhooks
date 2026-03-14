@@ -29,7 +29,8 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $headers = function_exists('getallheaders') ? json_encode(getallheaders()) : '';
 $body = (string) file_get_contents('php://input');
 $queryString = $_SERVER['QUERY_STRING'] ?? '';
-$ip = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+// Prefer X-Forwarded-For when behind a reverse proxy (client IP); fall back to REMOTE_ADDR (direct connection)
+$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? null;
 if (is_string($ip) && strpos($ip, ',') !== false) {
     $ip = trim(explode(',', $ip)[0]);
 }
