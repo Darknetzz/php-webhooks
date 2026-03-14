@@ -97,20 +97,47 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
 
 ### Environment (`.env`)
 
-| Variable     | Description                          | Default        |
-|-------------|--------------------------------------|----------------|
-| `APP_ENV`   | Environment (e.g. production)         | production     |
-| `APP_DEBUG` | Show errors (0 or 1)                  | 0              |
-| `APP_URL`   | Full base URL of the app              | http://localhost |
-| `APP_SECRET`| Secret key (optional)                | -              |
-| `DB_DRIVER` | Database: `sqlite` or `mysql`         | sqlite         |
-| `DB_PATH`   | SQLite file path (when using SQLite)  | data/database.sqlite |
-| `DB_HOST`   | MySQL host (when using MySQL)         | 127.0.0.1      |
-| `DB_PORT`   | MySQL port                            | 3306           |
-| `DB_NAME`   | MySQL database name                   | webhooks       |
-| `DB_USER`   | MySQL user                            | -              |
-| `DB_PASSWORD` | MySQL password                      | -              |
-| `DB_CHARSET` | MySQL charset                        | utf8mb4        |
+Set these in a `.env` file in the project root (or pass them to the container). At minimum, set `APP_URL` to the URL you use to open the app.
+
+**App**
+
+| Variable | Description | Default |
+|----------|--------------|---------|
+| `APP_ENV` | Environment name (e.g. `production`). | `production` |
+| `APP_DEBUG` | Show PHP errors in the browser: `0` or `1`. Use `1` only for debugging; use `{APP_URL}/--db-check` to see DB errors. | `0` |
+| `APP_URL` | **Required.** Full base URL of the app with no trailing slash (e.g. `https://webhooks.example.com` or `http://web01/webhooks/public`). Used for login redirects, links, and webhook URLs. | `http://localhost` |
+| `APP_SECRET` | Optional secret key for the app. Leave empty if not used. | — |
+| `APP_BASE_PATH` | Optional. Subpath where the app is served (e.g. `webhooks/public` for `http://host/webhooks/public/`). Only set if links or redirects are wrong (e.g. behind a proxy that doesn’t set the request path correctly). Normally the app detects the path from the request. | — |
+| `APP_URL_PUBLIC` | Optional. Public URL used for webhook endpoints in the UI and examples. Set when `APP_URL` is internal (e.g. `http://backend/`) but webhooks must be called at a different public URL. If unset, `APP_URL` is used. | — |
+
+**Database (SQLite, default)**
+
+| Variable | Description | Default |
+|----------|--------------|---------|
+| `DB_DRIVER` | Database driver: `sqlite` or `mysql`. | `sqlite` |
+| `DB_PATH` | Path to the SQLite file. With Docker, use `/var/www/html/data/database.sqlite` so the volume is used. | `data/database.sqlite` |
+
+**Database (MySQL, when `DB_DRIVER=mysql`)**
+
+| Variable | Description | Default |
+|----------|--------------|---------|
+| `DB_HOST` | MySQL host. | `127.0.0.1` |
+| `DB_PORT` | MySQL port. | `3306` |
+| `DB_NAME` | Database name. | `webhooks` |
+| `DB_USER` | MySQL user. | — |
+| `DB_PASSWORD` | MySQL password. | — |
+| `DB_CHARSET` | Connection charset. | `utf8mb4` |
+
+**Build/push script only** (not used by the app at runtime)
+
+Used by `scripts/docker-build-push.sh` when building and pushing the image from your machine:
+
+| Variable | Description |
+|----------|-------------|
+| `DOCKERHUB_USERNAME` | Docker Hub username for `docker login`. |
+| `DOCKERHUB_TOKEN` | Docker Hub access token (or password). Prefer a token over a password. |
+| `DOCKER_IMAGE` | Override image name (default: `darknetz/php-webhooks`). |
+| `GHCR_IMAGE` | If set (e.g. `ghcr.io/owner/repo`), the script also pushes to GitHub Container Registry. |
 
 ### Proxy and direct access
 
