@@ -3,6 +3,6 @@
 *.sqlite
 data/
 vendor/
-deploy/
+docs/
 *.md
 .gitignore

@@ -1,10 +1,15 @@
-# Nginx server block for webhooks.roste.org
-# Root MUST be the app's public/ directory so /login and other routes work.
-# Include in your nginx sites and reload nginx.
+# Nginx: dedicated vhost (document root = public/)
 
+Use this when the app has its own server block (e.g. `webhooks.example.com`). The root must be the app's `public/` directory so `/login` and other routes work.
+
+Adjust `server_name` and paths as needed.
+
+## Config
+
+```nginx
 server {
     listen 80;
-    server_name webhooks.roste.org;
+    server_name webhooks.example.com;
     root /var/www/html/webhooks/public;
 
     index index.php;
@@ -17,3 +22,4 @@ server {
         include fastcgi_params;
     }
 }
+```

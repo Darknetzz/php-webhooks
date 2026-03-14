@@ -16,7 +16,9 @@ A simple self-hosted app to create, edit, and delete webhooks and view requests 
 
 ## Installation
 
-### Docker (recommended)
+### Docker (recommended):
+
+**Option 1: Docker Compose**
 
 The image uses Apache with document root set to `public/`, so routes like `/login` work without extra server config. Ideal behind a reverse proxy (e.g. Nginx Proxy Manager): point the proxy at the container (host:port or service name), no path needed.
 
@@ -29,61 +31,62 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
    ```bash
    docker compose up -d
    ```
-4. Open the app in a browser (e.g. `http://localhost:8567` or your proxy URL). If no users exist, you'll get the onboarding page. Log in and create webhooks under **My Webhooks**; each gets a URL like `{APP_URL}/w/{slug}`.
 
-**Docker Compose example** (from the repo root; the repo includes `docker-compose.yml`):
-   ```yaml
-   services:
-     webhooks:
-       image: darknetz/php-webhooks:latest   # or build: . to build from source
-       ports:
-         - "8080:80"
-       env_file:
-         - .env
-       environment:
-         - APP_ENV=production
-         - APP_DEBUG=0
-         - APP_URL=https://webhooks.example.com
-         # Secret key used for signing sessions and cookies. Set to a long random string.
-         - APP_SECRET=
-         # Optional: set if app is behind proxy at a subpath
-        #  - APP_BASE_PATH=
-         # Optional: public URL for webhook endpoints (default: APP_URL)
-        #  - APP_URL_PUBLIC=
-         - DB_DRIVER=sqlite
-         - DB_PATH=/var/www/html/data/database.sqlite
-         # MySQL (when DB_DRIVER=mysql):
-         # - DB_HOST=127.0.0.1
-         # - DB_PORT=3306
-         # - DB_NAME=webhooks
-         # - DB_USER=
-         # - DB_PASSWORD=
-         # - DB_CHARSET=utf8mb4
-       volumes:
-         - webhooks_data:/var/www/html/data
-         - ./.env:/var/www/html/.env:ro
-       restart: unless-stopped
+```yml
+# Stack-friendly: no .env file required. Set environment variables in your
+# platform (Portainer, etc.) or below. Use this when the stack project dir
+# has no .env (e.g. "env file .env not found").
+#
+# Portainer: add variables in the stack editor under "Environment variables",
+# or paste this and set APP_URL in the environment section.
 
-   volumes:
-     webhooks_data:
-   ```
-   Set the variables above in the compose file or in a `.env` file (at least `APP_URL`). Then run `docker compose up -d`.
+services:
+  webhooks:
+    image: darknetz/php-webhooks:latest
+    ports:
+      - "8567:80"
+    environment:
+      APP_SECRET: ${APP_SECRET}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-0}
+      APP_URL: ${APP_URL:-http://localhost/webhooks/public}
+      # APP_URL_PUBLIC: ${APP_URL_PUBLIC:-https://webhooks.example.com}
+      # APP_BASE_PATH: ${APP_BASE_PATH:-webhooks/public}
+      DB_DRIVER: ${DB_DRIVER:-sqlite}
+      DB_PATH: ${DB_PATH:-/var/www/html/data/database.sqlite}
+    volumes:
+      - webhooks_data:/var/www/html/data
+    restart: unless-stopped
 
-**Stack deploy (Portainer, etc.) – "env file .env not found":** The default compose expects a `.env` file in the stack directory. Two options: (1) Create that file there (e.g. `/data/compose/101/.env`) with at least `APP_URL=https://your-domain.com`. (2) Use `docker-compose.stack.yml` instead: it does not use `env_file` or a `.env` mount. Paste the contents of `docker-compose.stack.yml` as your stack definition and set `APP_URL` (and optionally `APP_DEBUG`, etc.) in your platform’s “Environment variables” for the stack. The app reads config from the container environment.
+volumes:
+  webhooks_data:
+```
 
-**Reverse proxy:** Forward to `http://<container>:80` (or the host port you published). Set `APP_URL` to the public URL; the proxy should send `X-Forwarded-Host` and `X-Forwarded-Proto` so links and redirects are correct.
+**Option 1: Pre-built images**
 
-**Pre-built images:** Pull from Docker Hub or GitHub Container Registry instead of building locally:
+Pull from Docker Hub or GitHub Container Registry instead of building locally:
    ```bash
-   docker pull darknetz/php-webhooks:latest
-   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks darknetz/php-webhooks:latest
+   # Pull image
+   docker pull darknetz/php-webhooks:latest # alternatively ghcr.io/Darknetzz/php-webhooks
+   # Run container
+   docker run -d -p 8567:80 -v "$(pwd)/.env:/var/www/html/.env:ro" -v webhooks_data:/var/www/html/data --name webhooks darknetz/php-webhooks:latest
    ```
    Image: [darknetz/php-webhooks](https://hub.docker.com/repository/docker/darknetz/php-webhooks). For ghcr.io use `ghcr.io/<owner>/<repo>:latest` when the repo publishes it.
 
-**Build and run without Compose:**
+**Option 2: Build and run**
+
    ```bash
+   # Clone git repo
+   git clone https://github.com/Darknetzz/php-webhooks.git
+   cd php-webhooks
+
+   # Configure .env
+   cp .env.example .env
+   # Make changes to .env
+
+   # Build and run container
    docker build -t webhooks .
-   docker run -d -p 8080:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks webhooks
+   docker run -d -p 8567:80 -v $(pwd)/.env:/var/www/html/.env:ro -v webhooks_data:/var/www/html/data --name webhooks webhooks
    ```
 
 ### Without Docker
@@ -93,6 +96,8 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
 3. **SQLite (default):** Create a writable `data/` directory; the web server user must be able to write to it (e.g. `chown www-data:www-data data`).
 4. Point the web server document root to the `public` folder (see *URL rewriting* and *Document root* below).
 5. Open the app in a browser; complete onboarding if needed, then create webhooks. Each webhook gets a URL like `{APP_URL}/w/{slug}`.
+
+See [docs](docs/) for Nginx or Apache2 setup.
 
 ## Configuration
 
@@ -149,17 +154,8 @@ Used by `scripts/docker-build-push.sh` when building and pushing the image from 
 
 If you run the app **without Docker** and the proxy forwards to a path on the backend (e.g. `http://backend/webhooks/public/`), or you access it at `http://<yourserver>/webhooks/public/`, the backend must route that path to `public/index.php`. With **Docker**, the container serves from `/`; point the proxy at the container with no path.
 
-- **Apache** (doc root e.g. `/var/www/html`): Add an Alias and Directory so `/webhooks/public` is served by the app; `public/.htaccess` (no RewriteBase) does the rewrite. Example — copy to `/etc/apache2/conf-available/webhooks.conf`, then `sudo a2enconf webhooks` and `sudo systemctl reload apache2`:
-  ```apache
-  Alias /webhooks/public /var/www/html/webhooks/public
-  <Directory /var/www/html/webhooks/public>
-      Options -Indexes +FollowSymLinks
-      AllowOverride All
-      Require all granted
-  </Directory>
-  ```
-  Adjust paths if the app lives elsewhere.
-- **Nginx**: add the `location` block from `deploy/nginx-subpath.conf.example` inside your default `server { }` and set the correct `fastcgi_pass`.
+- **Apache** (doc root e.g. `/var/www/html`): Only if the app at `/webhooks/public` is not yet served — add an Alias and Directory; `public/.htaccess` does the rewrite. **Optional** example: [docs/apache-subpath.md](docs/apache-subpath.md).
+- **Nginx**: add the `location` blocks from [docs/nginx-subpath.md](docs/nginx-subpath.md) inside your default `server { }` and set the correct `fastcgi_pass`.
 
 After that, direct `http://<yourserver>/webhooks/public/login` and the proxy will work.
 
@@ -207,7 +203,7 @@ After that, direct `http://<yourserver>/webhooks/public/login` and the proxy wil
 
 ## Troubleshooting
 
-**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to the app (Apache: Alias + Directory with AllowOverride All so `public/.htaccess` runs; Nginx: see `deploy/nginx-subpath.conf.example`). See “App at a subpath” above.
+**`/login` or other routes show the server’s root index.php:** The request never reaches this app. The backend must route `/webhooks/public/*` to the app (Apache: [docs/apache-subpath.md](docs/apache-subpath.md); Nginx: [docs/nginx-subpath.md](docs/nginx-subpath.md)). See “App at a subpath” above.
 
 **"env file .env not found" (stack deploy):** Use `docker-compose.stack.yml` or create `.env` in the stack directory. See "Stack deploy" under Docker.
 
