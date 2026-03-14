@@ -80,6 +80,7 @@ class Database
             $this->pdo->exec($sql);
         }
         $this->migrateWebhookResponseColumns();
+        $this->migrateWebhookRequestResponseColumns();
     }
 
     /** Add optional response columns to webhooks for existing installations. */
@@ -98,6 +99,34 @@ class Database
                 'ALTER TABLE webhooks ADD COLUMN response_status_code INT NOT NULL DEFAULT 200',
                 'ALTER TABLE webhooks ADD COLUMN response_headers TEXT',
                 'ALTER TABLE webhooks ADD COLUMN response_body TEXT',
+            ];
+        foreach ($alters as $sql) {
+            try {
+                $this->pdo->exec($sql);
+            } catch (PDOException $e) {
+                if (strpos($e->getMessage(), 'duplicate') === false && strpos($e->getMessage(), 'Duplicate') === false) {
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    /** Add optional response columns to webhook_requests for existing installations. */
+    private function migrateWebhookRequestResponseColumns(): void
+    {
+        if (!$this->tableExists('webhook_requests')) {
+            return;
+        }
+        $alters = $this->isSqlite()
+            ? [
+                'ALTER TABLE webhook_requests ADD COLUMN response_status_code INTEGER',
+                'ALTER TABLE webhook_requests ADD COLUMN response_headers TEXT',
+                'ALTER TABLE webhook_requests ADD COLUMN response_body TEXT',
+            ]
+            : [
+                'ALTER TABLE webhook_requests ADD COLUMN response_status_code INT',
+                'ALTER TABLE webhook_requests ADD COLUMN response_headers TEXT',
+                'ALTER TABLE webhook_requests ADD COLUMN response_body TEXT',
             ];
         foreach ($alters as $sql) {
             try {
@@ -144,6 +173,9 @@ class Database
                     body TEXT,
                     query_string TEXT,
                     ip VARCHAR(45),
+                    response_status_code INTEGER,
+                    response_headers TEXT,
+                    response_body TEXT,
                     created_at TEXT NOT NULL,
                     FOREIGN KEY (webhook_id) REFERENCES webhooks(id) ON DELETE CASCADE
                 )",
@@ -181,6 +213,9 @@ class Database
                 body TEXT,
                 query_string TEXT,
                 ip VARCHAR(45),
+                response_status_code INT,
+                response_headers TEXT,
+                response_body TEXT,
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (webhook_id) REFERENCES webhooks(id) ON DELETE CASCADE
             )",

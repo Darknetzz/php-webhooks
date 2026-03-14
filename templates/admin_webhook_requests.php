@@ -56,6 +56,20 @@ ob_start();
                                 <div class="meta" style="margin-top: 0.75rem;">Body</div>
                                 <pre class="request-body"><code class="meta">(empty)</code></pre>
                             <?php endif; ?>
+                            <?php if ($r->response_status_code !== null || $r->response_headers !== '' || $r->response_body !== ''): ?>
+                                <div class="meta" style="margin-top: 1rem;">Response</div>
+                                <?php if ($r->response_status_code !== null): ?>
+                                    <div class="meta" style="margin-top: 0.35rem;">Status: <strong><?= (int) $r->response_status_code ?></strong></div>
+                                <?php endif; ?>
+                                <?php if ($r->response_headers !== ''): ?>
+                                    <div class="meta" style="margin-top: 0.35rem;">Response headers</div>
+                                    <pre class="request-body"><code class="json-beautify"><?= e($r->response_headers) ?></code></pre>
+                                <?php endif; ?>
+                                <?php if ($r->response_body !== ''): ?>
+                                    <div class="meta" style="margin-top: 0.35rem;">Response body</div>
+                                    <pre class="request-body"><code class="json-beautify"><?= e($r->response_body) ?></code></pre>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

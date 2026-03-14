@@ -8,11 +8,12 @@ use PDO;
 
 class WebhookRequestRepository
 {
-    public static function log(int $webhookId, string $method, string $headers, string $body, string $queryString, ?string $ip): void
+    public static function log(int $webhookId, string $method, string $headers, string $body, string $queryString, ?string $ip, ?int $responseStatusCode = null, string $responseHeaders = '', string $responseBody = ''): void
     {
         $now = date('Y-m-d H:i:s');
-        $stmt = db()->pdo()->prepare('INSERT INTO webhook_requests (webhook_id, method, headers, body, query_string, ip, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$webhookId, $method, $headers, $body, $queryString, $ip ?? '', $now]);
+        $pdo = db()->pdo();
+        $stmt = $pdo->prepare('INSERT INTO webhook_requests (webhook_id, method, headers, body, query_string, ip, response_status_code, response_headers, response_body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$webhookId, $method, $headers, $body, $queryString, $ip ?? '', $responseStatusCode, $responseHeaders, $responseBody, $now]);
     }
 
     /** @return WebhookRequest[] */

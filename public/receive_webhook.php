@@ -34,29 +34,33 @@ if (is_string($ip) && strpos($ip, ',') !== false) {
     $ip = trim(explode(',', $ip)[0]);
 }
 
-WebhookRequestRepository::log($webhook->id, $method, $headers, $body, $queryString, $ip);
-
+// Build response (so we can log it before sending)
 $statusCode = $webhook->response_status_code ?? 200;
 $statusCode = max(100, min(599, $statusCode));
-http_response_code($statusCode);
-
+$responseHeadersSent = [];
 $customHeaders = $webhook->response_headers ?? '';
 if ($customHeaders !== '') {
     $decoded = json_decode($customHeaders, true);
     if (is_array($decoded)) {
         foreach ($decoded as $name => $value) {
             if (is_string($name) && (is_string($value) || is_int($value))) {
-                header(sprintf('%s: %s', $name, (string) $value), true);
+                $responseHeadersSent[$name] = (string) $value;
             }
         }
     }
-} else {
-    header('Content-Type: application/json');
+}
+if (empty($responseHeadersSent) || !isset($responseHeadersSent['Content-Type'])) {
+    $responseHeadersSent['Content-Type'] = 'application/json';
+}
+$responseBody = $webhook->response_body ?? '';
+if ($responseBody === '') {
+    $responseBody = json_encode(['ok' => true, 'received' => true]);
 }
 
-$responseBody = $webhook->response_body ?? '';
-if ($responseBody !== '') {
-    echo $responseBody;
-} else {
-    echo json_encode(['ok' => true, 'received' => true]);
+WebhookRequestRepository::log($webhook->id, $method, $headers, $body, $queryString, $ip, $statusCode, json_encode($responseHeadersSent), $responseBody);
+
+http_response_code($statusCode);
+foreach ($responseHeadersSent as $name => $value) {
+    header(sprintf('%s: %s', $name, $value), true);
 }
+echo $responseBody;
