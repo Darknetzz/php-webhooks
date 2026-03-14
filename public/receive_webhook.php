@@ -36,6 +36,27 @@ if (is_string($ip) && strpos($ip, ',') !== false) {
 
 WebhookRequestRepository::log($webhook->id, $method, $headers, $body, $queryString, $ip);
 
-http_response_code(200);
-header('Content-Type: application/json');
-echo json_encode(['ok' => true, 'received' => true]);
+$statusCode = $webhook->response_status_code ?? 200;
+$statusCode = max(100, min(599, $statusCode));
+http_response_code($statusCode);
+
+$customHeaders = $webhook->response_headers ?? '';
+if ($customHeaders !== '') {
+    $decoded = json_decode($customHeaders, true);
+    if (is_array($decoded)) {
+        foreach ($decoded as $name => $value) {
+            if (is_string($name) && (is_string($value) || is_int($value))) {
+                header(sprintf('%s: %s', $name, (string) $value), true);
+            }
+        }
+    }
+} else {
+    header('Content-Type: application/json');
+}
+
+$responseBody = $webhook->response_body ?? '';
+if ($responseBody !== '') {
+    echo $responseBody;
+} else {
+    echo json_encode(['ok' => true, 'received' => true]);
+}

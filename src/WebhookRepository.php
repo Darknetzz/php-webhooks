@@ -47,7 +47,9 @@ class WebhookRepository
     {
         $pdo = db()->pdo();
         $stmt = $pdo->query('
-            SELECT w.id, w.user_id, w.slug, w.name, w.description, w.is_public, w.created_at, w.updated_at,
+            SELECT w.id, w.user_id, w.slug, w.name, w.description, w.is_public,
+                   w.response_status_code, w.response_headers, w.response_body,
+                   w.created_at, w.updated_at,
                    u.username AS owner_username
             FROM webhooks w
             JOIN users u ON u.id = w.user_id
@@ -63,12 +65,12 @@ class WebhookRepository
         return $result;
     }
 
-    public static function create(int $userId, string $slug, string $name, string $description = '', bool $isPublic = true): Webhook
+    public static function create(int $userId, string $slug, string $name, string $description = '', bool $isPublic = true, int $responseStatusCode = 200, string $responseHeaders = '', string $responseBody = ''): Webhook
     {
         $now = date('Y-m-d H:i:s');
         $pdo = db()->pdo();
-        $stmt = $pdo->prepare('INSERT INTO webhooks (user_id, slug, name, description, is_public, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$userId, $slug, $name, $description, $isPublic ? 1 : 0, $now, $now]);
+        $stmt = $pdo->prepare('INSERT INTO webhooks (user_id, slug, name, description, is_public, response_status_code, response_headers, response_body, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$userId, $slug, $name, $description, $isPublic ? 1 : 0, $responseStatusCode, $responseHeaders, $responseBody, $now, $now]);
         $hook = self::find((int) db()->lastInsertId());
         if (!$hook) {
             throw new \RuntimeException('Failed to load created webhook');
@@ -78,7 +80,7 @@ class WebhookRepository
 
     public static function update(int $id, array $data): void
     {
-        $allowed = ['name', 'description', 'is_public', 'slug'];
+        $allowed = ['name', 'description', 'is_public', 'slug', 'response_status_code', 'response_headers', 'response_body'];
         $set = [];
         $params = [];
         foreach ($allowed as $k) {
@@ -88,6 +90,9 @@ class WebhookRepository
             if ($k === 'is_public') {
                 $set[] = "is_public = ?";
                 $params[] = $data[$k] ? 1 : 0;
+            } elseif ($k === 'response_status_code') {
+                $set[] = "response_status_code = ?";
+                $params[] = (int) $data[$k];
             } else {
                 $set[] = "$k = ?";
                 $params[] = $data[$k];

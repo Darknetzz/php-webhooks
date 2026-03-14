@@ -9,6 +9,9 @@ $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
 $createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
 $createSlugFromName = $createSlugFromName ?? true;
+$createResponseStatusCode = $createResponseStatusCode ?? 200;
+$createResponseHeaders = $createResponseHeaders ?? '';
+$createResponseBody = $createResponseBody ?? '';
 ob_start();
 ?>
 <h1>Create Webhook</h1>
@@ -56,6 +59,24 @@ ob_start();
                     <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                     List on public page (anyone can see the URL)
                 </label>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3 class="form-section-title">Response (optional)</h3>
+            <p class="hint" style="margin-bottom: 0.75rem;">Customize the HTTP response returned when the webhook is called. Leave empty for default: <code>200</code> and <code>{"ok":true,"received":true}</code>.</p>
+            <div class="form-group">
+                <label for="response_status_code">Status code</label>
+                <input type="number" id="response_status_code" name="response_status_code" min="100" max="599" value="<?= (int) $createResponseStatusCode ?>" placeholder="200">
+            </div>
+            <div class="form-group">
+                <label for="response_headers">Response headers (JSON)</label>
+                <textarea id="response_headers" name="response_headers" rows="3" placeholder='{"Content-Type": "application/json", "X-Custom": "value"}'><?= e($createResponseHeaders) ?></textarea>
+                <div class="hint">JSON object of header name → value. E.g. <code>Content-Type</code>, <code>X-Request-Id</code>.</div>
+            </div>
+            <div class="form-group">
+                <label for="response_body">Response body</label>
+                <textarea id="response_body" name="response_body" rows="4" placeholder='Leave empty for default JSON'><?= e($createResponseBody) ?></textarea>
+                <div class="hint">Raw body sent to the client. Empty = default <code>{"ok":true,"received":true}</code>. Can be JSON, XML, plain text, etc.</div>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Create</button>
@@ -121,10 +142,7 @@ ob_start();
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
-            <div class="webhook-url-wrap">
-            <div class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></div>
-            <button type="button" class="btn-copy-webhook" title="Copy URL">Copy</button>
-        </div>
+            <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
             <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
             <div class="card-actions">
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>

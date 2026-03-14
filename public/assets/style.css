@@ -372,6 +372,26 @@ h1, h2 {
     border-color: var(--success);
 }
 
+.btn-open-webhook {
+    flex-shrink: 0;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+    font-family: var(--font);
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+.btn-open-webhook:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
 .table-wrap {
     overflow-x: auto;
 }

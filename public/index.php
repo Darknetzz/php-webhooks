@@ -144,9 +144,13 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         }
         $desc = trim((string) ($_POST['description'] ?? ''));
         $isPublic = isset($_POST['is_public']);
+        $responseStatusCode = (int) ($_POST['response_status_code'] ?? 200);
+        $responseStatusCode = max(100, min(599, $responseStatusCode));
+        $responseHeaders = trim((string) ($_POST['response_headers'] ?? ''));
+        $responseBody = trim((string) ($_POST['response_body'] ?? ''));
         if ($name !== '') {
             try {
-                WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic);
+                WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody);
                 redirect(base_url() . '/admin/webhooks');
             } catch (Throwable $e) {
                 $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
@@ -155,6 +159,9 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createDescription = $desc;
                 $createIsPublic = $isPublic;
                 $createSlugFromName = $slugFromNameChecked;
+                $createResponseStatusCode = $responseStatusCode;
+                $createResponseHeaders = $responseHeaders;
+                $createResponseBody = $responseBody;
             }
         }
     }
@@ -175,11 +182,16 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
         redirect(base_url() . '/admin/webhooks');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $responseStatusCode = (int) ($_POST['response_status_code'] ?? $webhook->response_status_code);
+        $responseStatusCode = max(100, min(599, $responseStatusCode));
         WebhookRepository::update($id, [
             'name' => trim((string) ($_POST['name'] ?? '')),
             'slug' => preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($_POST['slug'] ?? '')) ?: $webhook->slug,
             'description' => trim((string) ($_POST['description'] ?? '')),
             'is_public' => isset($_POST['is_public']),
+            'response_status_code' => $responseStatusCode,
+            'response_headers' => trim((string) ($_POST['response_headers'] ?? '')),
+            'response_body' => trim((string) ($_POST['response_body'] ?? '')),
         ]);
         redirect(base_url() . '/admin/webhooks');
     }

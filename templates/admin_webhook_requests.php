@@ -9,10 +9,7 @@ ob_start();
 <p class="meta" style="margin-bottom: 1rem;">
     <a href="<?= e($baseUrl) ?>/admin/webhooks">← Webhooks</a>
     &nbsp;·&nbsp;
-    <span class="webhook-url-wrap">
-    <span class="webhook-url"><?= e($webhookBaseUrl) ?>/w/<?= e($webhook->slug) ?></span>
-    <button type="button" class="btn-copy-webhook" title="Copy URL">Copy</button>
-</span>
+    <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; require __DIR__ . '/partials/webhook_url_block.php'; ?>
 </p>
 
 <?php if (empty($requests)): ?>

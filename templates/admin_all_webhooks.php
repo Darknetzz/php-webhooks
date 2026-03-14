@@ -29,7 +29,9 @@ ob_start();
                 <?php foreach ($webhooksWithOwners as $item): $w = $item['webhook']; $owner = $item['owner_username']; ?>
                     <tr>
                         <td><?= e($w->name) ?></td>
-                        <td><code class="code"><?= e($webhookBaseUrl) ?>/w/<?= e($w->slug) ?></code></td>
+                        <td>
+                            <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
+                        </td>
                         <td><?= e($owner) ?></td>
                         <td><?= $w->is_public ? 'Public' : 'Private' ?></td>
                         <td><?= e($w->created_at) ?></td>

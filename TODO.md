@@ -1,0 +1,3 @@
+- [ ] Navbar - move Admin button to the user dropdown menu
+- [ ] Add icons to the page, to both navbar, buttons and other things
+- [ ]

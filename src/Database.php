@@ -72,12 +72,41 @@ class Database
         return $this->pdo->lastInsertId();
     }
 
-    /** Run migrations (create tables if not exist) */
+    /** Run migrations (create tables if not exist, add new columns to webhooks if missing) */
     public function migrate(): void
     {
         $schema = $this->getSchema();
         foreach ($schema as $sql) {
             $this->pdo->exec($sql);
+        }
+        $this->migrateWebhookResponseColumns();
+    }
+
+    /** Add optional response columns to webhooks for existing installations. */
+    private function migrateWebhookResponseColumns(): void
+    {
+        if (!$this->tableExists('webhooks')) {
+            return;
+        }
+        $alters = $this->isSqlite()
+            ? [
+                'ALTER TABLE webhooks ADD COLUMN response_status_code INTEGER NOT NULL DEFAULT 200',
+                'ALTER TABLE webhooks ADD COLUMN response_headers TEXT',
+                'ALTER TABLE webhooks ADD COLUMN response_body TEXT',
+            ]
+            : [
+                'ALTER TABLE webhooks ADD COLUMN response_status_code INT NOT NULL DEFAULT 200',
+                'ALTER TABLE webhooks ADD COLUMN response_headers TEXT',
+                'ALTER TABLE webhooks ADD COLUMN response_body TEXT',
+            ];
+        foreach ($alters as $sql) {
+            try {
+                $this->pdo->exec($sql);
+            } catch (PDOException $e) {
+                if (strpos($e->getMessage(), 'duplicate') === false && strpos($e->getMessage(), 'Duplicate') === false) {
+                    throw $e;
+                }
+            }
         }
     }
 
@@ -100,6 +129,9 @@ class Database
                     name VARCHAR(255) NOT NULL,
                     description TEXT,
                     is_public INTEGER NOT NULL DEFAULT 1,
+                    response_status_code INTEGER NOT NULL DEFAULT 200,
+                    response_headers TEXT,
+                    response_body TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -134,6 +166,9 @@ class Database
                 name VARCHAR(255) NOT NULL,
                 description TEXT,
                 is_public TINYINT(1) NOT NULL DEFAULT 1,
+                response_status_code INT NOT NULL DEFAULT 200,
+                response_headers TEXT,
+                response_body TEXT,
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

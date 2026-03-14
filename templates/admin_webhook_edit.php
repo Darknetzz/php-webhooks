@@ -27,6 +27,22 @@ ob_start();
                 List on public page
             </label>
         </div>
+        <div class="form-section" style="margin-top: 1.25rem;">
+            <h3 class="form-section-title">Response (optional)</h3>
+            <p class="hint" style="margin-bottom: 0.75rem;">Customize the HTTP response when the webhook is called. Empty = default.</p>
+            <div class="form-group">
+                <label for="response_status_code">Status code</label>
+                <input type="number" id="response_status_code" name="response_status_code" min="100" max="599" value="<?= (int) $webhook->response_status_code ?>" placeholder="200">
+            </div>
+            <div class="form-group">
+                <label for="response_headers">Response headers (JSON)</label>
+                <textarea id="response_headers" name="response_headers" rows="3" placeholder='{"Content-Type": "application/json"}'><?= e($webhook->response_headers) ?></textarea>
+            </div>
+            <div class="form-group">
+                <label for="response_body">Response body</label>
+                <textarea id="response_body" name="response_body" rows="4" placeholder="Leave empty for default"><?= e($webhook->response_body) ?></textarea>
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary">Save</button>
         <a href="<?= e($baseUrl) ?>/admin/webhooks" class="btn btn-ghost">Cancel</a>
     </form>
