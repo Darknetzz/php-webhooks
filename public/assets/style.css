@@ -38,7 +38,8 @@ body {
 
 .container {
     width: 100%;
-    max-width: 960px;
+    /* ~50% of viewport on large screens, at least 960px so it doesn’t shrink on smaller */
+    max-width: min(max(50vw, 960px), 1400px);
     margin: 0 auto;
     padding: 0 1.5rem;
 }
