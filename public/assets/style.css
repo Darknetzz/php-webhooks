@@ -235,14 +235,14 @@ h1, h2 {
 }
 
 .btn-primary {
-    background: var(--accent);
-    color: var(--bg);
+    background: transparent;
+    color: var(--accent);
     border-color: var(--accent);
 }
 
 .btn-primary:hover {
-    background: var(--accent-hover);
-    color: var(--bg);
+    background: transparent;
+    color: var(--accent-hover);
     border-color: var(--accent-hover);
 }
 
