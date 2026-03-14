@@ -46,6 +46,13 @@ class Auth
         return UserRepository::find((int) $id);
     }
 
+    /** Require login; returns current user or null. */
+    public function requireLogin(): ?User
+    {
+        return $this->user();
+    }
+
+    /** Require admin/superadmin role; returns current user or null. */
     public function requireAdmin(): ?User
     {
         $user = $this->user();

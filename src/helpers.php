@@ -95,6 +95,21 @@ if (!function_exists('redirect')) {
     }
 }
 
+/** Require admin/superadmin for admin panel; redirect to home if logged in as non-admin, else to login. Returns the admin user. */
+if (!function_exists('require_admin_panel')) {
+    function require_admin_panel(string $requestUri = '/'): \App\User
+    {
+        $user = auth()->requireAdmin();
+        if ($user) {
+            return $user;
+        }
+        if (auth()->user()) {
+            redirect(base_url() . '/');
+        }
+        redirect(base_url() . '/login?redirect=' . urlencode($requestUri));
+    }
+}
+
 /** Project root (parent of src/). */
 if (!function_exists('project_root')) {
     function project_root(): string
@@ -182,7 +197,8 @@ if (!function_exists('highlight_curl_for_display')) {
         $line = preg_replace_callback('/^(curl)\b/', fn ($m) => '<span class="sh-cmd">' . e($m[1]) . '</span>', $line, 1);
         $line = preg_replace_callback('/\b(-X\s+[A-Z]+)\b/', fn ($m) => '<span class="sh-opt">' . e($m[1]) . '</span>', $line);
         $line = preg_replace_callback('/\b(-d)\b/', fn ($m) => '<span class="sh-opt">' . e($m[1]) . '</span>', $line);
-        $line = preg_replace_callback('/"([^"]*)"/', fn ($m) => '<span class="sh-str">"' . e($m[1]) . '"</span>', $line);
+        // Only the first double-quoted string is the URL; limit to 1 so we don't highlight JSON keys inside -d payload
+        $line = preg_replace_callback('/"([^"]*)"/', fn ($m) => '<span class="sh-str">"' . e($m[1]) . '"</span>', $line, 1);
         $line = preg_replace_callback("/'([^']*)'/", fn ($m) => '<span class="sh-str">&#39;' . e($m[1]) . '&#39;</span>', $line);
         return $line;
     }

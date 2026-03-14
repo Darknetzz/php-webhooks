@@ -300,6 +300,19 @@ h1, h2 {
     color: white;
 }
 
+.btn-danger-inline {
+    color: var(--danger);
+}
+.btn-danger-inline:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.btn-webhook-action.btn-danger-inline:hover {
+    color: white;
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
 .form-section {
     margin-bottom: 1.5rem;
 }

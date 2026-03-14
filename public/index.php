@@ -142,9 +142,9 @@ if ($uri === '/settings') {
     exit;
 }
 
-// Admin: webhooks create (POST only; GET redirects to /)
+// Admin: webhooks create (POST only; GET redirects to /) — any logged-in user
 if (preg_match('#^/admin/webhooks$#', $uri)) {
-    $user = auth()->requireAdmin();
+    $user = auth()->requireLogin();
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
@@ -194,13 +194,13 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
 }
 
 if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
-    $user = auth()->requireAdmin();
+    $user = auth()->requireLogin();
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
-    if (!$webhook) {
+    if (!$webhook || (!WebhookRepository::userOwns($id, $user->id) && !$user->isAdmin())) {
         redirect(base_url() . '/');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -222,25 +222,53 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
 }
 
 if (preg_match('#^/admin/webhooks/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user = auth()->requireAdmin();
+    $user = auth()->requireLogin();
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode('/'));
     }
     $id = (int) $m[1];
-    if (WebhookRepository::find($id)) {
+    $webhook = WebhookRepository::find($id);
+    if ($webhook && (WebhookRepository::userOwns($id, $user->id) || $user->isAdmin())) {
         WebhookRepository::delete($id);
     }
     redirect(base_url() . '/');
 }
 
-if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
+if (preg_match('#^/admin/webhooks/(\d+)/requests/delete-all$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode('/'));
+    }
+    $id = (int) $m[1];
+    $webhook = WebhookRepository::find($id);
+    if ($webhook) {
+        WebhookRequestRepository::deleteAllForWebhook($id);
+    }
+    redirect(base_url() . '/admin/webhooks/' . $id . '/requests');
+}
+
+if (preg_match('#^/admin/webhooks/(\d+)/requests/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode('/'));
+    }
+    $webhookId = (int) $m[1];
+    $requestId = (int) $m[2];
+    $request = WebhookRequestRepository::find($requestId);
+    if ($request && $request->webhook_id === $webhookId) {
+        WebhookRequestRepository::delete($requestId);
+    }
+    redirect(base_url() . '/admin/webhooks/' . $webhookId . '/requests');
+}
+
+if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
+    $user = auth()->requireLogin();
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
-    if (!$webhook) {
+    if (!$webhook || (!WebhookRepository::userOwns($id, $user->id) && !$user->isAdmin())) {
         redirect(base_url() . '/');
     }
     $requests = WebhookRequestRepository::listForWebhook($id);
@@ -249,22 +277,16 @@ if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
     exit;
 }
 
-// Admin panel index
+// Admin panel index (admin/superadmin only)
 if ($uri === '/admin') {
-    $user = auth()->requireAdmin();
-    if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode($uri));
-    }
+    $user = require_admin_panel($uri);
     require dirname(__DIR__) . '/templates/admin_index.php';
     exit;
 }
 
-// Admin: all webhooks (with owners)
+// Admin: all webhooks (with owners) — admin panel only
 if ($uri === '/admin/all-webhooks') {
-    $user = auth()->requireAdmin();
-    if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode($uri));
-    }
+    $user = require_admin_panel($uri);
     $webhooksWithOwners = WebhookRepository::listAllWithOwner();
     $baseUrl = rtrim(base_url(), '/');
     $webhookBaseUrl = rtrim(webhook_base_url(), '/');
@@ -272,12 +294,9 @@ if ($uri === '/admin/all-webhooks') {
     exit;
 }
 
-// Admin: users list and create
+// Admin: users list and create — admin panel only
 if ($uri === '/admin/users') {
-    $user = auth()->requireAdmin();
-    if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode($uri));
-    }
+    $user = require_admin_panel($uri);
     $users = UserRepository::listAll();
     $createError = $createError ?? null;
     $createUsername = $createUsername ?? '';
@@ -285,7 +304,7 @@ if ($uri === '/admin/users') {
         $username = trim((string) $_POST['create_username']);
         $password = (string) $_POST['create_password'];
         $role = trim((string) ($_POST['create_role'] ?? User::ROLE_ADMIN));
-        if (!in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
+        if (!in_array($role, [User::ROLE_USER, User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
             $role = User::ROLE_ADMIN;
         }
         if ($username !== '' && strlen($password) >= 8) {
@@ -305,12 +324,9 @@ if ($uri === '/admin/users') {
     exit;
 }
 
-// Admin: edit user
+// Admin: edit user — admin panel only
 if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
-    $user = auth()->requireAdmin();
-    if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode($uri));
-    }
+    $user = require_admin_panel($uri);
     $id = (int) $m[1];
     $editUser = UserRepository::find($id);
     if (!$editUser) {
@@ -320,8 +336,12 @@ if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim((string) ($_POST['username'] ?? ''));
         $role = trim((string) ($_POST['role'] ?? $editUser->role));
-        if (!in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
+        if (!in_array($role, [User::ROLE_USER, User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
             $role = $editUser->role;
+        }
+        // Do not demote the last superadmin
+        if ($editUser->isSuperAdmin() && UserRepository::countSuperAdmins() <= 1 && $role !== User::ROLE_SUPERADMIN) {
+            $role = User::ROLE_SUPERADMIN;
         }
         if ($username !== '') {
             $newPassword = (string) ($_POST['password'] ?? '');
@@ -345,8 +365,8 @@ if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
 
 // Admin: delete user (superadmin only; cannot delete last superadmin or self)
 if (preg_match('#^/admin/users/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user = auth()->requireAdmin();
-    if (!$user || !$user->isSuperAdmin()) {
+    $user = require_admin_panel($uri);
+    if (!$user->isSuperAdmin()) {
         redirect(base_url() . '/admin/users');
     }
     $id = (int) $m[1];
@@ -361,9 +381,9 @@ if (preg_match('#^/admin/users/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_M
     redirect(base_url() . '/admin/users');
 }
 
-// Home: public webhook list or webhooks (logged-in admin)
+// Home: public webhook list or my webhooks (any logged-in user)
 $currentUser = auth()->user();
-if ($currentUser && $currentUser->isAdmin()) {
+if ($currentUser) {
     $webhooks = WebhookRepository::listForUser($currentUser->id);
     require dirname(__DIR__) . '/templates/webhooks.php';
 } else {

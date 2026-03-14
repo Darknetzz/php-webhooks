@@ -80,6 +80,7 @@ ob_start();
                 <div class="form-group">
                     <label for="create_role">Role</label>
                     <select id="create_role" name="create_role">
+                        <option value="<?= e(\App\User::ROLE_USER) ?>">User</option>
                         <option value="<?= e(\App\User::ROLE_ADMIN) ?>">Admin</option>
                         <option value="<?= e(\App\User::ROLE_SUPERADMIN) ?>">Superadmin</option>
                     </select>

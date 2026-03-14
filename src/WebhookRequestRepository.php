@@ -31,4 +31,16 @@ class WebhookRequestRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? WebhookRequest::fromRow($row) : null;
     }
+
+    public static function delete(int $id): void
+    {
+        $stmt = db()->pdo()->prepare('DELETE FROM webhook_requests WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
+    public static function deleteAllForWebhook(int $webhookId): void
+    {
+        $stmt = db()->pdo()->prepare('DELETE FROM webhook_requests WHERE webhook_id = ?');
+        $stmt->execute([$webhookId]);
+    }
 }
