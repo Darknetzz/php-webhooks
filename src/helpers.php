@@ -170,3 +170,27 @@ if (!function_exists('git_repo_url')) {
         return null;
     }
 }
+
+/**
+ * Repo name for display (e.g. "owner/repo" from repo URL).
+ * @return string|null
+ */
+if (!function_exists('git_repo_name')) {
+    function git_repo_name(): ?string
+    {
+        $url = git_repo_url();
+        if ($url === null || $url === '') {
+            return null;
+        }
+        $path = parse_url($url, PHP_URL_PATH);
+        if ($path === null || $path === '') {
+            return null;
+        }
+        $path = trim($path, '/');
+        $parts = array_filter(explode('/', $path));
+        if (count($parts) >= 2) {
+            return $parts[count($parts) - 2] . '/' . $parts[count($parts) - 1];
+        }
+        return count($parts) === 1 ? $parts[0] : null;
+    }
+}
