@@ -110,6 +110,25 @@ if ($uri === '/profile') {
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
+    $passwordError = null;
+    $passwordSuccess = false;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
+        $current = (string) ($_POST['current_password'] ?? '');
+        $newPass = (string) ($_POST['new_password'] ?? '');
+        $confirm = (string) ($_POST['new_password_confirm'] ?? '');
+        if ($current === '' || $newPass === '' || $confirm === '') {
+            $passwordError = 'All fields are required.';
+        } elseif (strlen($newPass) < 8) {
+            $passwordError = 'New password must be at least 8 characters.';
+        } elseif ($newPass !== $confirm) {
+            $passwordError = 'New password and confirmation do not match.';
+        } elseif (!password_verify($current, UserRepository::getPasswordHash($user->id))) {
+            $passwordError = 'Current password is incorrect.';
+        } else {
+            UserRepository::update($user->id, ['password' => $newPass]);
+            $passwordSuccess = true;
+        }
+    }
     require dirname(__DIR__) . '/templates/profile.php';
     exit;
 }
@@ -123,11 +142,15 @@ if ($uri === '/settings') {
     exit;
 }
 
-// Admin: webhooks CRUD
+// Admin: webhooks create (POST only; GET redirects to /)
 if (preg_match('#^/admin/webhooks$#', $uri)) {
     $user = auth()->requireAdmin();
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        redirect(base_url() . '/');
+        exit;
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $name = trim((string) $_POST['name']);
@@ -151,7 +174,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         if ($name !== '') {
             try {
                 WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody);
-                redirect(base_url() . '/admin/webhooks');
+                redirect(base_url() . '/');
             } catch (Throwable $e) {
                 $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
                 $createName = $name;
@@ -166,8 +189,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         }
     }
     $webhooks = WebhookRepository::listForUser($user->id);
-    $createSlugFromName = $createSlugFromName ?? true;
-    require dirname(__DIR__) . '/templates/admin_webhooks.php';
+    require dirname(__DIR__) . '/templates/webhooks.php';
     exit;
 }
 
@@ -179,7 +201,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
     if (!$webhook) {
-        redirect(base_url() . '/admin/webhooks');
+        redirect(base_url() . '/');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $responseStatusCode = (int) ($_POST['response_status_code'] ?? $webhook->response_status_code);
@@ -193,7 +215,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
             'response_headers' => trim((string) ($_POST['response_headers'] ?? '')),
             'response_body' => trim((string) ($_POST['response_body'] ?? '')),
         ]);
-        redirect(base_url() . '/admin/webhooks');
+        redirect(base_url() . '/');
     }
     require dirname(__DIR__) . '/templates/admin_webhook_edit.php';
     exit;
@@ -202,13 +224,13 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
 if (preg_match('#^/admin/webhooks/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = auth()->requireAdmin();
     if (!$user) {
-        redirect(base_url() . '/login?redirect=' . urlencode('/admin/webhooks'));
+        redirect(base_url() . '/login?redirect=' . urlencode('/'));
     }
     $id = (int) $m[1];
     if (WebhookRepository::find($id)) {
         WebhookRepository::delete($id);
     }
-    redirect(base_url() . '/admin/webhooks');
+    redirect(base_url() . '/');
 }
 
 if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
@@ -219,7 +241,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
     if (!$webhook) {
-        redirect(base_url() . '/admin/webhooks');
+        redirect(base_url() . '/');
     }
     $requests = WebhookRequestRepository::listForWebhook($id);
     $baseUrl = rtrim(base_url(), '/');
@@ -339,11 +361,11 @@ if (preg_match('#^/admin/users/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_M
     redirect(base_url() . '/admin/users');
 }
 
-// Home: public webhook list or dashboard
+// Home: public webhook list or webhooks (logged-in admin)
 $currentUser = auth()->user();
 if ($currentUser && $currentUser->isAdmin()) {
     $webhooks = WebhookRepository::listForUser($currentUser->id);
-    require dirname(__DIR__) . '/templates/dashboard.php';
+    require dirname(__DIR__) . '/templates/webhooks.php';
 } else {
     $webhooks = WebhookRepository::listPublic();
     require dirname(__DIR__) . '/templates/home.php';

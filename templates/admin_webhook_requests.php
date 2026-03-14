@@ -5,9 +5,12 @@ $baseUrl = rtrim(base_url(), '/');
 $webhookBaseUrl = rtrim(webhook_base_url(), '/');
 ob_start();
 ?>
-<h1>Requests: <?= e($webhook->name) ?></h1>
+<div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+    <h1 style="margin: 0;">Requests: <?= e($webhook->name) ?></h1>
+    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
+</div>
 <p class="meta" style="margin-bottom: 1rem;">
-    <a href="<?= e($baseUrl) ?>/admin/webhooks">← Webhooks</a>
+    <a href="<?= e($baseUrl) ?>/">← Webhooks</a>
     &nbsp;·&nbsp;
     <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; require __DIR__ . '/partials/webhook_url_block.php'; ?>
 </p>
@@ -40,15 +43,18 @@ ob_start();
                     </tr>
                     <tr id="detail-<?= $r->id ?>" style="display: none;" class="detail-row">
                         <td colspan="4" class="request-detail">
-                            <div class="meta">Headers (excerpt)</div>
-                            <div class="request-body"><?= e(mb_substr($r->headers, 0, 500)) ?><?= mb_strlen($r->headers) > 500 ? '…' : '' ?></div>
+                            <div class="meta">Headers</div>
+                            <pre class="request-body"><code class="json-beautify"><?= e($r->headers) ?></code></pre>
                             <?php if ($r->query_string !== ''): ?>
-                                <div class="meta" style="margin-top: 0.5rem;">Query string</div>
-                                <div class="request-body"><?= e($r->query_string) ?></div>
+                                <div class="meta" style="margin-top: 0.75rem;">Query string</div>
+                                <pre class="request-body"><code><?= e($r->query_string) ?></code></pre>
                             <?php endif; ?>
                             <?php if ($r->body !== ''): ?>
-                                <div class="meta" style="margin-top: 0.5rem;">Body</div>
-                                <div class="request-body"><?= e(mb_substr($r->body, 0, 2000)) ?><?= mb_strlen($r->body) > 2000 ? '…' : '' ?></div>
+                                <div class="meta" style="margin-top: 0.75rem;">Body</div>
+                                <pre class="request-body"><code class="json-beautify"><?= e($r->body) ?></code></pre>
+                            <?php else: ?>
+                                <div class="meta" style="margin-top: 0.75rem;">Body</div>
+                                <pre class="request-body"><code class="meta">(empty)</code></pre>
                             <?php endif; ?>
                         </td>
                     </tr>

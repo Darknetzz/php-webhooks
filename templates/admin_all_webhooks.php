@@ -3,14 +3,16 @@ $title = 'All Webhooks';
 $config = config();
 $baseUrl = rtrim(base_url(), '/');
 $webhookBaseUrl = rtrim(webhook_base_url(), '/');
+$adminActive = 'webhooks';
 ob_start();
 ?>
 <h1>All Webhooks</h1>
-<p class="meta" style="margin-bottom: 1rem;"><a href="<?= e($baseUrl) ?>/admin">Admin</a> · <a href="<?= e($baseUrl) ?>/admin/webhooks">Create webhook</a></p>
+<?php require __DIR__ . '/partials/admin_nav_pills.php'; ?>
+<p class="meta" style="margin-bottom: 1rem;"><a href="<?= e($baseUrl) ?>/">Webhooks</a></p>
 <?php if (empty($webhooksWithOwners)): ?>
     <div class="empty-state">
         <p>No webhooks exist yet.</p>
-        <a href="<?= e($baseUrl) ?>/admin/webhooks" class="btn btn-primary">Create webhook</a>
+        <a href="<?= e($baseUrl) ?>/" class="btn btn-primary">Create webhook</a>
     </div>
 <?php else: ?>
     <div class="table-wrap">
