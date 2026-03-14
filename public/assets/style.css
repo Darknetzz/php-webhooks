@@ -538,6 +538,130 @@ th {
     margin-top: 0.5rem;
 }
 
+/* Settings page */
+.settings-section {
+    margin-bottom: 1.5rem;
+}
+
+.settings-section-title {
+    font-size: 1.1rem;
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-subtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+}
+
+.settings-row {
+    margin-bottom: 1.25rem;
+}
+
+.settings-row:last-child {
+    margin-bottom: 0;
+}
+
+.settings-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.theme-toggle {
+    display: flex;
+    gap: 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    width: fit-content;
+}
+
+.theme-option {
+    padding: 0.5rem 1rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: var(--surface);
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+}
+
+.theme-option:last-child {
+    border-right: none;
+}
+
+.theme-option:hover {
+    color: var(--text);
+    background: var(--border);
+}
+
+.theme-option.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.theme-option.active + .theme-option {
+    border-left-color: var(--accent);
+}
+
+.primary-color-swatches {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    background: var(--swatch);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-swatch.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 1px var(--border);
+}
+
+.color-picker {
+    width: 32px;
+    height: 32px;
+    margin-left: 0.25rem;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.color-picker::-webkit-color-swatch-wrapper { padding: 2px; }
+.color-picker::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+.settings-flash {
+    margin-bottom: 1rem;
+}
+
+.settings-form {
+    margin-top: 0.5rem;
+}
+
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
