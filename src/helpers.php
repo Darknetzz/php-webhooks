@@ -58,7 +58,12 @@ if (!function_exists('base_url')) {
             $configuredHost = parse_url($configured, PHP_URL_HOST);
             $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;
             if ($configuredHost !== null && $configuredHost !== false && strcasecmp($configuredHost, $requestHost) === 0) {
-                return $configured;
+                $configuredPath = parse_url($configured, PHP_URL_PATH);
+                $hasSubpath = $scriptDir !== '' && $scriptDir !== '/';
+                $configuredHasPath = $configuredPath !== null && $configuredPath !== '' && $configuredPath !== '/';
+                if (!$hasSubpath || $configuredHasPath) {
+                    return $configured;
+                }
             }
         }
         return $requestBase;
