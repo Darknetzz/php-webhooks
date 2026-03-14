@@ -1,9 +1,10 @@
 # PHP Webhooks – run with document root = public/
 FROM php:8.2-apache
 
-# Build-time version (pass from docker build --build-arg or CI)
+# Build-time version and repo (pass from docker build --build-arg or CI)
 ARG GIT_COMMIT=unknown
 ARG GIT_TAG=
+ARG GIT_REPO_URL=
 
 # Document root so routes like /login work; .htaccess handles rewrites
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -27,8 +28,10 @@ RUN echo "${GIT_TAG}${GIT_TAG:+ }${GIT_COMMIT}" > /var/www/html/version.txt \
 # SQLite: writable data dir (runtime volume can override)
 RUN mkdir -p data && chown -R www-data:www-data data
 
-# Default env; override with docker run -e or compose env_file
+# Default env; override with docker run -e or compose env_file.
+# GIT_REPO_URL is set from build-arg so the footer shows repo name and link when built from CI/local git.
 ENV APP_ENV=production APP_DEBUG=0
+ENV GIT_REPO_URL=${GIT_REPO_URL}
 
 ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
 EXPOSE 80

@@ -16,14 +16,24 @@ if [ -n "$DOCKERHUB_TOKEN" ]; then
   echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
 fi
 
-# Version for image (shown in docker logs at startup)
+# Version and repo URL for image (footer link when no .git in container)
 GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null)" || GIT_COMMIT=unknown
 GIT_TAG="$(git describe --tags --exact-match 2>/dev/null)" || true
+GIT_REPO_URL=""
+remote="$(git config --get remote.origin.url 2>/dev/null)" || true
+if [ -n "$remote" ]; then
+  if [[ "$remote" =~ ^git@([^:]+):(.+?)\.git$ ]]; then
+    GIT_REPO_URL="https://${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
+  elif [[ "$remote" =~ ^https?://. ]]; then
+    GIT_REPO_URL="${remote%.git}"
+  fi
+fi
 
 echo "Building $IMAGE ..."
 docker build -t "$IMAGE:latest" \
   --build-arg "GIT_COMMIT=$GIT_COMMIT" \
   --build-arg "GIT_TAG=$GIT_TAG" \
+  --build-arg "GIT_REPO_URL=$GIT_REPO_URL" \
   .
 
 # Optional: tag image with git tag if we're on a tagged commit

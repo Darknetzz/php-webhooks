@@ -64,6 +64,7 @@ jobs:
           build-args: |
             GIT_COMMIT=${{ github.sha }}
             GIT_TAG=${{ github.event.release.tag_name || '' }}
+            GIT_REPO_URL=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -97,5 +98,6 @@ jobs:
           build-args: |
             GIT_COMMIT=${{ github.sha }}
             GIT_TAG=${{ github.event.release.tag_name || '' }}
+            GIT_REPO_URL=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
