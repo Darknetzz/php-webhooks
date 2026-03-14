@@ -36,4 +36,7 @@ return [
         'name' => 'php_webhooks_sid',
         'lifetime' => 86400 * 7, // 7 days
     ],
+
+    /** Optional Git repo URL for version link in footer (e.g. https://github.com/owner/repo). Set GIT_REPO_URL in .env. */
+    'git_repo_url' => $env('GIT_REPO_URL', '') !== '' ? rtrim($env('GIT_REPO_URL', ''), '/') : null,
 ];

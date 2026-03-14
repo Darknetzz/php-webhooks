@@ -43,7 +43,12 @@ $config = config();
         <?= $content ?? '' ?>
     </main>
     <footer class="site-footer">
-        <div class="container">Self-hosted webhook receiver</div>
+        <div class="container">
+            Self-hosted webhook receiver
+            <?php $version = git_version(); $repoUrl = git_repo_url(); if ($version !== null): ?>
+                · <?php if ($repoUrl !== null): ?><a href="<?= e($repoUrl) ?>/commit/<?= e($version['commit']) ?>" target="_blank" rel="noopener noreferrer"><?php endif; ?>Version <?= e($version['tag'] ?? $version['commit']) ?><?= $version['tag'] !== null ? ' <code>' . e($version['commit']) . '</code>' : '' ?><?php if ($repoUrl !== null): ?></a><?php endif; ?>
+            <?php endif; ?>
+        </div>
     </footer>
     <script>
     document.body.addEventListener('click', function (e) {

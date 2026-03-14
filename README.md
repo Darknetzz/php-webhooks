@@ -44,11 +44,12 @@ The image uses Apache with document root set to `public/`, so routes like `/logi
          - APP_ENV=production
          - APP_DEBUG=0
          - APP_URL=https://webhooks.example.com
+         # Secret key used for signing sessions and cookies. Set to a long random string.
          - APP_SECRET=
          # Optional: set if app is behind proxy at a subpath
-         - APP_BASE_PATH=
+        #  - APP_BASE_PATH=
          # Optional: public URL for webhook endpoints (default: APP_URL)
-         - APP_URL_PUBLIC=
+        #  - APP_URL_PUBLIC=
          - DB_DRIVER=sqlite
          - DB_PATH=/var/www/html/data/database.sqlite
          # MySQL (when DB_DRIVER=mysql):

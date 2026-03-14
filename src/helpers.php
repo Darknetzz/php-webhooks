@@ -82,3 +82,79 @@ if (!function_exists('redirect')) {
         exit;
     }
 }
+
+/** Project root (parent of src/). */
+if (!function_exists('project_root')) {
+    function project_root(): string
+    {
+        return dirname(__DIR__);
+    }
+}
+
+/**
+ * Current Git version: commit (short hash) and optional tag.
+ * Uses version.txt when present (Docker/build), else runs git from project root.
+ * @return array{commit: string, tag: string|null}|null
+ */
+if (!function_exists('git_version')) {
+    function git_version(): ?array
+    {
+        $root = project_root();
+        $versionFile = $root . '/version.txt';
+        if (is_file($versionFile) && is_readable($versionFile)) {
+            $raw = trim((string) file_get_contents($versionFile));
+            if ($raw === '') {
+                return null;
+            }
+            $parts = preg_split('/\s+/', $raw, 2);
+            if (count($parts) === 1) {
+                return ['commit' => $parts[0], 'tag' => null];
+            }
+            return ['commit' => $parts[1], 'tag' => $parts[0] !== '' ? $parts[0] : null];
+        }
+        $gitDir = $root . '/.git';
+        if (!is_dir($gitDir)) {
+            return null;
+        }
+        $commit = @shell_exec('cd ' . escapeshellarg($root) . ' && git rev-parse --short HEAD 2>/dev/null');
+        if ($commit === null || $commit === '') {
+            return null;
+        }
+        $commit = trim($commit);
+        $tag = @shell_exec('cd ' . escapeshellarg($root) . ' && git describe --tags --exact-match 2>/dev/null');
+        $tag = $tag !== null && $tag !== '' ? trim($tag) : null;
+        return ['commit' => $commit, 'tag' => $tag];
+    }
+}
+
+/**
+ * Git repo URL for linking (e.g. to commit). From GIT_REPO_URL env or git remote origin.
+ * @return string|null Normalized HTTPS URL without trailing slash, or null
+ */
+if (!function_exists('git_repo_url')) {
+    function git_repo_url(): ?string
+    {
+        $config = config();
+        $url = $config['git_repo_url'] ?? null;
+        if ($url !== null && $url !== '') {
+            return $url;
+        }
+        $root = project_root();
+        if (!is_dir($root . '/.git')) {
+            return null;
+        }
+        $remote = @shell_exec('cd ' . escapeshellarg($root) . ' && git config --get remote.origin.url 2>/dev/null');
+        if ($remote === null || trim($remote) === '') {
+            return null;
+        }
+        $remote = trim($remote);
+        // git@github.com:user/repo.git -> https://github.com/user/repo
+        if (preg_match('#^git@([^:]+):(.+?)\.git$#', $remote, $m)) {
+            return 'https://' . $m[1] . '/' . str_replace(':', '/', $m[2]);
+        }
+        if (preg_match('#^https?://.+#', $remote)) {
+            return rtrim(preg_replace('#\.git$#', '', $remote), '/');
+        }
+        return null;
+    }
+}

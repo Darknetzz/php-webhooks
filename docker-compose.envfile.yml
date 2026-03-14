@@ -1,0 +1,18 @@
+# Run: docker compose up -d
+# Set APP_URL to your public URL (e.g. https://webhooks.example.com).
+# Reverse proxy: forward to http://webhooks:80 (no path needed).
+
+services:
+  webhooks:
+    build: .
+    ports:
+      - "8567:80"
+    env_file:
+      - .env
+    volumes:
+      - webhooks_data:/var/www/html/data
+      - ./.env:/var/www/html/.env:ro
+    restart: unless-stopped
+
+volumes:
+  webhooks_data:
