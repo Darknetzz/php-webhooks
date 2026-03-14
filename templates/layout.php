@@ -82,6 +82,21 @@ $config = config();
             }
             return;
         }
+        btn = e.target.closest('.btn-copy-codebox');
+        if (btn) {
+            var codebox = btn.closest('.codebox');
+            var codeEl = codebox && codebox.querySelector('.codebox-code');
+            if (codeEl) {
+                var text = codeEl.textContent.trim();
+                navigator.clipboard.writeText(text).then(function () {
+                    var label = btn.innerHTML;
+                    btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#icon-copy"/></svg> Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(function () { btn.innerHTML = label; btn.classList.remove('copied'); }, 1500);
+                });
+            }
+            return;
+        }
         btn = e.target.closest('.btn-open-webhook');
         if (btn && btn.dataset.url) {
             window.open(btn.dataset.url, '_blank', 'noopener,noreferrer');

@@ -172,6 +172,24 @@ if (!function_exists('git_repo_url')) {
 }
 
 /**
+ * Return HTML for a curl command line with simple syntax-style spans (command, options, strings).
+ * Used for display only; copy uses raw text from the code element.
+ */
+if (!function_exists('highlight_curl_for_display')) {
+    function highlight_curl_for_display(string $line): string
+    {
+        $line = e($line);
+        // Wrap command (curl), options (-X POST, -d), and quoted strings for light highlighting
+        $line = preg_replace('/^(curl)\b/', '<span class="sh-cmd">$1</span>', $line, 1);
+        $line = preg_replace('/\b(-X\s+[A-Z]+)\b/', '<span class="sh-opt">$1</span>', $line);
+        $line = preg_replace('/\b(-d)\b/', '<span class="sh-opt">$1</span>', $line);
+        $line = preg_replace('/"([^"]*)"/', '<span class="sh-str">"$1"</span>', $line);
+        $line = preg_replace("/'([^']*)'/", '<span class="sh-str">&#39;$1&#39;</span>', $line);
+        return $line;
+    }
+}
+
+/**
  * Repo name for display (e.g. "owner/repo" from repo URL).
  * @return string|null
  */
