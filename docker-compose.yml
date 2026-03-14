@@ -13,12 +13,12 @@ services:
     ports:
       - "8567:80"
     environment:
-      APP_ENV: ${APP_ENV:-production}
-      APP_DEBUG: ${APP_DEBUG:-0}
-      APP_URL: ${APP_URL:-http://localhost/webhooks/public}
-      # APP_URL_PUBLIC: ${APP_URL_PUBLIC:-https://webhooks.example.com}
-      # APP_BASE_PATH: ${APP_BASE_PATH:-webhooks/public}
-      DB_DRIVER: ${DB_DRIVER:-sqlite}
+      APP_ENV: production
+      APP_DEBUG: 0
+      APP_URL: http://localhost/webhooks/public
+      # APP_URL_PUBLIC: https://webhooks.example.com
+      # APP_BASE_PATH: webhooks/public
+      DB_DRIVER: sqlite
       # Use container path so volume mount works (overrides .env DB_PATH)
       DB_PATH: /var/www/html/data/database.sqlite
     volumes:
