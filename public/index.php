@@ -17,12 +17,15 @@ if ($config['debug']) {
 
 // Route: /w/{slug} — receive webhook (no session needed for receiving)
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$appBasePath = $config['base_path'] ?? '';
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-// Strip script path (e.g. /webhooks/public/index.php) so we match routes
-if ($scriptName !== '') {
-    $basePath = rtrim(dirname($scriptName), '/');
-    if ($basePath !== '' && $basePath !== '/' && strpos($uri, $basePath) === 0) {
-        $uri = substr($uri, strlen($basePath)) ?: '/';
+// Strip base path: configured APP_BASE_PATH first, then script path (e.g. /webhooks/public/index.php)
+if ($appBasePath !== '' && strpos($uri, $appBasePath) === 0) {
+    $uri = substr($uri, strlen($appBasePath)) ?: '/';
+} elseif ($scriptName !== '') {
+    $scriptDir = rtrim(dirname($scriptName), '/');
+    if ($scriptDir !== '' && $scriptDir !== '/' && strpos($uri, $scriptDir) === 0) {
+        $uri = substr($uri, strlen($scriptDir)) ?: '/';
     } elseif ($uri !== $scriptName && strpos($uri, $scriptName) === 0) {
         $uri = substr($uri, strlen($scriptName)) ?: '/';
     }

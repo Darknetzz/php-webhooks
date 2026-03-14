@@ -48,11 +48,12 @@ if (!function_exists('base_url')) {
     {
         $config = config();
         $configured = rtrim((string) ($config['url'] ?? ''), '/');
+        $basePath = $config['base_path'] ?? '';
         $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? '';
         $host = is_string($host) ? trim(explode(',', $host)[0]) : '';
         $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ($_SERVER['REQUEST_SCHEME'] ?? 'http');
         $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/');
-        $requestBase = $scheme . '://' . $host . ($scriptDir !== '' && $scriptDir !== '/' ? $scriptDir : '');
+        $requestBase = $scheme . '://' . $host . ($basePath !== '' ? $basePath : ($scriptDir !== '' && $scriptDir !== '/' ? $scriptDir : ''));
         if ($configured !== '' && $host !== '') {
             $configuredHost = parse_url($configured, PHP_URL_HOST);
             $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;
