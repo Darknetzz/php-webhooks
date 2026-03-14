@@ -193,6 +193,25 @@ main {
     font-size: 0.85rem;
 }
 
+.site-footer a {
+    color: var(--muted);
+}
+
+.site-footer a:hover {
+    color: var(--text);
+}
+
+.site-footer .footer-repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.site-footer .icon-github {
+    width: 1em;
+    height: 1em;
+}
+
 h1, h2 {
     margin: 0 0 1rem;
     font-size: 1.5rem;

@@ -49,8 +49,9 @@ $config = config();
     <footer class="site-footer">
         <div class="container">
             Self-hosted webhook receiver
-            <?php $version = git_version(); $repoUrl = git_repo_url(); if ($version !== null): ?>
-                · Version <?php if ($repoUrl !== null): ?><a href="<?= e($repoUrl) ?>/commit/<?= e($version['commit']) ?>" target="_blank" rel="noopener noreferrer"><?php endif; ?><?= e($version['tag'] ?? $version['commit']) ?><?= $version['tag'] !== null ? ' <code>' . e($version['commit']) . '</code>' : '' ?><?php if ($repoUrl !== null): ?></a><?php endif; ?>
+            <?php $version = git_version(); $repoUrl = git_repo_url(); $repoName = git_repo_name(); if ($version !== null || $repoName !== null): ?>
+                · <?php if ($repoUrl !== null): ?><a href="<?= e($repoUrl) ?>" target="_blank" rel="noopener noreferrer" class="footer-repo-link"><?php endif; ?><svg class="icon icon-github" aria-hidden="true"><use href="#icon-github"/></svg> <?= $repoName !== null ? e($repoName) : 'Repository' ?><?php if ($repoUrl !== null): ?></a><?php endif; ?>
+                <?php if ($version !== null): ?> <?php if ($repoUrl !== null): ?><a href="<?= e($repoUrl) ?>/commit/<?= e($version['commit']) ?>" target="_blank" rel="noopener noreferrer"><?php endif; ?><?= e($version['tag'] ?? $version['commit']) ?><?= $version['tag'] !== null ? ' <code>' . e($version['commit']) . '</code>' : '' ?><?php if ($repoUrl !== null): ?></a><?php endif; ?><?php endif; ?>
             <?php endif; ?>
         </div>
     </footer>
