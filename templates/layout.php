@@ -18,6 +18,9 @@ $config = config();
                 <?php $user = auth()->user(); if ($user): ?>
                     <a href="<?= e(base_url()) ?>/">Dashboard</a>
                     <a href="<?= e(base_url()) ?>/admin/webhooks">Create Webhook</a>
+                    <?php if ($user->isAdmin()): ?>
+                        <a href="<?= e(base_url()) ?>/admin">Admin</a>
+                    <?php endif; ?>
                     <div class="user-dropdown">
                         <button type="button" class="user-dropdown-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="user-menu" id="user-dropdown-btn">
                             <span class="user-avatar" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($user->username, 0, 1))) ?></span>

@@ -171,7 +171,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
-    if (!$webhook || !WebhookRepository::userOwns($id, $user->id)) {
+    if (!$webhook) {
         redirect(base_url() . '/admin/webhooks');
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -193,7 +193,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUES
         redirect(base_url() . '/login?redirect=' . urlencode('/admin/webhooks'));
     }
     $id = (int) $m[1];
-    if (WebhookRepository::userOwns($id, $user->id)) {
+    if (WebhookRepository::find($id)) {
         WebhookRepository::delete($id);
     }
     redirect(base_url() . '/admin/webhooks');
@@ -206,13 +206,125 @@ if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
     }
     $id = (int) $m[1];
     $webhook = WebhookRepository::find($id);
-    if (!$webhook || !WebhookRepository::userOwns($id, $user->id)) {
+    if (!$webhook) {
         redirect(base_url() . '/admin/webhooks');
     }
     $requests = WebhookRequestRepository::listForWebhook($id);
     $baseUrl = rtrim(base_url(), '/');
     require dirname(__DIR__) . '/templates/admin_webhook_requests.php';
     exit;
+}
+
+// Admin panel index
+if ($uri === '/admin') {
+    $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    require dirname(__DIR__) . '/templates/admin_index.php';
+    exit;
+}
+
+// Admin: all webhooks (with owners)
+if ($uri === '/admin/all-webhooks') {
+    $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    $webhooksWithOwners = WebhookRepository::listAllWithOwner();
+    $baseUrl = rtrim(base_url(), '/');
+    $webhookBaseUrl = rtrim(webhook_base_url(), '/');
+    require dirname(__DIR__) . '/templates/admin_all_webhooks.php';
+    exit;
+}
+
+// Admin: users list and create
+if ($uri === '/admin/users') {
+    $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    $users = UserRepository::listAll();
+    $createError = $createError ?? null;
+    $createUsername = $createUsername ?? '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_username'], $_POST['create_password'])) {
+        $username = trim((string) $_POST['create_username']);
+        $password = (string) $_POST['create_password'];
+        $role = trim((string) ($_POST['create_role'] ?? User::ROLE_ADMIN));
+        if (!in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
+            $role = User::ROLE_ADMIN;
+        }
+        if ($username !== '' && strlen($password) >= 8) {
+            try {
+                UserRepository::create($username, $password, $role);
+                redirect(base_url() . '/admin/users');
+            } catch (Throwable $e) {
+                $createError = $config['debug'] ? $e->getMessage() : 'Username already exists or invalid.';
+                $createUsername = $username;
+            }
+        } else {
+            $createError = 'Username required and password must be at least 8 characters.';
+            $createUsername = $username;
+        }
+    }
+    require dirname(__DIR__) . '/templates/admin_users.php';
+    exit;
+}
+
+// Admin: edit user
+if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
+    $user = auth()->requireAdmin();
+    if (!$user) {
+        redirect(base_url() . '/login?redirect=' . urlencode($uri));
+    }
+    $id = (int) $m[1];
+    $editUser = UserRepository::find($id);
+    if (!$editUser) {
+        redirect(base_url() . '/admin/users');
+    }
+    $editError = $editError ?? null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $role = trim((string) ($_POST['role'] ?? $editUser->role));
+        if (!in_array($role, [User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
+            $role = $editUser->role;
+        }
+        if ($username !== '') {
+            $newPassword = (string) ($_POST['password'] ?? '');
+            try {
+                UserRepository::update($id, [
+                    'username' => $username,
+                    'role' => $role,
+                    'password' => $newPassword,
+                ]);
+                redirect(base_url() . '/admin/users');
+            } catch (Throwable $e) {
+                $editError = $config['debug'] ? $e->getMessage() : 'Update failed (username may already exist).';
+            }
+        } else {
+            $editError = 'Username is required.';
+        }
+    }
+    require dirname(__DIR__) . '/templates/admin_user_edit.php';
+    exit;
+}
+
+// Admin: delete user (superadmin only; cannot delete last superadmin or self)
+if (preg_match('#^/admin/users/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user = auth()->requireAdmin();
+    if (!$user || !$user->isSuperAdmin()) {
+        redirect(base_url() . '/admin/users');
+    }
+    $id = (int) $m[1];
+    $target = UserRepository::find($id);
+    if ($target && $id !== $user->id) {
+        if ($target->isSuperAdmin() && UserRepository::countSuperAdmins() <= 1) {
+            // do not delete last superadmin
+        } else {
+            UserRepository::delete($id);
+        }
+    }
+    redirect(base_url() . '/admin/users');
 }
 
 // Home: public webhook list or dashboard
