@@ -59,11 +59,18 @@ if (!function_exists('base_url')) {
             $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;
             if ($configuredHost !== null && $configuredHost !== false && strcasecmp($configuredHost, $requestHost) === 0) {
                 $configuredPath = parse_url($configured, PHP_URL_PATH);
-                $hasSubpath = $scriptDir !== '' && $scriptDir !== '/';
                 $configuredHasPath = $configuredPath !== null && $configuredPath !== '' && $configuredPath !== '/';
-                if (!$hasSubpath || $configuredHasPath) {
+                $hasSubpath = $scriptDir !== '' && $scriptDir !== '/';
+                if ($configuredHasPath) {
                     return $configured;
                 }
+                if ($hasSubpath) {
+                    $looksLikeBackend = strpos($host, '.') === false || $host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP);
+                    if ($looksLikeBackend) {
+                        return $requestBase;
+                    }
+                }
+                return $configured;
             }
         }
         return $requestBase;

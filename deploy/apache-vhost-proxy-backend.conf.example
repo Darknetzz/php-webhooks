@@ -1,0 +1,26 @@
+# When NPMPlus forwards to this server with Host: webhooks.roste.org and path /login
+# (no /webhooks/public prefix), this vhost serves the app. Copy to
+# /etc/apache2/sites-available/webhooks-proxy.conf, then:
+#   sudo a2ensite webhooks-proxy && sudo systemctl reload apache2
+#
+# Adjust the path if the app is not under /var/www/html/webhooks.
+
+<VirtualHost *:80>
+    ServerName webhooks.roste.org
+    DocumentRoot /var/www/html/webhooks/public
+
+    <Directory /var/www/html/webhooks/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule ^ index.php [L,QSA]
+        </IfModule>
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/webhooks-proxy-error.log
+    CustomLog ${APACHE_LOG_DIR}/webhooks-proxy-access.log combined
+</VirtualHost>
