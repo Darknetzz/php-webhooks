@@ -1,0 +1,27 @@
+# Apache site: webhooks app at /webhooks/public
+#
+# Copy to /etc/apache2/sites-available/webhooks.conf then:
+#   sudo a2ensite webhooks
+#   sudo apache2ctl configtest && sudo systemctl reload apache2
+#
+# Adjust the path if the app is not under /var/www/html/webhooks.
+#
+# If requests to /webhooks/public/login still show the web root, this fragment
+# may need to be included inside your main vhost (e.g. web01) instead of as a
+# separate site; some setups use the first matching VirtualHost and ignore
+# global Aliases.
+
+<IfModule mod_alias.c>
+    Alias /webhooks/public /var/www/html/webhooks/public
+</IfModule>
+<Directory /var/www/html/webhooks/public>
+    Options -Indexes +FollowSymLinks
+    AllowOverride All
+    Require all granted
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ /webhooks/public/index.php [L,QSA]
+    </IfModule>
+</Directory>
