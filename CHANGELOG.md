@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Release script** (`scripts/release.sh`): interactive release helper that shows last version, prompts for next tag, summarizes changelog, and optionally commits, tags, and pushes. Non-interactive form still used by GitHub Actions.
+
+### Changed
+
+- **Docker**: configuration and documentation updated for improved publishing workflow.
+- **User management**: user self-edit restriction and enhanced admin user edit functionality.
+- **UI**: role display removed from user dropdown in layout template.
+- **Documentation**: README updated to clarify branch model and protection rules.
+
 ## [1.0.0] - 2025-03-15
 
 ### Added
