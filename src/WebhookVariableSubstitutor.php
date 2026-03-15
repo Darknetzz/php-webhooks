@@ -27,13 +27,19 @@ class WebhookVariableSubstitutor
         string $queryString,
         ?string $ip
     ): array {
+        // One value per header name (first occurrence wins, case-insensitive) for consistency and security
         $headersArray = [];
         if ($headersJson !== '') {
             $decoded = json_decode($headersJson, true);
             if (is_array($decoded)) {
+                $seenLower = [];
                 foreach ($decoded as $k => $v) {
                     if (is_string($k) && (is_string($v) || is_int($v))) {
-                        $headersArray[$k] = (string) $v;
+                        $keyLower = strtolower($k);
+                        if (!isset($seenLower[$keyLower])) {
+                            $seenLower[$keyLower] = true;
+                            $headersArray[$k] = (string) $v;
+                        }
                     }
                 }
             }
