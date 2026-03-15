@@ -7,7 +7,7 @@ $config = config();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e(trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) !== '' ? trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) . ' — ' . e($title) : $title) ?></title>
+    <title><?= e(trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) !== '' ? $title . ' — ' . trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) : $title) ?></title>
     <script>
     (function(){
         var t=localStorage.getItem('webhooks_theme')||'dark';
@@ -29,6 +29,8 @@ $user = auth()->user();
 $showWebhookTesting = site_setting_bool(\App\SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, true) || ($user && $user->isAdmin());
 if ($showWebhookTesting):
     $allowSpecifyTestUrl = site_setting_bool(\App\SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, true);
+    $webhookTestTimeoutSeconds = (int) (site_setting(\App\SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, '30') ?: '30');
+    $webhookTestTimeoutSeconds = max(5, min(300, $webhookTestTimeoutSeconds));
 ?>
 <?php require __DIR__ . '/partials/webhook_test_modal.php'; ?>
 <?php endif; ?>

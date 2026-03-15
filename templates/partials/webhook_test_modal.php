@@ -2,7 +2,8 @@
 // Test webhook request constructor modal. Include once in layout.
 // Opens when .btn-test-webhook is clicked (data-url required). Sends request via fetch() and shows response.
 ?>
-<div class="modal-overlay" id="test-webhook-modal" role="dialog" aria-modal="true" aria-labelledby="test-webhook-modal-title">
+<?php $webhookTestTimeoutSeconds = isset($webhookTestTimeoutSeconds) ? (int) $webhookTestTimeoutSeconds : 30; $webhookTestTimeoutSeconds = max(5, min(300, $webhookTestTimeoutSeconds)); ?>
+<div class="modal-overlay" id="test-webhook-modal" role="dialog" aria-modal="true" aria-labelledby="test-webhook-modal-title" data-timeout-seconds="<?= (int) $webhookTestTimeoutSeconds ?>">
     <div class="modal modal--wide" onclick="event.stopPropagation()">
         <div class="modal-header">
             <h2 id="test-webhook-modal-title">Test webhook</h2>
@@ -130,7 +131,11 @@
         responseBodyEl.textContent = '';
         sendBtn.disabled = true;
 
-        var opts = { method: method, headers: headers };
+        var timeoutSeconds = parseInt(modal.getAttribute('data-timeout-seconds'), 10) || 30;
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function () { controller.abort(); }, timeoutSeconds * 1000);
+
+        var opts = { method: method, headers: headers, signal: controller.signal };
         if (body && ['POST', 'PUT', 'PATCH'].indexOf(method) !== -1) {
             opts.body = body;
         }
@@ -162,10 +167,12 @@
                 responseStatusEl.textContent = 'Error';
                 responseStatusEl.className = 'test-webhook-response-status http-status http-status--neutral';
                 responseBodyEl.textContent = '';
-                responseErrorEl.textContent = err.message || 'Request failed. If the URL is on another origin, the browser may block it (CORS). Try from the same origin or use curl.';
+                var msg = err.name === 'AbortError' ? 'Request timed out after ' + timeoutSeconds + ' seconds.' : (err.message || 'Request failed. If the URL is on another origin, the browser may block it (CORS). Try from the same origin or use curl.');
+                responseErrorEl.textContent = msg;
                 responseErrorEl.hidden = false;
             })
             .then(function () {
+                clearTimeout(timeoutId);
                 sendBtn.disabled = false;
             });
     });

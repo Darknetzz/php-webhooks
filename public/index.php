@@ -351,6 +351,7 @@ if ($uri === '/admin/settings') {
         $section = $_POST['settings_section'] ?? '';
         if ($section === 'general') {
             SiteSettings::set(SiteSettings::KEY_SITE_NAME, trim((string) ($_POST['site_name'] ?? '')));
+            $settingsSaved = true;
         } elseif ($section === 'webhooks') {
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
             SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
@@ -358,10 +359,11 @@ if ($uri === '/admin/settings') {
             SiteSettings::set(SiteSettings::KEY_MAX_WEBHOOKS_PER_USER, (string) max(0, $maxWebhooks));
             $testTimeout = (int) ($_POST['webhook_test_timeout_seconds'] ?? 30);
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, (string) max(5, min(300, $testTimeout)));
+            $settingsSaved = true;
         } elseif ($section === 'access') {
             SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');
+            $settingsSaved = true;
         }
-        $settingsSaved = true;
     }
     require dirname(__DIR__) . '/templates/admin_settings.php';
     exit;
