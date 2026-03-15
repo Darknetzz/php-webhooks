@@ -46,8 +46,10 @@ $fromAdmin = $fromAdmin ?? false;
                         </label>
                     </div>
                     <div class="form-group" id="create-slug-field-wrap">
-                        <label for="create-slug">Custom slug (optional)</label>
-                        <input type="text" id="create-slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" value="<?= e($createSlug) ?>">
+                        <div id="create-custom-slug-input-wrap">
+                            <label for="create-slug">Custom slug (optional)</label>
+                            <input type="text" id="create-slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" value="<?= e($createSlug) ?>">
+                        </div>
                         <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-slug-preview">my-api-hook</span></strong></div>
                     </div>
                     <div class="form-group" id="create-random-slug-hint" style="display: none;">
@@ -118,6 +120,7 @@ $fromAdmin = $fromAdmin ?? false;
     var createSlug = document.getElementById('create-slug');
     var createSlugPreview = document.getElementById('create-slug-preview');
     var createSlugFieldWrap = document.getElementById('create-slug-field-wrap');
+    var createCustomSlugInputWrap = document.getElementById('create-custom-slug-input-wrap');
     var createRandomSlugHint = document.getElementById('create-random-slug-hint');
     if (createSlugPreview) {
         var slugify = function (s) {
@@ -126,6 +129,7 @@ $fromAdmin = $fromAdmin ?? false;
         function updateCreateSlugVisibility() {
             var fromName = createSlugFromName && createSlugFromName.checked;
             if (createSlugFieldWrap) createSlugFieldWrap.style.display = fromName ? 'block' : 'none';
+            if (createCustomSlugInputWrap) createCustomSlugInputWrap.style.display = fromName ? 'none' : 'block';
             if (createRandomSlugHint) createRandomSlugHint.style.display = fromName ? 'none' : 'block';
             if (!fromName && createSlug) createSlug.value = '';
         }
