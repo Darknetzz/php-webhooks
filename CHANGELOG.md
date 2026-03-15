@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Visibility icons**: lock icon for private webhooks and globe icon for public/listed; reusable `visibility_label` partial used in webhook list, admin webhooks, and admin all webhooks.
+- **Created date icon**: calendar icon in front of “Created” date; reusable `created_date` partial for meta lines and table cells.
+- **Request count icon and link**: requests (document) icon in front of “X requests”; count is a clickable link to the request log (accent color). Removed separate “View requests” button from webhook cards.
+- **Requests toolbar**: Refresh and Delete all buttons moved from the URL line into a toolbar above the requests table (admin and public request pages); buttons aligned and same size.
+- **Outline danger button**: Bootstrap-style `btn-outline-danger` for the “Delete all” button on the requests page (transparent + danger border/text, filled on hover).
+
+### Changed
+
+- **Webhook cards**: meta line shows visibility icon + label, created date with calendar icon, and request count as a single link; card actions reduced to Edit and Delete.
+- **Requests page layout**: back link and webhook URL block only in the top line; Refresh and Delete all in a toolbar above the table.
+
 ## [1.0.2] - 2026-03-15
 
 
