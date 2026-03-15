@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\WebhookRepository;
 use App\WebhookRequestRepository;
+use App\WebhookVariableSubstitutor;
 
 // Included from index.php; $slug is set, bootstrap already loaded.
 
@@ -73,6 +74,12 @@ $responseBody = $webhook->response_body ?? '';
 if ($responseBody === '') {
     $responseBody = json_encode(['ok' => true, 'received' => true]);
 }
+
+$requestContext = WebhookVariableSubstitutor::buildContext($method, $headers, $body, $queryString, $ip);
+foreach ($responseHeadersSent as $name => $value) {
+    $responseHeadersSent[$name] = WebhookVariableSubstitutor::substitute($value, $requestContext);
+}
+$responseBody = WebhookVariableSubstitutor::substitute($responseBody, $requestContext);
 
 WebhookRequestRepository::log($webhook->id, $method, $headers, $body, $queryString, $ip, $statusCode, json_encode($responseHeadersSent), $responseBody);
 

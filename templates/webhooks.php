@@ -86,6 +86,7 @@ ob_start();
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Response (optional)</h3>
+                    <?php require __DIR__ . '/partials/response_variables_hint.php'; ?>
                     <div class="form-group">
                         <label for="edit-response_status_code">Status code</label>
                         <input type="number" id="edit-response_status_code" name="response_status_code" min="100" max="599">

@@ -33,7 +33,7 @@
                 <div class="form-group">
                     <label for="test-webhook-headers">Headers (optional)</label>
                     <textarea id="test-webhook-headers" name="headers" rows="3" placeholder="Content-Type: application/json&#10;X-Custom: value"></textarea>
-                    <div class="hint">One header per line: <code>Name: value</code></div>
+                    <div class="hint">One header per line: <code>Name: value</code>. You can use {{timestamp}}, {{date_iso}}, {{uuid}} in body and headers.</div>
                 </div>
                 <div class="form-group">
                     <label for="test-webhook-body">Body (optional)</label>
@@ -103,6 +103,21 @@
         });
     }
 
+    function substituteTestVariables(str) {
+        if (!str || !str.replace) return str;
+        var ts = Math.floor(Date.now() / 1000);
+        var dateIso = new Date().toISOString();
+        var uuid = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0;
+            var v = c === 'y' ? (r & 0x3 | 0x8) : r;
+            return v.toString(16);
+        });
+        return str
+            .replace(/\{\{timestamp\}\}/g, String(ts))
+            .replace(/\{\{date_iso\}\}/g, dateIso)
+            .replace(/\{\{uuid\}\}/g, uuid);
+    }
+
     function parseHeaders(text) {
         var out = {};
         if (!text || !text.trim()) return out;
@@ -111,7 +126,7 @@
             if (i > 0) {
                 var key = line.slice(0, i).trim();
                 var val = line.slice(i + 1).trim();
-                if (key) out[key] = val;
+                if (key) out[key] = substituteTestVariables(val);
             }
         });
         return out;
@@ -123,7 +138,7 @@
         if (!url) return;
         var method = methodSelect.value;
         var headers = parseHeaders(headersInput.value);
-        var body = bodyInput.value.trim();
+        var body = substituteTestVariables(bodyInput.value.trim());
 
         responseEl.hidden = false;
         responseErrorEl.hidden = true;

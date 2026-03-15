@@ -64,6 +64,7 @@ ob_start();
         <div class="form-section">
             <h3 class="form-section-title">Response (optional)</h3>
             <p class="hint" style="margin-bottom: 0.75rem;">Customize the HTTP response returned when the webhook is called. Leave empty for default: <code>200</code> and <code>{"ok":true,"received":true}</code>.</p>
+            <?php require __DIR__ . '/partials/response_variables_hint.php'; ?>
             <div class="form-group">
                 <label for="response_status_code">Status code</label>
                 <input type="number" id="response_status_code" name="response_status_code" min="100" max="599" value="<?= (int) $createResponseStatusCode ?>" placeholder="200">
