@@ -1,14 +1,12 @@
 <?php
 // Expects $isPublic (bool), optional $publicLabel (string, default 'Public'), optional $requestsPublic (bool).
-// Outputs icon + label for listing visibility; when $requestsPublic is true, combines or appends "Requests public".
+// Outputs icon + label for listing visibility. Requests can only be public when listed; when private we show only "Private".
 $publicLabel = $publicLabel ?? 'Public';
-$requestsPublic = $requestsPublic ?? false;
+$requestsPublic = ($requestsPublic ?? false) && $isPublic;
 if ($isPublic && $requestsPublic) {
     $visibilityText = $publicLabel . ' & requests public';
 } elseif ($isPublic) {
     $visibilityText = $publicLabel;
-} elseif ($requestsPublic) {
-    $visibilityText = 'Private · Requests public';
 } else {
     $visibilityText = 'Private';
 }

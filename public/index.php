@@ -49,7 +49,7 @@ if ($config['debug'] && $uri === '/--db-check') {
 if (preg_match('#^/w/([a-zA-Z0-9_-]+)/requests$#', $uri, $m)) {
     $slug = $m[1];
     $webhook = WebhookRepository::findBySlug($slug);
-    if (!$webhook || !$webhook->requests_public) {
+    if (!$webhook || !$webhook->is_public || !$webhook->requests_public) {
         header('HTTP/1.1 404 Not Found');
         require dirname(__DIR__) . '/templates/404.php';
         exit;
@@ -225,7 +225,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         }
         $desc = trim((string) ($_POST['description'] ?? ''));
         $isPublic = isset($_POST['is_public']);
-        $requestsPublic = isset($_POST['requests_public']);
+        $requestsPublic = $isPublic && isset($_POST['requests_public']);
         $responseStatusCode = (int) ($_POST['response_status_code'] ?? 200);
         $responseStatusCode = max(100, min(599, $responseStatusCode));
         $responseHeaders = trim((string) ($_POST['response_headers'] ?? ''));
@@ -289,12 +289,13 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
         $allowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods'])
             ? implode(',', array_map('strtoupper', array_filter($_POST['allowed_methods'])))
             : '';
+        $updateIsPublic = isset($_POST['is_public']);
         WebhookRepository::update($id, [
             'name' => trim((string) ($_POST['name'] ?? '')),
             'slug' => preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($_POST['slug'] ?? '')) ?: $webhook->slug,
             'description' => trim((string) ($_POST['description'] ?? '')),
-            'is_public' => isset($_POST['is_public']),
-            'requests_public' => isset($_POST['requests_public']),
+            'is_public' => $updateIsPublic,
+            'requests_public' => $updateIsPublic && isset($_POST['requests_public']),
             'response_status_code' => $responseStatusCode,
             'response_headers' => trim((string) ($_POST['response_headers'] ?? '')),
             'response_body' => trim((string) ($_POST['response_body'] ?? '')),
