@@ -17,7 +17,7 @@ ob_start();
                 </tr>
                 <tr>
                     <th>Role</th>
-                    <td><?= e($user->role) ?></td>
+                    <td><?php $role = $user->role; require __DIR__ . '/partials/role_display.php'; ?></td>
                 </tr>
                 <tr>
                     <th>Member since</th>

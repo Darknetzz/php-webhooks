@@ -45,8 +45,12 @@ if ($showWebhookTesting):
                         <button type="button" class="user-dropdown-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="user-menu" id="user-dropdown-btn">
                             <span class="user-avatar" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($user->username, 0, 1))) ?></span>
                             <span class="user-name"><?= e($user->username) ?></span>
+                            <?php $role = $user->role; require __DIR__ . '/partials/role_display.php'; ?>
                         </button>
                         <div class="user-dropdown-menu" id="user-menu" role="menu" aria-labelledby="user-dropdown-btn" hidden>
+                            <div class="user-dropdown-menu-role" aria-hidden="true">
+                                <?php $role = $user->role; require __DIR__ . '/partials/role_display.php'; ?>
+                            </div>
                             <a href="<?= e(base_url()) ?>/profile" role="menuitem"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Profile</a>
                             <a href="<?= e(base_url()) ?>/settings" role="menuitem"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg> Settings</a>
                             <?php if ($user->isAdmin()): ?>

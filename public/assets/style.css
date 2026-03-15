@@ -178,6 +178,32 @@ body {
     white-space: nowrap;
 }
 
+.user-dropdown-trigger .role-badge {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.user-dropdown-trigger .role-badge .icon {
+    width: 0.95em;
+    height: 0.95em;
+}
+
+.user-dropdown-menu-role {
+    padding: 0.5rem 1rem 0.35rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.2rem;
+}
+
+.user-dropdown-menu-role .role-badge {
+    font-size: 0.85rem;
+}
+
+.user-dropdown-menu-role .role-badge .icon {
+    width: 1em;
+    height: 1em;
+}
+
 .user-dropdown-menu {
     position: absolute;
     top: 100%;
