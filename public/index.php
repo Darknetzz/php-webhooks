@@ -371,6 +371,12 @@ if ($uri === '/admin/settings') {
         $section = $_POST['settings_section'] ?? '';
         if ($section === 'general') {
             SiteSettings::set(SiteSettings::KEY_SITE_NAME, trim((string) ($_POST['site_name'] ?? '')));
+            $accent = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) ($_POST['primary_color'] ?? '')) ? trim((string) $_POST['primary_color']) : null;
+            if ($accent !== null) {
+                $hover = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) ($_POST['primary_color_hover'] ?? '')) ? trim((string) $_POST['primary_color_hover']) : null;
+                SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR, $accent);
+                SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR_HOVER, $hover ?? hex_darken($accent, -12));
+            }
             $settingsSaved = true;
         } elseif ($section === 'webhooks') {
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');

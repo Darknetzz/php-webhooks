@@ -37,9 +37,46 @@ ob_start();
             <input type="text" id="site_name" name="site_name" value="<?= e($siteName) ?>" placeholder="PHP Webhooks" maxlength="100">
             <div class="hint">Shown in the header and browser title. Leave empty for the default “PHP Webhooks”.</div>
         </div>
+        <div class="form-group">
+            <label class="settings-label">Default primary color</label>
+            <div class="primary-color-swatches" role="group" aria-label="Default primary color">
+                <?php foreach (primary_color_presets() as $key => $colors): list($main, $hover) = $colors; ?>
+                <button type="button" class="color-swatch admin-primary-swatch" data-accent="<?= e($main) ?>" data-accent-hover="<?= e($hover) ?>" style="--swatch: <?= e($main) ?>" title="<?= e(ucfirst($key)) ?>"></button>
+                <?php endforeach; ?>
+            </div>
+            <input type="color" id="admin-primary-color-picker" class="color-picker" value="<?= e($sitePrimaryColor) ?>" aria-label="Custom default primary color" title="Custom color">
+            <input type="hidden" name="primary_color" id="admin-primary-color" value="<?= e($sitePrimaryColor) ?>">
+            <input type="hidden" name="primary_color_hover" id="admin-primary-color-hover" value="<?= e($sitePrimaryColorHover) ?>">
+            <div class="hint">Applied to all users unless they override it in their own Settings.</div>
+        </div>
         <button type="submit" class="btn btn-primary">Save General</button>
     </form>
 </section>
+<script>
+(function () {
+    var form = document.getElementById('settings-form-general');
+    if (!form) return;
+    var accentInput = document.getElementById('admin-primary-color');
+    var hoverInput = document.getElementById('admin-primary-color-hover');
+    var picker = document.getElementById('admin-primary-color-picker');
+    function setPrimary(accent, hover) {
+        if (accent) accentInput.value = accent;
+        if (hover) hoverInput.value = hover;
+        if (picker && accent) picker.value = accent;
+    }
+    form.querySelectorAll('.admin-primary-swatch').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            setPrimary(btn.dataset.accent, btn.dataset.accentHover);
+        });
+    });
+    if (picker) {
+        picker.addEventListener('input', function () {
+            accentInput.value = this.value;
+            hoverInput.value = '';
+        });
+    }
+})();
+</script>
 
 <section class="settings-section card">
     <h2 class="settings-section-title">Webhooks</h2>
