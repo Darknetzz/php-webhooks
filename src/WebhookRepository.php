@@ -47,7 +47,7 @@ class WebhookRepository
     {
         $pdo = db()->pdo();
         $stmt = $pdo->query('
-            SELECT w.id, w.user_id, w.slug, w.name, w.description, w.is_public,
+            SELECT w.id, w.user_id, w.slug, w.name, w.description, w.is_public, w.requests_public,
                    w.response_status_code, w.response_headers, w.response_body,
                    w.allowed_methods, w.created_at, w.updated_at,
                    u.username AS owner_username
@@ -65,12 +65,12 @@ class WebhookRepository
         return $result;
     }
 
-    public static function create(int $userId, string $slug, string $name, string $description = '', bool $isPublic = true, int $responseStatusCode = 200, string $responseHeaders = '', string $responseBody = '', string $allowedMethods = ''): Webhook
+    public static function create(int $userId, string $slug, string $name, string $description = '', bool $isPublic = false, bool $requestsPublic = false, int $responseStatusCode = 200, string $responseHeaders = '', string $responseBody = '', string $allowedMethods = ''): Webhook
     {
         $now = date('Y-m-d H:i:s');
         $pdo = db()->pdo();
-        $stmt = $pdo->prepare('INSERT INTO webhooks (user_id, slug, name, description, is_public, response_status_code, response_headers, response_body, allowed_methods, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$userId, $slug, $name, $description, $isPublic ? 1 : 0, $responseStatusCode, $responseHeaders, $responseBody, trim($allowedMethods), $now, $now]);
+        $stmt = $pdo->prepare('INSERT INTO webhooks (user_id, slug, name, description, is_public, requests_public, response_status_code, response_headers, response_body, allowed_methods, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$userId, $slug, $name, $description, $isPublic ? 1 : 0, $requestsPublic ? 1 : 0, $responseStatusCode, $responseHeaders, $responseBody, trim($allowedMethods), $now, $now]);
         $hook = self::find((int) db()->lastInsertId());
         if (!$hook) {
             throw new \RuntimeException('Failed to load created webhook');
@@ -80,15 +80,15 @@ class WebhookRepository
 
     public static function update(int $id, array $data): void
     {
-        $allowed = ['name', 'description', 'is_public', 'slug', 'response_status_code', 'response_headers', 'response_body', 'allowed_methods'];
+        $allowed = ['name', 'description', 'is_public', 'requests_public', 'slug', 'response_status_code', 'response_headers', 'response_body', 'allowed_methods'];
         $set = [];
         $params = [];
         foreach ($allowed as $k) {
             if (!array_key_exists($k, $data)) {
                 continue;
             }
-            if ($k === 'is_public') {
-                $set[] = "is_public = ?";
+            if ($k === 'is_public' || $k === 'requests_public') {
+                $set[] = "$k = ?";
                 $params[] = $data[$k] ? 1 : 0;
             } elseif ($k === 'response_status_code') {
                 $set[] = "response_status_code = ?";

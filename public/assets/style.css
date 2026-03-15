@@ -894,6 +894,7 @@ th {
 .modal {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
     border-radius: var(--radius);
     max-width: 520px;
     width: 100%;
@@ -913,6 +914,7 @@ th {
 .modal-header h2 {
     margin: 0;
     font-size: 1.1rem;
+    color: var(--accent);
 }
 
 .modal-close {
@@ -928,7 +930,7 @@ th {
 }
 
 .modal-close:hover {
-    color: var(--text);
+    color: var(--accent);
     background: var(--border);
 }
 
@@ -938,7 +940,7 @@ th {
 
 .modal .form-section-title,
 .modal .form-group label {
-    color: var(--form-heading);
+    color: var(--accent);
 }
 
 .modal--wide {
