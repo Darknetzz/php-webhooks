@@ -512,6 +512,8 @@ a.btn-webhook-action {
 th.table-cell-actions,
 td.table-cell-actions {
     text-align: right;
+    width: 1%;
+    white-space: nowrap;
 }
 td.table-cell-actions .card-actions {
     justify-content: flex-end;
@@ -520,12 +522,19 @@ td.table-cell-actions .card-actions {
 table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 th, td {
     text-align: left;
     padding: 0.6rem 0.75rem;
     border-bottom: 1px solid var(--border);
+}
+
+/* Clear column boundary between last data column and Actions */
+table th:nth-child(5),
+table td:nth-child(5) {
+    border-right: 1px solid var(--border);
 }
 
 th {
