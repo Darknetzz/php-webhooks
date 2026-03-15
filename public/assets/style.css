@@ -114,6 +114,16 @@ body {
     opacity: 0.9;
 }
 
+.visibility-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.visibility-label .icon {
+    opacity: 0.9;
+}
+
 .user-dropdown-menu a {
     display: flex;
     align-items: center;

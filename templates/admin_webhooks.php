@@ -161,7 +161,7 @@ ob_start();
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-            <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
+            <p class="meta"><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Public'; require __DIR__ . '/partials/visibility_label.php'; ?> · Created <?= e($w->created_at) ?></p>
             <div class="card-actions">
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
                 <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost btn-icon-only" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
