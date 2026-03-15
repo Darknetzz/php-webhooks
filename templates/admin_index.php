@@ -18,6 +18,10 @@ ob_start();
         <h2 style="font-size: 1.1rem; margin: 0 0 0.5rem;">Users</h2>
         <p class="meta" style="margin: 0;">Create and manage user accounts.</p>
     </a>
+    <a href="<?= e($baseUrl) ?>/admin/settings" class="card admin-panel-card" style="display: block; text-decoration: none; color: inherit;">
+        <h2 style="font-size: 1.1rem; margin: 0 0 0.5rem;">Settings</h2>
+        <p class="meta" style="margin: 0;">General and site options (e.g. webhook testing).</p>
+    </a>
 </div>
 <p style="margin-top: 1.5rem;"><a href="<?= e($baseUrl) ?>/" class="btn btn-ghost">Webhooks</a></p>
 <?php

@@ -24,7 +24,10 @@
                 </div>
                 <div class="form-group">
                     <label for="test-webhook-url">URL</label>
-                    <input type="url" id="test-webhook-url" name="url" required placeholder="https://...">
+                    <input type="url" id="test-webhook-url" name="url" required placeholder="https://..."<?= empty($allowSpecifyTestUrl) ? ' readonly' : '' ?>>
+                    <?php if (empty($allowSpecifyTestUrl)): ?>
+                    <div class="hint">URL is fixed to the webhook (editing disabled by site settings).</div>
+                    <?php endif; ?>
                 </div>
                 <div class="form-group">
                     <label for="test-webhook-headers">Headers (optional)</label>
