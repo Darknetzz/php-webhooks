@@ -499,6 +499,74 @@ h1, h2 {
     margin-top: 0.25rem;
 }
 
+/* Variables collapse (response headers/body forms) */
+.variables-collapse {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+.variables-collapse[open] {
+    border-color: var(--accent);
+}
+.variables-toggle {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+    font-family: var(--font);
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.variables-toggle::-webkit-details-marker { display: none; }
+.variables-toggle::before {
+    content: '▶';
+    font-size: 0.7rem;
+    transition: transform 0.15s ease;
+}
+.variables-collapse[open] .variables-toggle::before {
+    transform: rotate(90deg);
+}
+.variables-toggle:hover {
+    color: var(--accent-hover);
+}
+.variables-panel {
+    padding: 0.75rem 1rem 1rem;
+    border-top: 1px solid var(--border);
+}
+.variables-intro {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 0.75rem;
+}
+.variables-list {
+    margin: 0;
+    font-size: 0.85rem;
+}
+.variables-list dt {
+    margin-top: 0.5rem;
+    margin-bottom: 0.15rem;
+}
+.variables-list dt:first-of-type { margin-top: 0; }
+.variables-list dd {
+    margin-left: 0;
+    color: var(--muted);
+}
+.variable-placeholder {
+    color: var(--accent);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    border: 1px solid var(--accent);
+    background: var(--bg);
+}
+[data-theme="light"] .variable-placeholder {
+    background: var(--surface);
+    color: var(--form-heading);
+    border-color: var(--form-heading);
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;

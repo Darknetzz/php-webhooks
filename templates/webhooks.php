@@ -97,14 +97,7 @@ ob_start();
                         <label for="edit-response_status_code">Status code</label>
                         <input type="number" id="edit-response_status_code" name="response_status_code" min="100" max="599">
                     </div>
-                    <div class="form-group">
-                        <label for="edit-response_headers">Response headers (JSON)</label>
-                        <textarea id="edit-response_headers" name="response_headers" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-response_body">Response body</label>
-                        <textarea id="edit-response_body" name="response_body" rows="3"></textarea>
-                    </div>
+                    <?php $prefix = 'edit-'; $responseHeadersValue = ''; $responseBodyValue = ''; require __DIR__ . '/partials/response_headers_body_fields.php'; ?>
                 </div>
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="button" class="btn btn-ghost" data-close="edit-modal">Cancel</button>
@@ -149,6 +142,8 @@ ob_start();
             document.getElementById('edit-response_status_code').value = card.dataset.responseStatusCode || '200';
             document.getElementById('edit-response_headers').value = card.dataset.responseHeaders || '';
             document.getElementById('edit-response_body').value = card.dataset.responseBody || '';
+            var responseSection = document.querySelector('#edit-modal .webhook-form-response-section');
+            if (responseSection && responseSection.refillResponseTables) responseSection.refillResponseTables();
             document.getElementById('edit-slug-preview').textContent = card.dataset.slug || '';
             var allowed = (card.dataset.allowedMethods || '').split(',').map(function (m) { return m.trim(); }).filter(Boolean);
             document.querySelectorAll('#edit-modal input[name="allowed_methods[]"]').forEach(function (cb) {

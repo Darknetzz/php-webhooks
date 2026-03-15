@@ -216,6 +216,8 @@
 
         if (headersTbody.querySelectorAll('tr').length === 0) addHeaderRow(headersTbody, 'Content-Type', 'application/json');
         if (bodyTbody.querySelectorAll('tr').length === 0) addBodyRow(bodyTbody);
+        if (headersTextarea.value.trim()) parseAndFillHeadersTable(headersTbody, headersTextarea.value);
+        if (bodyTextarea.value.trim()) parseAndFillBodyTable(bodyTbody, bodyTextarea.value);
 
         form.addEventListener('submit', function () {
             if (isHeadersPreset()) {
@@ -226,6 +228,11 @@
                 bodyTextarea.value = buildBodyFromTable(bodyTbody);
             }
         });
+
+        section.refillResponseTables = function () {
+            if (isHeadersPreset()) parseAndFillHeadersTable(headersTbody, headersTextarea.value);
+            if (isBodyKv()) parseAndFillBodyTable(bodyTbody, bodyTextarea.value);
+        };
     }
 
     function run() {

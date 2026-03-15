@@ -200,6 +200,7 @@ if ($showWebhookTesting):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script>
+    <?php require __DIR__ . '/partials/response_headers_body_script.php'; ?>
     (function () {
         document.querySelectorAll('code.json-beautify').forEach(function (code) {
             var raw = code.textContent.trim();
