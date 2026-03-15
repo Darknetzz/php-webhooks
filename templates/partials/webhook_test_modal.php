@@ -78,18 +78,22 @@
         document.body.style.overflow = '';
     }
 
-    document.querySelectorAll('.btn-test-webhook').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var url = this.getAttribute('data-url');
+    document.body.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-test-webhook');
+        if (btn) {
+            e.preventDefault();
+            var url = btn.getAttribute('data-url');
             if (url) {
                 urlInput.value = url;
                 openTestModal();
             }
-        });
+        }
     });
 
-    document.querySelectorAll('[data-close="test-webhook-modal"]').forEach(function (btn) {
-        btn.addEventListener('click', closeTestModal);
+    document.body.addEventListener('click', function (e) {
+        if (e.target.closest('[data-close="test-webhook-modal"]')) {
+            closeTestModal();
+        }
     });
     if (modal) {
         modal.addEventListener('click', function (e) {
