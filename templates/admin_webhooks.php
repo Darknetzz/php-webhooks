@@ -155,7 +155,7 @@ ob_start();
 <?php else: ?>
     <h2 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem;">Your webhooks</h2>
     <?php foreach ($webhooks as $w): ?>
-        <div class="card">
+        <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-requests-public="<?= $w->requests_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
             <h3><?= e($w->name) ?></h3>
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
@@ -163,14 +163,16 @@ ob_start();
             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
             <p class="meta"><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Public'; require __DIR__ . '/partials/visibility_label.php'; ?> · <?php $date = $w->created_at; $label = 'Created '; require __DIR__ . '/partials/created_date.php'; ?></p>
             <div class="card-actions">
-                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
-                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost btn-icon-only" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
+                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost btn-icon-only" aria-label="View requests" title="View requests"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg></a>
+                <button type="button" class="btn btn-ghost btn-icon-only btn-edit-webhook" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
                 <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">
                     <button type="submit" class="btn btn-danger btn-icon-only" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                 </form>
             </div>
         </div>
     <?php endforeach; ?>
+    <?php require __DIR__ . '/partials/edit_webhook_modal.php'; ?>
+    <?php require __DIR__ . '/partials/edit_webhook_modal_script.php'; ?>
 <?php endif; ?>
 <?php
 $content = ob_get_clean();
