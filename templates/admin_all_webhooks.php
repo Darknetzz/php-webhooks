@@ -52,7 +52,7 @@ ob_start();
                             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
                         </td>
                         <td><?= e($owner) ?></td>
-                        <td><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Listed'; require __DIR__ . '/partials/visibility_label.php'; ?><?= $w->requests_public ? ' · Requests public' : '' ?></td>
+                        <td><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Listed'; $requestsPublic = $w->requests_public; require __DIR__ . '/partials/visibility_label.php'; ?></td>
                         <td><?php $date = $w->created_at; $label = ''; require __DIR__ . '/partials/created_date.php'; ?></td>
                         <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost btn-icon-only" style="font-size: 0.85rem;" aria-label="View requests" title="View requests"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg></a>

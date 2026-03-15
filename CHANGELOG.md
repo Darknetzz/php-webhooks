@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Delete all button**: “Delete all” in the requests toolbar now consistently shows red text and red outline (CSS specificity fix for `.btn-outline-danger` with `.btn-webhook-action`).
+- **Visibility label**: "Requests public" is now combined with listing visibility in one phrase (e.g. "Listed publicly & requests public" or "Private · Requests public"); single `visibility_label` partial handles both.
 - **Webhook cards**: meta line shows visibility icon + label, created date with calendar icon, and request count as a single link; card actions reduced to Edit and Delete.
 - **Requests page layout**: back link and webhook URL block only in the top line; Refresh and Delete all in a toolbar above the table.
 - **Webhook modal**: response headers and body fields now use the shared partial; simplified input structure and improved handling of custom header rows (names/values set correctly when adding rows).

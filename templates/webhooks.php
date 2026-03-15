@@ -38,7 +38,7 @@ ob_start();
                     <p class="meta"><?= e($w->description) ?></p>
                 <?php endif; ?>
                 <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-                <p class="meta"><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Listed publicly'; require __DIR__ . '/partials/visibility_label.php'; ?><?= $w->requests_public ? ' · Requests public' : '' ?> · <?php $date = $w->created_at; $label = 'Created '; require __DIR__ . '/partials/created_date.php'; ?> · <?php $count = $requestCount; $url = $baseUrl . '/admin/webhooks/' . $w->id . '/requests'; require __DIR__ . '/partials/request_count.php'; ?></p>
+                <p class="meta"><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Listed publicly'; $requestsPublic = $w->requests_public; require __DIR__ . '/partials/visibility_label.php'; ?> · <?php $date = $w->created_at; $label = 'Created '; require __DIR__ . '/partials/created_date.php'; ?> · <?php $count = $requestCount; $url = $baseUrl . '/admin/webhooks/' . $w->id . '/requests'; require __DIR__ . '/partials/request_count.php'; ?></p>
                 <div class="card-actions">
                     <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost btn-icon-only" aria-label="View requests" title="View requests"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg></a>
                     <button type="button" class="btn btn-ghost btn-icon-only btn-edit-webhook" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
