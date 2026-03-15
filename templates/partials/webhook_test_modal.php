@@ -90,12 +90,10 @@
         }
     });
 
-    document.body.addEventListener('click', function (e) {
-        if (e.target.closest('[data-close="test-webhook-modal"]')) {
-            closeTestModal();
-        }
-    });
     if (modal) {
+        modal.querySelectorAll('[data-close="test-webhook-modal"]').forEach(function (btn) {
+            btn.addEventListener('click', closeTestModal);
+        });
         modal.addEventListener('click', function (e) {
             if (e.target === modal) closeTestModal();
         });
