@@ -106,6 +106,41 @@ if ($uri === '/logout') {
     redirect(base_url() . '/');
 }
 
+if ($uri === '/register') {
+    if (auth()->check()) {
+        redirect(base_url() . '/');
+    }
+    $registrationEnabled = site_setting_bool(SiteSettings::KEY_ALLOW_REGISTRATION, false);
+    if (!$registrationEnabled) {
+        redirect(base_url() . '/login');
+    }
+    $registerError = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+        $passwordConfirm = (string) ($_POST['password_confirm'] ?? '');
+        if ($username === '') {
+            $registerError = 'Username is required.';
+        } elseif (strlen($password) < 8) {
+            $registerError = 'Password must be at least 8 characters.';
+        } elseif ($password !== $passwordConfirm) {
+            $registerError = 'Password and confirmation do not match.';
+        } else {
+            try {
+                UserRepository::create($username, $password, User::ROLE_USER);
+                auth()->login($username, $password);
+                redirect(base_url() . '/');
+            } catch (Throwable $e) {
+                $registerError = $config['debug'] ? $e->getMessage() : 'Username already exists or invalid.';
+                $registerUsername = $username;
+            }
+        }
+    }
+    $registerUsername = $registerUsername ?? ($_POST['username'] ?? '');
+    require dirname(__DIR__) . '/templates/register.php';
+    exit;
+}
+
 if ($uri === '/profile') {
     $user = auth()->user();
     if (!$user) {
@@ -301,6 +336,7 @@ if ($uri === '/admin/settings') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
         SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
+        SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');
         $settingsSaved = true;
     }
     require dirname(__DIR__) . '/templates/admin_settings.php';

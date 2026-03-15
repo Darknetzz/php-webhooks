@@ -11,6 +11,7 @@ class SiteSettings
 {
     public const KEY_WEBHOOK_TESTING_ENABLED = 'webhook_testing_enabled';
     public const KEY_ALLOW_SPECIFY_TEST_URL = 'allow_specify_test_url';
+    public const KEY_ALLOW_REGISTRATION = 'allow_registration';
 
     private static ?array $cache = null;
 

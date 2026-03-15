@@ -766,6 +766,16 @@ th {
     text-align: center;
 }
 
+.login-box-footer {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.login-box-footer a {
+    color: var(--accent);
+}
+
 .empty-state {
     text-align: center;
     padding: 3rem 1rem;

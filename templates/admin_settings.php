@@ -5,6 +5,7 @@ $baseUrl = rtrim(base_url(), '/');
 $adminActive = 'settings';
 $webhookTestingEnabled = site_setting_bool(\App\SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, true);
 $allowSpecifyTestUrl = site_setting_bool(\App\SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, true);
+$allowRegistration = site_setting_bool(\App\SiteSettings::KEY_ALLOW_REGISTRATION, false);
 $settingsSaved = $settingsSaved ?? false;
 ob_start();
 ?>
@@ -31,6 +32,13 @@ ob_start();
                 Allow specifying test URL
             </label>
             <div class="hint">When enabled, the URL in the test modal can be edited (e.g. to point to a different endpoint). When disabled, the URL is fixed to the webhook URL.</div>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="allow_registration" value="1" <?= $allowRegistration ? 'checked' : '' ?>>
+                Allow user registration
+            </label>
+            <div class="hint">When enabled, anyone can create an account via the Register link on the login page. New users get the "user" role.</div>
         </div>
         <button type="submit" class="btn btn-primary">Save settings</button>
     </form>

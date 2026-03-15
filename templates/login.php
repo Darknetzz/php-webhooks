@@ -21,6 +21,9 @@ ob_start();
         </div>
         <button type="submit" class="btn btn-primary">Log in</button>
     </form>
+    <?php if (site_setting_bool(\App\SiteSettings::KEY_ALLOW_REGISTRATION, false)): ?>
+        <p class="login-box-footer"><a href="<?= e(base_url()) ?>/register">Create an account</a></p>
+    <?php endif; ?>
 </div>
 <?php
 $content = ob_get_clean();
