@@ -894,6 +894,65 @@ th {
     color: var(--form-heading);
 }
 
+.modal--wide {
+    max-width: 640px;
+}
+
+.modal--wide .form-group input[type="text"],
+.modal--wide .form-group input[type="url"],
+.modal--wide .form-group textarea {
+    max-width: none;
+}
+
+.test-webhook-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.test-webhook-response {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.test-webhook-response-meta {
+    margin-bottom: 0.75rem;
+}
+
+.test-webhook-response-status {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.test-webhook-response-status--ok {
+    color: var(--success);
+}
+
+.test-webhook-response-status--error {
+    color: var(--danger);
+}
+
+.test-webhook-response-body {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    overflow: auto;
+    max-height: 240px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.test-webhook-response-error {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0;
+}
+
 /* Nav pills (tabs) */
 .nav-pills {
     display: flex;

@@ -1,0 +1,159 @@
+<?php
+// Test webhook request constructor modal. Include once in layout.
+// Opens when .btn-test-webhook is clicked (data-url required). Sends request via fetch() and shows response.
+?>
+<div class="modal-overlay" id="test-webhook-modal" role="dialog" aria-modal="true" aria-labelledby="test-webhook-modal-title">
+    <div class="modal modal--wide" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 id="test-webhook-modal-title">Test webhook</h2>
+            <button type="button" class="modal-close" data-close="test-webhook-modal" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="test-webhook-form" class="test-webhook-form">
+                <div class="form-group">
+                    <label for="test-webhook-method">Method</label>
+                    <select id="test-webhook-method" name="method">
+                        <option value="GET">GET</option>
+                        <option value="POST" selected>POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="HEAD">HEAD</option>
+                        <option value="OPTIONS">OPTIONS</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="test-webhook-url">URL</label>
+                    <input type="url" id="test-webhook-url" name="url" required placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="test-webhook-headers">Headers (optional)</label>
+                    <textarea id="test-webhook-headers" name="headers" rows="3" placeholder="Content-Type: application/json&#10;X-Custom: value"></textarea>
+                    <div class="hint">One header per line: <code>Name: value</code></div>
+                </div>
+                <div class="form-group">
+                    <label for="test-webhook-body">Body (optional)</label>
+                    <textarea id="test-webhook-body" name="body" rows="4" placeholder='{"key": "value"}'></textarea>
+                </div>
+                <div class="test-webhook-actions">
+                    <button type="submit" class="btn btn-primary" id="test-webhook-send"><svg class="icon" aria-hidden="true"><use href="#icon-send"/></svg> Send request</button>
+                    <button type="button" class="btn btn-ghost" data-close="test-webhook-modal">Cancel</button>
+                </div>
+            </form>
+            <div id="test-webhook-response" class="test-webhook-response" hidden>
+                <h3 class="form-section-title">Response</h3>
+                <div class="test-webhook-response-meta">
+                    <span id="test-webhook-response-status" class="test-webhook-response-status"></span>
+                </div>
+                <div class="form-group">
+                    <label>Body</label>
+                    <pre id="test-webhook-response-body" class="test-webhook-response-body codebox-code"></pre>
+                </div>
+                <p id="test-webhook-response-error" class="test-webhook-response-error" hidden></p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    var modal = document.getElementById('test-webhook-modal');
+    var form = document.getElementById('test-webhook-form');
+    var urlInput = document.getElementById('test-webhook-url');
+    var methodSelect = document.getElementById('test-webhook-method');
+    var headersInput = document.getElementById('test-webhook-headers');
+    var bodyInput = document.getElementById('test-webhook-body');
+    var sendBtn = document.getElementById('test-webhook-send');
+    var responseEl = document.getElementById('test-webhook-response');
+    var responseStatusEl = document.getElementById('test-webhook-response-status');
+    var responseBodyEl = document.getElementById('test-webhook-response-body');
+    var responseErrorEl = document.getElementById('test-webhook-response-error');
+
+    function openTestModal() {
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        responseEl.hidden = true;
+    }
+    function closeTestModal() {
+        modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.btn-test-webhook').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var url = this.getAttribute('data-url');
+            if (url) {
+                urlInput.value = url;
+                openTestModal();
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-close="test-webhook-modal"]').forEach(function (btn) {
+        btn.addEventListener('click', closeTestModal);
+    });
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeTestModal();
+        });
+    }
+
+    function parseHeaders(text) {
+        var out = {};
+        if (!text || !text.trim()) return out;
+        text.split('\n').forEach(function (line) {
+            var i = line.indexOf(':');
+            if (i > 0) {
+                var key = line.slice(0, i).trim();
+                var val = line.slice(i + 1).trim();
+                if (key) out[key] = val;
+            }
+        });
+        return out;
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var url = urlInput.value.trim();
+        if (!url) return;
+        var method = methodSelect.value;
+        var headers = parseHeaders(headersInput.value);
+        var body = bodyInput.value.trim();
+
+        responseEl.hidden = false;
+        responseErrorEl.hidden = true;
+        responseStatusEl.textContent = 'Sending…';
+        responseBodyEl.textContent = '';
+        sendBtn.disabled = true;
+
+        var opts = { method: method, headers: headers };
+        if (body && ['POST', 'PUT', 'PATCH'].indexOf(method) !== -1) {
+            opts.body = body;
+        }
+
+        fetch(url, opts)
+            .then(function (res) {
+                responseStatusEl.textContent = res.status + ' ' + (res.statusText || '');
+                responseStatusEl.className = 'test-webhook-response-status ' + (res.ok ? 'test-webhook-response-status--ok' : 'test-webhook-response-status--error');
+                return res.text();
+            })
+            .then(function (text) {
+                try {
+                    var parsed = JSON.parse(text);
+                    responseBodyEl.textContent = JSON.stringify(parsed, null, 2);
+                } catch (_) {
+                    responseBodyEl.textContent = text || '(empty)';
+                }
+            })
+            .catch(function (err) {
+                responseStatusEl.textContent = 'Error';
+                responseStatusEl.className = 'test-webhook-response-status test-webhook-response-status--error';
+                responseBodyEl.textContent = '';
+                responseErrorEl.textContent = err.message || 'Request failed. If the URL is on another origin, the browser may block it (CORS). Try from the same origin or use curl.';
+                responseErrorEl.hidden = false;
+            })
+            .then(function () {
+                sendBtn.disabled = false;
+            });
+    });
+})();
+</script>

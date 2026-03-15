@@ -24,6 +24,7 @@ $config = config();
 </head>
 <body>
 <?php require __DIR__ . '/partials/icons.php'; ?>
+<?php require __DIR__ . '/partials/webhook_test_modal.php'; ?>
     <header class="site-header">
         <div class="container">
             <a href="<?= e(base_url()) ?>/" class="logo"><img src="<?= e(base_url()) ?>/assets/favicon.svg" alt="" class="logo-favicon" width="24" height="24"> PHP Webhooks</a>
