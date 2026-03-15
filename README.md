@@ -261,7 +261,7 @@ The `dev` branch is created from `main` and pushed once (already done for this r
    - Create tag `vX.Y.Z` and publish a GitHub Release (which triggers the Docker build and push).
 
 2. **Merge the release PR**  
-   Merge the created PR (dev → main) in the GitHub UI. That syncs `main` with the release; the Docker “publish on push to main” run will update the `latest` image.
+   Merge the created PR (dev → main) in the GitHub UI. That syncs `main` with the release. The Docker image `:latest` is updated when a release is published (CI does not push on every merge to main).
 
 3. **Optional local script**  
    You can run `./scripts/release.sh` interactively (shows last version, asks for next, summarizes changelog, then commits and pushes the tag), or `./scripts/release.sh <version> [YYYY-MM-DD]` to update CHANGELOG only (e.g. for CI); the workflow uses the non-interactive form.
@@ -281,7 +281,7 @@ Build and push the image from your machine when you push `main`. Uses your exist
    ```bash
    cp scripts/pre-push.sample .git/hooks/pre-push && chmod +x .git/hooks/pre-push
    ```
-3. On every `git push` to `main`, the hook runs `scripts/docker-build-push.sh`: it builds the image and pushes `darknetz/php-webhooks:latest` (and `:tag` if the commit is tagged). To also push to ghcr.io, set `GHCR_IMAGE=ghcr.io/owner/repo` in your environment before pushing.
+3. Optional: install the pre-push hook so that when you push to `main`, `scripts/docker-build-push.sh` runs and pushes `darknetz/php-webhooks:latest` (and `:tag` if the commit is tagged). To also push to ghcr.io, set `GHCR_IMAGE=ghcr.io/owner/repo` in your environment. CI pushes images on **release published** and on **push to dev** (not on every push to main), to avoid accumulating many untagged digests.
 
 You can also run the script manually: `./scripts/docker-build-push.sh`.
 
