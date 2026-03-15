@@ -7,6 +7,7 @@
 # Interactive: scripts/release.sh
 #   Shows last release, asks for next version, shows unreleased changelog,
 #   prompts for confirmation, then updates CHANGELOG, commits, tags, and pushes.
+#   Optionally prompts to push Docker image and to update main (merge dev into main).
 #
 # Version: semver (e.g. 1.0.0). Date: YYYY-MM-DD (default: today UTC).
 
@@ -88,6 +89,18 @@ get_unreleased_content() {
       print
     }
   ' "$CHANGELOG"
+}
+
+# --- Interactive: merge dev into main locally and push (fallback when gh not used) ---
+update_main_local() {
+  set +e
+  git checkout main || { echo "Update main failed (could not checkout main). Merge dev → main manually." >&2; set -e; return 1; }
+  git pull origin main || { echo "Update main failed (could not pull main). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git merge dev -m "Merge dev into main (release v${VERSION:-})" || { echo "Update main failed (merge conflict?). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git push origin main || { echo "Update main failed (branch protection?). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git checkout dev || true
+  set -e
+  echo "Merged dev into main and pushed."
 }
 
 # --- Non-interactive entry: version (and optional date) passed as args ---
@@ -188,4 +201,30 @@ if [[ "$PUSH_DOCKER" =~ ^[yY] ]]; then
     echo "Warning: scripts/docker-build-push.sh not found or not executable." >&2
   fi
 fi
+
+# --- Optional: update main branch (merge dev into main) ---
+CURRENT_BRANCH="$(git branch --show-current)"
+if [[ "$CURRENT_BRANCH" != "dev" ]]; then
+  echo "Skipping main-branch update (current branch is '$CURRENT_BRANCH', not dev)."
+else
+  read -r -p "Update main branch (merge dev into main)? [y/N] " UPDATE_MAIN
+  if [[ "$UPDATE_MAIN" =~ ^[yY] ]]; then
+    if command -v gh &>/dev/null && git remote get-url origin 2>/dev/null | grep -q github; then
+      if gh pr create --base main --head dev --title "Release v$VERSION" --body "Release v$VERSION. Merge to sync main with the release." 2>/dev/null; then
+        PR_URL="$(gh pr view --json url -q .url 2>/dev/null)"
+        if gh pr merge --merge 2>/dev/null; then
+          echo "Merged dev into main via PR."
+        else
+          echo "PR created: $PR_URL — merge it manually (e.g. branch protection requires review)." >&2
+        fi
+      else
+        echo "Update main via PR failed. Trying local merge..." >&2
+        update_main_local || true
+      fi
+    else
+      update_main_local || true
+    fi
+  fi
+fi
+
 echo "Done."

@@ -264,7 +264,7 @@ The `dev` branch is created from `main` and pushed once (already done for this r
    Merge the created PR (dev → main) in the GitHub UI. That syncs `main` with the release. The Docker image `:latest` is updated when a release is published (CI does not push on every merge to main).
 
 3. **Optional local script**  
-   You can run `./scripts/release.sh` interactively (shows last version, asks for next, summarizes changelog, then commits and pushes the tag), or `./scripts/release.sh <version> [YYYY-MM-DD]` to update CHANGELOG only (e.g. for CI); the workflow uses the non-interactive form.
+   You can run `./scripts/release.sh` interactively (shows last version, asks for next, summarizes changelog, then commits and pushes the tag), or `./scripts/release.sh <version> [YYYY-MM-DD]` to update CHANGELOG only (e.g. for CI); the workflow uses the non-interactive form. When running the script interactively, you can choose to update the main branch (merge dev into main) so you don't have to open a PR manually. If `main` is protected, the script will try to create and merge a PR via the GitHub CLI (`gh`), or you can merge the PR yourself.
 
 ## Publishing the image
 

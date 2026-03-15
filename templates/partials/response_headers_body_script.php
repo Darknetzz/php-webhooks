@@ -1,7 +1,7 @@
 <?php
 // Shared script for response headers/body Preset and Key-Value + Manual modes in create/edit webhook forms.
+// Included inside a <script> block by layout.php — do not output <script> tags here.
 ?>
-<script>
 (function () {
     var PRESET_HEADERS = [
         { name: 'Content-Type', placeholder: 'application/json' },
@@ -244,4 +244,3 @@
         run();
     }
 })();
-</script>
