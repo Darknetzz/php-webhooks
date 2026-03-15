@@ -57,10 +57,17 @@ body {
 }
 
 .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 700;
     color: var(--accent);
     text-decoration: none;
     font-size: 1.1rem;
+}
+
+.logo-favicon {
+    flex-shrink: 0;
 }
 
 .logo:hover {

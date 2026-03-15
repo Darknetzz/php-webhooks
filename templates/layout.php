@@ -26,7 +26,7 @@ $config = config();
 <?php require __DIR__ . '/partials/icons.php'; ?>
     <header class="site-header">
         <div class="container">
-            <a href="<?= e(base_url()) ?>/" class="logo">PHP Webhooks</a>
+            <a href="<?= e(base_url()) ?>/" class="logo"><img src="<?= e(base_url()) ?>/assets/favicon.svg" alt="" class="logo-favicon" width="24" height="24"> PHP Webhooks</a>
             <nav>
                 <?php $user = auth()->user(); if ($user): ?>
                     <a href="<?= e(base_url()) ?>/" class="nav-link-with-icon"><svg class="icon" aria-hidden="true"><use href="#icon-webhook"/></svg> Webhooks</a>
