@@ -6,6 +6,7 @@ $adminActive = 'settings';
 
 // General
 $siteName = site_setting(\App\SiteSettings::KEY_SITE_NAME, '');
+list($sitePrimaryColor, $sitePrimaryColorHover) = site_primary_color();
 
 // Webhooks
 $webhookTestingEnabled = site_setting_bool(\App\SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, true);
