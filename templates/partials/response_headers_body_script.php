@@ -79,9 +79,11 @@
         value = value != null ? value : '';
         var tr = document.createElement('tr');
         tr.innerHTML =
-            '<td><input type="text" class="webhook-form-body-key" placeholder="Key" value="' + (key.replace(/"/g, '&quot;')) + '" /></td>' +
-            '<td><input type="text" class="webhook-form-body-value" placeholder="Value" value="' + (String(value).replace(/"/g, '&quot;')) + '" /></td>' +
+            '<td><input type="text" class="webhook-form-body-key" placeholder="Key" /></td>' +
+            '<td><input type="text" class="webhook-form-body-value" placeholder="Value" /></td>' +
             '<td class="table-cell-actions"><button type="button" class="btn btn-ghost btn-sm webhook-form-remove-row" aria-label="Remove">×</button></td>';
+        tr.querySelector('.webhook-form-body-key').value = key;
+        tr.querySelector('.webhook-form-body-value').value = value;
         tr.querySelector('.webhook-form-remove-row').addEventListener('click', function () { tr.remove(); });
         tbody.appendChild(tr);
     }
@@ -97,10 +99,13 @@
             var obj = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
             if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
                 Object.keys(obj).forEach(function (name) {
-                    addHeaderRow(tbody, '__custom__', '').querySelector('.webhook-form-header-custom-name').value = name;
+                    addHeaderRow(tbody, '__custom__', '');
                     var rows = tbody.querySelectorAll('tr');
                     var last = rows[rows.length - 1];
-                    if (last) last.querySelector('.webhook-form-header-value').value = obj[name];
+                    if (last) {
+                        last.querySelector('.webhook-form-header-custom-name').value = name;
+                        last.querySelector('.webhook-form-header-value').value = obj[name];
+                    }
                 });
                 if (tbody.querySelectorAll('tr').length === 0) addHeaderRow(tbody);
             } else {
