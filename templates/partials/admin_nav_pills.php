@@ -6,4 +6,5 @@ $adminActive = $adminActive ?? 'index';
     <a href="<?= e($baseUrl) ?>/admin" class="<?= $adminActive === 'index' ? 'active' : '' ?>">Overview</a>
     <a href="<?= e($baseUrl) ?>/admin/all-webhooks" class="<?= $adminActive === 'webhooks' ? 'active' : '' ?>">All webhooks</a>
     <a href="<?= e($baseUrl) ?>/admin/users" class="<?= $adminActive === 'users' ? 'active' : '' ?>">Users</a>
+    <a href="<?= e($baseUrl) ?>/admin/settings" class="<?= $adminActive === 'settings' ? 'active' : '' ?>">Settings</a>
 </nav>

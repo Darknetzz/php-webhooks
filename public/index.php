@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config/bootstrap.php';
 
+use App\SiteSettings;
 use App\User;
 use App\UserRepository;
 use App\WebhookRepository;
@@ -290,6 +291,19 @@ if (preg_match('#^/admin/webhooks/(\d+)/requests$#', $uri, $m)) {
 if ($uri === '/admin') {
     $user = require_admin_panel($uri);
     require dirname(__DIR__) . '/templates/admin_index.php';
+    exit;
+}
+
+// Admin: site settings — admin panel only
+if ($uri === '/admin/settings') {
+    $user = require_admin_panel($uri);
+    $settingsSaved = false;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
+        SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
+        $settingsSaved = true;
+    }
+    require dirname(__DIR__) . '/templates/admin_settings.php';
     exit;
 }
 

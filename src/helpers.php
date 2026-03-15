@@ -42,6 +42,22 @@ if (!function_exists('e')) {
     }
 }
 
+/** Get a site setting value (admin-configured). */
+if (!function_exists('site_setting')) {
+    function site_setting(string $key, ?string $default = null): ?string
+    {
+        return \App\SiteSettings::get($key, $default);
+    }
+}
+
+/** Get a site setting as bool. Default true for keys like webhook_testing_enabled. */
+if (!function_exists('site_setting_bool')) {
+    function site_setting_bool(string $key, bool $default = true): bool
+    {
+        return \App\SiteSettings::getBool($key, $default);
+    }
+}
+
 /**
  * Return HTML for an HTTP response status code with a semantic CSS class for color.
  * Use the same class names in JS (e.g. test modal) for consistent styling.
