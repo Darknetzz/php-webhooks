@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-03-15
+
+
 ### Added
 
 - **Visibility icons**: lock icon for private webhooks and globe icon for public/listed; reusable `visibility_label` partial used in webhook list, admin webhooks, and admin all webhooks.
