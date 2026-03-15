@@ -44,13 +44,13 @@ ob_start();
                         <td><?= e($u->created_at) ?></td>
                         <td class="table-cell-actions card-actions">
                             <?php if ($currentUser && $u->id !== $currentUser->id): ?>
-                                <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</a>
+                                <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
                             <?php endif; ?>
                             <?php if ($currentUser && $currentUser->isSuperAdmin() && $u->id !== $currentUser->id): ?>
                                 <?php $isLastSuperadmin = $u->isSuperAdmin() && \App\UserRepository::countSuperAdmins() <= 1; ?>
                                 <?php if (!$isLastSuperadmin): ?>
                                     <form method="post" action="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete user <?= e(addslashes($u->username)) ?>? Their webhooks will be deleted too.');">
-                                        <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete</button>
+                                        <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                                     </form>
                                 <?php endif; ?>
                             <?php endif; ?>
