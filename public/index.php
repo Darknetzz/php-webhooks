@@ -385,6 +385,7 @@ if ($uri === '/admin/users') {
     $users = UserRepository::listAll();
     $createError = $createError ?? null;
     $createUsername = $createUsername ?? '';
+    $listError = (isset($_GET['error']) && $_GET['error'] === 'edit_self') ? 'You cannot edit your own user here. Use Settings to change your password.' : null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_username'], $_POST['create_password'])) {
         $username = trim((string) $_POST['create_username']);
         $password = (string) $_POST['create_password'];
@@ -409,10 +410,13 @@ if ($uri === '/admin/users') {
     exit;
 }
 
-// Admin: edit user — admin panel only
+// Admin: edit user — admin panel only (cannot edit self)
 if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
     $user = require_admin_panel($uri);
     $id = (int) $m[1];
+    if ($id === $user->id) {
+        redirect(base_url() . '/admin/users?error=edit_self');
+    }
     $editUser = UserRepository::find($id);
     if (!$editUser) {
         redirect(base_url() . '/admin/users');
