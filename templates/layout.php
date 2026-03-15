@@ -67,6 +67,20 @@ $config = config();
         </div>
     </footer>
     <script>
+    document.body.addEventListener('change', function (e) {
+        var toggle = e.target.closest('.specify-allowed-methods-toggle');
+        if (toggle) {
+            var section = toggle.closest('.allowed-methods-toggle-section');
+            var inner = section && section.querySelector('.allowed-methods-inner');
+            if (inner) {
+                inner.style.display = toggle.checked ? 'block' : 'none';
+                inner.querySelectorAll('input[name="allowed_methods[]"]').forEach(function (cb) {
+                    cb.disabled = !toggle.checked;
+                });
+            }
+            return;
+        }
+    });
     document.body.addEventListener('click', function (e) {
         var btn = e.target.closest('.btn-copy-webhook');
         if (btn) {

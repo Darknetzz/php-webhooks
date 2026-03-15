@@ -97,7 +97,7 @@ ob_start();
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Allowed methods</h3>
-                    <?php $selectedMethods = $createAllowedMethods; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
+                    <?php $selectedMethods = $createAllowedMethods; $specifyToggleId = 'create-specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Response (optional)</h3>
@@ -151,7 +151,7 @@ ob_start();
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Allowed methods</h3>
-                    <?php $selectedMethods = []; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
+                    <?php $selectedMethods = []; $specifyToggleId = 'edit-specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Response (optional)</h3>
@@ -220,6 +220,11 @@ ob_start();
             document.querySelectorAll('#edit-modal input[name="allowed_methods[]"]').forEach(function (cb) {
                 cb.checked = allowed.indexOf(cb.value) !== -1;
             });
+            var specifyToggle = document.getElementById('edit-specify-allowed-methods');
+            if (specifyToggle) {
+                specifyToggle.checked = allowed.length > 0;
+                specifyToggle.dispatchEvent(new Event('change'));
+            }
             document.getElementById('edit-webhook-form').action = baseUrl + '/admin/webhooks/' + id + '/edit';
             openModal('edit-modal');
         });

@@ -29,7 +29,7 @@ ob_start();
         </div>
         <div class="form-section" style="margin-top: 1.25rem;">
             <h3 class="form-section-title">Allowed methods</h3>
-            <?php $selectedMethods = parse_allowed_methods($webhook->allowed_methods ?? ''); require __DIR__ . '/partials/allowed_methods_field.php'; ?>
+            <?php $selectedMethods = parse_allowed_methods($webhook->allowed_methods ?? ''); $specifyToggleId = 'specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
         </div>
         <div class="form-section" style="margin-top: 1.25rem;">
             <h3 class="form-section-title">Response (optional)</h3>
