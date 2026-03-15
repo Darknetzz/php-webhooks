@@ -925,6 +925,69 @@ th {
     max-width: none;
 }
 
+.test-webhook-mode {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.test-webhook-mode-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.test-webhook-mode-btn:hover {
+    color: var(--text);
+    border-color: var(--text);
+}
+
+.test-webhook-mode-btn.is-active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--bg);
+}
+
+.test-webhook-preset-block {
+    margin-bottom: 0.5rem;
+}
+
+.test-webhook-manual-block {
+    margin-bottom: 0;
+}
+
+.test-webhook-kv-table {
+    margin-bottom: 0.5rem;
+}
+
+.test-webhook-kv-table th {
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.test-webhook-kv-table td {
+    padding: 0.35rem 0.5rem;
+    vertical-align: middle;
+}
+
+.test-webhook-kv-table input[type="text"],
+.test-webhook-kv-table select {
+    width: 100%;
+    min-width: 0;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.test-webhook-add-row {
+    margin-top: 0.25rem;
+}
+
 .test-webhook-actions {
     display: flex;
     flex-wrap: wrap;

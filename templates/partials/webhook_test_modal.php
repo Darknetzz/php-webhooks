@@ -30,14 +30,48 @@
                     <div class="hint">URL is fixed to the webhook (editing disabled by site settings).</div>
                     <?php endif; ?>
                 </div>
-                <div class="form-group">
-                    <label for="test-webhook-headers">Headers (optional)</label>
-                    <textarea id="test-webhook-headers" name="headers" rows="3" placeholder="Content-Type: application/json&#10;X-Custom: value"></textarea>
-                    <div class="hint">One header per line: <code>Name: value</code>. You can use {{timestamp}}, {{date_iso}}, {{uuid}} in body and headers.</div>
+                <div class="form-group test-webhook-headers-group">
+                    <label>Headers (optional)</label>
+                    <div class="test-webhook-mode" role="tablist" aria-label="Headers input mode">
+                        <button type="button" class="test-webhook-mode-btn is-active" data-mode="preset" aria-selected="true">Preset</button>
+                        <button type="button" class="test-webhook-mode-btn" data-mode="manual" aria-selected="false">Manual</button>
+                    </div>
+                    <div id="test-webhook-headers-preset" class="test-webhook-preset-block">
+                        <div class="table-wrap">
+                            <table class="test-webhook-kv-table" id="test-webhook-headers-table">
+                                <thead>
+                                    <tr><th>Header</th><th>Value</th><th class="table-cell-actions"></th></tr>
+                                </thead>
+                                <tbody id="test-webhook-headers-tbody"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="test-webhook-add-row btn btn-ghost btn-sm" id="test-webhook-add-header" aria-label="Add header">+ Add header</button>
+                    </div>
+                    <div id="test-webhook-headers-manual" class="test-webhook-manual-block" hidden>
+                        <textarea id="test-webhook-headers" name="headers" rows="3" placeholder="Content-Type: application/json&#10;X-Custom: value"></textarea>
+                    </div>
+                    <div class="hint">You can use {{timestamp}}, {{date_iso}}, {{uuid}} in body and headers.</div>
                 </div>
-                <div class="form-group">
-                    <label for="test-webhook-body">Body (optional)</label>
-                    <textarea id="test-webhook-body" name="body" rows="4" placeholder='{"key": "value"}'></textarea>
+                <div class="form-group test-webhook-body-group">
+                    <label>Body (optional)</label>
+                    <div class="test-webhook-mode" role="tablist" aria-label="Body input mode">
+                        <button type="button" class="test-webhook-mode-btn is-active" data-mode="kv" aria-selected="true">Key/Value</button>
+                        <button type="button" class="test-webhook-mode-btn" data-mode="manual" aria-selected="false">Manual</button>
+                    </div>
+                    <div id="test-webhook-body-kv" class="test-webhook-preset-block">
+                        <div class="table-wrap">
+                            <table class="test-webhook-kv-table" id="test-webhook-body-table">
+                                <thead>
+                                    <tr><th>Key</th><th>Value</th><th class="table-cell-actions"></th></tr>
+                                </thead>
+                                <tbody id="test-webhook-body-tbody"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="test-webhook-add-row btn btn-ghost btn-sm" id="test-webhook-add-body-row" aria-label="Add row">+ Add row</button>
+                    </div>
+                    <div id="test-webhook-body-manual" class="test-webhook-manual-block" hidden>
+                        <textarea id="test-webhook-body" name="body" rows="4" placeholder='{"key": "value"}'></textarea>
+                    </div>
                 </div>
                 <div class="test-webhook-actions">
                     <button type="submit" class="btn btn-primary" id="test-webhook-send"><svg class="icon" aria-hidden="true"><use href="#icon-send"/></svg> Send request</button>
@@ -71,6 +105,16 @@
     var responseStatusEl = document.getElementById('test-webhook-response-status');
     var responseBodyEl = document.getElementById('test-webhook-response-body');
     var responseErrorEl = document.getElementById('test-webhook-response-error');
+
+    var PRESET_HEADERS = [
+        { name: 'Content-Type', placeholder: 'application/json' },
+        { name: 'Authorization', placeholder: 'Bearer token' },
+        { name: 'Accept', placeholder: 'application/json' },
+        { name: 'X-Request-ID', placeholder: '{{uuid}}' },
+        { name: 'X-Correlation-ID', placeholder: '{{uuid}}' },
+        { name: 'User-Agent', placeholder: '' },
+        { name: '__custom__', placeholder: '', label: 'Custom' }
+    ];
 
     function openTestModal() {
         modal.classList.add('is-open');
@@ -132,13 +176,139 @@
         return out;
     }
 
+    function getHeaderNameFromRow(row) {
+        var sel = row.querySelector('.test-webhook-header-select');
+        var val = sel ? sel.value : '';
+        if (val === '__custom__') {
+            var customInput = row.querySelector('.test-webhook-header-custom-name');
+            return customInput ? customInput.value.trim() : '';
+        }
+        return val || '';
+    }
+
+    function buildHeadersFromPreset() {
+        var out = {};
+        var tbody = document.getElementById('test-webhook-headers-tbody');
+        if (!tbody) return out;
+        [].slice.call(tbody.querySelectorAll('tr')).forEach(function (row) {
+            var name = getHeaderNameFromRow(row);
+            var valInput = row.querySelector('.test-webhook-header-value');
+            var val = valInput ? valInput.value.trim() : '';
+            if (name && val) out[name] = substituteTestVariables(val);
+        });
+        return out;
+    }
+
+    function buildBodyFromKV() {
+        var obj = {};
+        var tbody = document.getElementById('test-webhook-body-tbody');
+        if (!tbody) return '';
+        [].slice.call(tbody.querySelectorAll('tr')).forEach(function (row) {
+            var keyInput = row.querySelector('.test-webhook-body-key');
+            var valInput = row.querySelector('.test-webhook-body-value');
+            var key = keyInput ? keyInput.value.trim() : '';
+            var val = valInput ? valInput.value : '';
+            if (key) obj[key] = val;
+        });
+        if (Object.keys(obj).length === 0) return '';
+        return JSON.stringify(obj);
+    }
+
+    function addHeaderRow(valueName, valuePlaceholder) {
+        valueName = valueName || 'Content-Type';
+        valuePlaceholder = valuePlaceholder != null ? valuePlaceholder : 'application/json';
+        var tbody = document.getElementById('test-webhook-headers-tbody');
+        var tr = document.createElement('tr');
+        var optHtml = PRESET_HEADERS.map(function (h) {
+            var label = h.label || h.name;
+            return '<option value="' + (h.name === '__custom__' ? '__custom__' : h.name) + '">' + label + '</option>';
+        }).join('');
+        tr.innerHTML =
+            '<td><select class="test-webhook-header-select">' + optHtml + '</select>' +
+            '<input type="text" class="test-webhook-header-custom-name" placeholder="Header name" style="display:none; margin-top: 4px;" /></td>' +
+            '<td><input type="text" class="test-webhook-header-value" placeholder="' + (valuePlaceholder || '') + '" /></td>' +
+            '<td class="table-cell-actions"><button type="button" class="btn btn-ghost btn-sm test-webhook-remove-row" aria-label="Remove">×</button></td>';
+        var sel = tr.querySelector('.test-webhook-header-select');
+        var customInput = tr.querySelector('.test-webhook-header-custom-name');
+        sel.value = valueName === '__custom__' ? '__custom__' : valueName;
+        if (valueName === '__custom__') customInput.style.display = 'block';
+        sel.addEventListener('change', function () {
+            customInput.style.display = sel.value === '__custom__' ? 'block' : 'none';
+        });
+        var ph = PRESET_HEADERS.find(function (h) { return h.name === (valueName === '__custom__' ? '__custom__' : valueName); });
+        if (ph && ph.placeholder) tr.querySelector('.test-webhook-header-value').placeholder = ph.placeholder;
+        tr.querySelector('.test-webhook-remove-row').addEventListener('click', function () { tr.remove(); });
+        tbody.appendChild(tr);
+    }
+
+    function addBodyRow() {
+        var tbody = document.getElementById('test-webhook-body-tbody');
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><input type="text" class="test-webhook-body-key" placeholder="Key" /></td>' +
+            '<td><input type="text" class="test-webhook-body-value" placeholder="Value" /></td>' +
+            '<td class="table-cell-actions"><button type="button" class="btn btn-ghost btn-sm test-webhook-remove-row" aria-label="Remove">×</button></td>';
+        tr.querySelector('.test-webhook-remove-row').addEventListener('click', function () { tr.remove(); });
+        tbody.appendChild(tr);
+    }
+
+    document.getElementById('test-webhook-add-header').addEventListener('click', function () { addHeaderRow(); });
+    document.getElementById('test-webhook-add-body-row').addEventListener('click', function () { addBodyRow(); });
+
+    addHeaderRow('Content-Type', 'application/json');
+
+    (function () {
+        var r = document.createElement('tr');
+        r.innerHTML =
+            '<td><input type="text" class="test-webhook-body-key" placeholder="Key" /></td>' +
+            '<td><input type="text" class="test-webhook-body-value" placeholder="Value" /></td>' +
+            '<td class="table-cell-actions"><button type="button" class="btn btn-ghost btn-sm test-webhook-remove-row" aria-label="Remove">×</button></td>';
+        r.querySelector('.test-webhook-remove-row').addEventListener('click', function () { r.remove(); });
+        document.getElementById('test-webhook-body-tbody').appendChild(r);
+    })();
+
+    function setupModeSwitch(containerSelector, presetBlockId, manualBlockId, presetValue, manualValue) {
+        var container = document.querySelector(containerSelector);
+        if (!container) return;
+        var presetBlock = document.getElementById(presetBlockId);
+        var manualBlock = document.getElementById(manualBlockId);
+        container.querySelectorAll('.test-webhook-mode-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var mode = btn.getAttribute('data-mode');
+                container.querySelectorAll('.test-webhook-mode-btn').forEach(function (b) {
+                    b.classList.toggle('is-active', b === btn);
+                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                });
+                if (mode === presetValue) {
+                    presetBlock.hidden = false;
+                    manualBlock.hidden = true;
+                } else {
+                    presetBlock.hidden = true;
+                    manualBlock.hidden = false;
+                }
+            });
+        });
+    }
+    setupModeSwitch('.test-webhook-headers-group', 'test-webhook-headers-preset', 'test-webhook-headers-manual', 'preset', 'manual');
+    setupModeSwitch('.test-webhook-body-group', 'test-webhook-body-kv', 'test-webhook-body-manual', 'kv', 'manual');
+
     form.addEventListener('submit', function (e) {
         e.preventDefault();
         var url = urlInput.value.trim();
         if (!url) return;
         var method = methodSelect.value;
-        var headers = parseHeaders(headersInput.value);
-        var body = substituteTestVariables(bodyInput.value.trim());
+        var headersMode = form.querySelector('.test-webhook-headers-group .test-webhook-mode-btn.is-active');
+        var bodyMode = form.querySelector('.test-webhook-body-group .test-webhook-mode-btn.is-active');
+        var headers = (headersMode && headersMode.getAttribute('data-mode') === 'preset')
+            ? buildHeadersFromPreset()
+            : parseHeaders(headersInput.value);
+        var body = (bodyMode && bodyMode.getAttribute('data-mode') === 'kv')
+            ? buildBodyFromKV()
+            : bodyInput.value.trim();
+        if (body) body = substituteTestVariables(body);
+        if (body && ['POST', 'PUT', 'PATCH'].indexOf(method) !== -1 && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
 
         responseEl.hidden = false;
         responseErrorEl.hidden = true;
