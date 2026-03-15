@@ -23,7 +23,6 @@ ob_start();
         <p class="meta" style="margin: 0;">General and site options (e.g. webhook testing).</p>
     </a>
 </div>
-<p style="margin-top: 1.5rem;"><a href="<?= e($baseUrl) ?>/" class="btn btn-ghost">Webhooks</a></p>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/layout.php';
