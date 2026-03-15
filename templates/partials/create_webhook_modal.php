@@ -83,14 +83,7 @@ $fromAdmin = $fromAdmin ?? false;
                         <label for="create-response_status_code">Status code</label>
                         <input type="number" id="create-response_status_code" name="response_status_code" min="100" max="599" value="<?= $createResponseStatusCode ?>">
                     </div>
-                    <div class="form-group">
-                        <label for="create-response_headers">Response headers (JSON)</label>
-                        <textarea id="create-response_headers" name="response_headers" rows="2" placeholder='{"Content-Type": "application/json"}'><?= e($createResponseHeaders) ?></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="create-response_body">Response body</label>
-                        <textarea id="create-response_body" name="response_body" rows="3" placeholder="Leave empty for default"><?= e($createResponseBody) ?></textarea>
-                    </div>
+                    <?php $prefix = 'create-'; $responseHeadersValue = $createResponseHeaders; $responseBodyValue = $createResponseBody; require __DIR__ . '/response_headers_body_fields.php'; ?>
                 </div>
                 <button type="submit" class="btn btn-primary">Create</button>
                 <button type="button" class="btn btn-ghost" data-close="create-modal">Cancel</button>
