@@ -12,7 +12,6 @@ ob_start();
     <a href="<?= e($baseUrl) ?>/">← Home</a>
     <span aria-hidden="true">·</span>
     <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-    <a href="<?= e($baseUrl) ?>/w/<?= e($webhook->slug) ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
 </p>
 
 <?php if (empty($requests)): ?>
@@ -21,6 +20,9 @@ ob_start();
         <?php $code = 'curl -X POST "' . $webhookBaseUrl . '/w/' . $webhook->slug . '" -H "Content-Type: application/json" -d \'{"test": true}\''; $language = 'bash'; require __DIR__ . '/partials/codebox.php'; ?>
     </div>
 <?php else: ?>
+    <div class="requests-toolbar">
+        <a href="<?= e($baseUrl) ?>/w/<?= e($webhook->slug) ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
+    </div>
     <div class="table-wrap">
         <table>
             <thead>

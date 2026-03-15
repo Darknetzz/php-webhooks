@@ -12,12 +12,6 @@ ob_start();
     <a href="<?= e($baseUrl) ?>/">← Webhooks</a>
     <span aria-hidden="true">·</span>
     <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
-    <?php if (!empty($requests)): ?>
-    <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/delete-all" style="display: inline;" onsubmit="return confirm('Delete all <?= count($requests) ?> request(s) for this webhook?');">
-        <button type="submit" class="btn-webhook-action btn-danger-inline" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete all</button>
-    </form>
-    <?php endif; ?>
 </p>
 
 <?php if (empty($requests)): ?>
@@ -26,6 +20,12 @@ ob_start();
         <?php $code = 'curl -X POST "' . $webhookBaseUrl . '/w/' . $webhook->slug . '" -H "Content-Type: application/json" -d \'{"test": true}\''; $language = 'bash'; require __DIR__ . '/partials/codebox.php'; ?>
     </div>
 <?php else: ?>
+    <div class="requests-toolbar">
+        <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
+        <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/delete-all" style="display: inline;" onsubmit="return confirm('Delete all <?= count($requests) ?> request(s) for this webhook?');">
+            <button type="submit" class="btn-webhook-action btn-danger-inline" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete all</button>
+        </form>
+    </div>
     <div class="table-wrap">
         <table>
             <thead>
