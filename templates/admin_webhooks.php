@@ -7,7 +7,8 @@ $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
-$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : false;
+$createRequestsPublic = $createRequestsPublic ?? false;
 $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = $createResponseStatusCode ?? 200;
 $createResponseHeaders = $createResponseHeaders ?? '';
@@ -58,6 +59,12 @@ ob_start();
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                     List on public page (anyone can see the URL)
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
+                    Show requests publicly
                 </label>
             </div>
         </div>

@@ -27,6 +27,12 @@ ob_start();
                 List on public page
             </label>
         </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="requests_public" value="1" <?= $webhook->requests_public ? 'checked' : '' ?>>
+                Show requests publicly
+            </label>
+        </div>
         <div class="form-section" style="margin-top: 1.25rem;">
             <h3 class="form-section-title">Allowed methods</h3>
             <?php $selectedMethods = parse_allowed_methods($webhook->allowed_methods ?? ''); $specifyToggleId = 'specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>

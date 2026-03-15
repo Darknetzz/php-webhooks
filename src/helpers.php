@@ -58,6 +58,22 @@ if (!function_exists('site_setting_bool')) {
     }
 }
 
+/** Default accent when no site or user override is set. */
+const DEFAULT_ACCENT = '#22d3ee';
+const DEFAULT_ACCENT_HOVER = '#06b6d4';
+
+/** Get site default primary color [accent, accentHover]. Used by layout and user settings. */
+if (!function_exists('site_primary_color')) {
+    function site_primary_color(): array
+    {
+        $accent = site_setting(\App\SiteSettings::KEY_PRIMARY_COLOR, DEFAULT_ACCENT);
+        $hover = site_setting(\App\SiteSettings::KEY_PRIMARY_COLOR_HOVER, DEFAULT_ACCENT_HOVER);
+        $accent = (preg_match('/^#[0-9A-Fa-f]{6}$/', $accent ?? '') ? $accent : null) ?? DEFAULT_ACCENT;
+        $hover = (preg_match('/^#[0-9A-Fa-f]{6}$/', $hover ?? '') ? $hover : null) ?? DEFAULT_ACCENT_HOVER;
+        return [$accent, $hover];
+    }
+}
+
 /**
  * Return HTML for an HTTP response status code with a semantic CSS class for color.
  * Use the same class names in JS (e.g. test modal) for consistent styling.

@@ -9,7 +9,8 @@ $createError = null;
 $createName = '';
 $createSlug = '';
 $createDescription = '';
-$createIsPublic = true;
+$createIsPublic = false;
+$createRequestsPublic = false;
 $createSlugFromName = true;
 $createResponseStatusCode = 200;
 $createResponseHeaders = '';
@@ -51,7 +52,7 @@ ob_start();
                             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
                         </td>
                         <td><?= e($owner) ?></td>
-                        <td><?= $w->is_public ? 'Public' : 'Private' ?></td>
+                        <td><?= $w->is_public ? 'Listed' : 'Private' ?><?= $w->requests_public ? ' · Requests public' : '' ?></td>
                         <td><?= e($w->created_at) ?></td>
                         <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;">Requests</a>
