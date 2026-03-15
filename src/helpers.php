@@ -42,6 +42,33 @@ if (!function_exists('e')) {
     }
 }
 
+/**
+ * Return HTML for an HTTP response status code with a semantic CSS class for color.
+ * Use the same class names in JS (e.g. test modal) for consistent styling.
+ * Ranges: 1xx info, 2xx success, 3xx redirect, 4xx client, 5xx server, 0/other neutral.
+ */
+if (!function_exists('colored_response_code')) {
+    function colored_response_code(int $code = 0): string
+    {
+        $code = (int) $code;
+        $class = 'http-status';
+        if ($code >= 100 && $code < 200) {
+            $class .= ' http-status--info';
+        } elseif ($code >= 200 && $code < 300) {
+            $class .= ' http-status--success';
+        } elseif ($code >= 300 && $code < 400) {
+            $class .= ' http-status--redirect';
+        } elseif ($code >= 400 && $code < 500) {
+            $class .= ' http-status--client';
+        } elseif ($code >= 500 && $code < 600) {
+            $class .= ' http-status--server';
+        } else {
+            $class .= ' http-status--neutral';
+        }
+        return '<span class="' . $class . '">' . $code . '</span>';
+    }
+}
+
 /** Parse allowed_methods string (comma-separated) into uppercase list. Empty string returns []. */
 if (!function_exists('parse_allowed_methods')) {
     function parse_allowed_methods(string $value): array

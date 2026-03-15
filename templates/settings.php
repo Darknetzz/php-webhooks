@@ -50,15 +50,15 @@ ob_start();
         <input type="hidden" name="change_password" value="1">
         <div class="form-group">
             <label for="current_password">Current password</label>
-            <input type="password" id="current_password" name="current_password" required autocomplete="current-password">
+            <input type="password" id="current_password" name="current_password" required autocomplete="current-password" placeholder="Current password">
         </div>
         <div class="form-group">
             <label for="new_password">New password</label>
-            <input type="password" id="new_password" name="new_password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+            <input type="password" id="new_password" name="new_password" required minlength="8" autocomplete="new-password" placeholder="New password (at least 8 characters)">
         </div>
         <div class="form-group">
             <label for="new_password_confirm">Confirm new password</label>
-            <input type="password" id="new_password_confirm" name="new_password_confirm" required minlength="8" autocomplete="new-password">
+            <input type="password" id="new_password_confirm" name="new_password_confirm" required minlength="8" autocomplete="new-password" placeholder="Repeat new password">
         </div>
         <button type="submit" class="btn btn-primary">Update password</button>
     </form>

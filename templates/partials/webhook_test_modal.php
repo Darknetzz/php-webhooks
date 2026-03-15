@@ -134,10 +134,19 @@
             opts.body = body;
         }
 
+        function statusClass(code) {
+            if (code >= 100 && code < 200) return 'http-status--info';
+            if (code >= 200 && code < 300) return 'http-status--success';
+            if (code >= 300 && code < 400) return 'http-status--redirect';
+            if (code >= 400 && code < 500) return 'http-status--client';
+            if (code >= 500 && code < 600) return 'http-status--server';
+            return 'http-status--neutral';
+        }
+
         fetch(url, opts)
             .then(function (res) {
                 responseStatusEl.textContent = res.status + ' ' + (res.statusText || '');
-                responseStatusEl.className = 'test-webhook-response-status ' + (res.ok ? 'test-webhook-response-status--ok' : 'test-webhook-response-status--error');
+                responseStatusEl.className = 'test-webhook-response-status http-status ' + statusClass(res.status);
                 return res.text();
             })
             .then(function (text) {
@@ -150,7 +159,7 @@
             })
             .catch(function (err) {
                 responseStatusEl.textContent = 'Error';
-                responseStatusEl.className = 'test-webhook-response-status test-webhook-response-status--error';
+                responseStatusEl.className = 'test-webhook-response-status http-status http-status--neutral';
                 responseBodyEl.textContent = '';
                 responseErrorEl.textContent = err.message || 'Request failed. If the URL is on another origin, the browser may block it (CORS). Try from the same origin or use curl.';
                 responseErrorEl.hidden = false;

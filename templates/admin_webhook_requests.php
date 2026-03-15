@@ -67,7 +67,7 @@ ob_start();
                             <?php if ($r->response_status_code !== null || $r->response_headers !== '' || $r->response_body !== ''): ?>
                                 <div class="meta" style="margin-top: 1rem;">Response</div>
                                 <?php if ($r->response_status_code !== null): ?>
-                                    <div class="meta" style="margin-top: 0.35rem;">Status: <strong><?= (int) $r->response_status_code ?></strong></div>
+                                    <div class="meta" style="margin-top: 0.35rem;">Status: <?= colored_response_code($r->response_status_code) ?></div>
                                 <?php endif; ?>
                                 <?php if ($r->response_headers !== ''): ?>
                                     <div class="meta" style="margin-top: 0.35rem;">Response headers</div>

@@ -348,6 +348,7 @@ h1, h2 {
 }
 
 .form-group input[type="text"],
+.form-group input[type="url"],
 .form-group input[type="password"],
 .form-group input[type="number"],
 .form-group input[type="email"],
@@ -933,6 +934,15 @@ th {
 .test-webhook-response-status--error {
     color: var(--danger);
 }
+
+/* Centralized HTTP status code colors (used by colored_response_code() and test modal) */
+.http-status { font-weight: 600; }
+.http-status--neutral { color: var(--muted); }
+.http-status--info { color: var(--accent); }
+.http-status--success { color: var(--success); }
+.http-status--redirect { color: var(--accent); }
+.http-status--client { color: #f59e0b; }
+.http-status--server { color: var(--danger); }
 
 .test-webhook-response-body {
     margin: 0;
