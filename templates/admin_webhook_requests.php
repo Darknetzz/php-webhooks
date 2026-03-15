@@ -15,7 +15,7 @@ ob_start();
     <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
     <?php if (!empty($requests)): ?>
     <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/delete-all" style="display: inline;" onsubmit="return confirm('Delete all <?= count($requests) ?> request(s) for this webhook?');">
-        <button type="submit" class="btn-webhook-action btn-danger-inline" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
+        <button type="submit" class="btn-webhook-action btn-danger-inline btn-icon-only" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
     </form>
     <?php endif; ?>
 </p>
@@ -45,7 +45,7 @@ ob_start();
                         <td>
                             <a href="#" class="btn btn-ghost" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;" onclick="toggleDetail(<?= $r->id ?>); return false;">Details</a>
                             <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/<?= (int) $r->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this request?');">
-                                <button type="submit" class="btn btn-ghost btn-danger-inline" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;" aria-label="Delete request" title="Delete request"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
+                                <button type="submit" class="btn btn-ghost btn-danger-inline btn-icon-only" style="font-size: 0.85rem;" aria-label="Delete request" title="Delete request"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                             </form>
                         </td>
                     </tr>

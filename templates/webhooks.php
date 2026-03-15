@@ -41,9 +41,9 @@ ob_start();
                 <p class="meta"><?= $w->is_public ? 'Listed publicly' : 'Private' ?><?= $w->requests_public ? ' · Requests public' : '' ?> · Created <?= e($w->created_at) ?><?php if ($requestCount !== 0): ?> · <strong><?= $requestCount ?></strong> request<?= $requestCount === 1 ? '' : 's' ?><?php endif; ?></p>
                 <div class="card-actions">
                     <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-requests"/></svg> View requests<?php if ($requestCount): ?> (<?= $requestCount ?>)<?php endif; ?></a>
-                    <button type="button" class="btn btn-ghost btn-edit-webhook" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
+                    <button type="button" class="btn btn-ghost btn-icon-only btn-edit-webhook" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
                     <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">
-                        <button type="submit" class="btn btn-danger" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
+                        <button type="submit" class="btn btn-danger btn-icon-only" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                     </form>
                 </div>
             </div>
