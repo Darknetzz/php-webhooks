@@ -1,14 +1,17 @@
 # Build and push Docker image to ghcr.io and Docker Hub
 #
-# ghcr.io: uses GITHUB_TOKEN; enable "Read and write packages" in repo Settings → Actions → General.
-# Docker Hub: add one secret DOCKERHUB_TOKEN (Access Token from hub.docker.com). Username and image
-#   are set below in env; override with repo variables DOCKERHUB_USERNAME / DOCKERHUB_IMAGE if needed.
+# ghcr.io: uses GITHUB_TOKEN; image is ghcr.io/<github.repository> (e.g. ghcr.io/Darknetzz/webhooks).
+#   Enable "Read and write packages" in repo Settings → Actions → General.
+# Docker Hub: add secret DOCKERHUB_TOKEN (Access Token from hub.docker.com). Username can differ from
+#   GitHub (e.g. Docker Hub = darknetz, GitHub = Darknetzz); set below or via vars DOCKERHUB_USERNAME / DOCKERHUB_IMAGE.
+#
+# Branches: main → :latest (and semver on release); dev → :dev (bleeding-edge).
 
 name: Docker publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   release:
     types: [published]
 
