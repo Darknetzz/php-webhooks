@@ -154,6 +154,23 @@ if ($showWebhookTesting):
     })();
 
     (function () {
+        document.querySelectorAll('form').forEach(function (form) {
+            var isPublic = form.querySelector('input[name="is_public"]');
+            var wrap = form.querySelector('.js-requests-public-wrap');
+            if (!isPublic || !wrap) return;
+            function update() {
+                wrap.style.display = isPublic.checked ? '' : 'none';
+                if (!isPublic.checked) {
+                    var reqPub = form.querySelector('input[name="requests_public"]');
+                    if (reqPub) reqPub.checked = false;
+                }
+            }
+            isPublic.addEventListener('change', update);
+            update();
+        });
+    })();
+
+    (function () {
         var trigger = document.getElementById('user-dropdown-btn');
         var menu = document.getElementById('user-menu');
         if (!trigger || !menu) return;

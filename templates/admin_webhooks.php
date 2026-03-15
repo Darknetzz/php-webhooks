@@ -62,7 +62,7 @@ ob_start();
                     List on public page (anyone can see the URL)
                 </label>
             </div>
-            <div class="form-group">
+            <div class="form-group js-requests-public-wrap">
                 <label class="checkbox-label">
                     <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
                     Show requests publicly

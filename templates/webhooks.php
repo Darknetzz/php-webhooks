@@ -80,7 +80,7 @@ ob_start();
                         List on public page
                     </label>
                 </div>
-                <div class="form-group">
+                <div class="form-group js-requests-public-wrap">
                     <label class="checkbox-label">
                         <input type="checkbox" name="requests_public" value="1" id="edit-requests_public">
                         Show requests publicly
@@ -145,6 +145,7 @@ ob_start();
             document.getElementById('edit-description').value = card.dataset.description || '';
             document.getElementById('edit-is_public').checked = card.dataset.isPublic === '1';
             document.getElementById('edit-requests_public').checked = card.dataset.requestsPublic === '1';
+            document.getElementById('edit-is_public').dispatchEvent(new Event('change'));
             document.getElementById('edit-response_status_code').value = card.dataset.responseStatusCode || '200';
             document.getElementById('edit-response_headers').value = card.dataset.responseHeaders || '';
             document.getElementById('edit-response_body').value = card.dataset.responseBody || '';

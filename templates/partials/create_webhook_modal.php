@@ -65,7 +65,7 @@ $fromAdmin = $fromAdmin ?? false;
                             List on public page
                         </label>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group js-requests-public-wrap">
                         <label class="checkbox-label">
                             <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
                             Show requests publicly
