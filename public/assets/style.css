@@ -144,6 +144,15 @@ body {
     opacity: 0.9;
 }
 
+.request-count--link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.request-count--link:hover {
+    text-decoration: underline;
+}
+
 .user-dropdown-menu a {
     display: flex;
     align-items: center;
