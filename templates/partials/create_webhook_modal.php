@@ -54,7 +54,7 @@ $fromAdmin = $fromAdmin ?? false;
                         <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-slug-preview">my-api-hook</span></strong></div>
                     </div>
                     <div class="form-group" id="create-random-slug-hint" style="display: none;">
-                        <div class="hint">A random slug will be generated.</div>
+                        <div class="hint">A random slug (e.g. <code id="create-random-slug-sample"></code>) will be generated. URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-random-slug-url-preview"></span></strong></div>
                     </div>
                 </div>
                 <div class="form-section">
@@ -129,21 +129,41 @@ $fromAdmin = $fromAdmin ?? false;
     var createSlugFieldWrap = document.getElementById('create-slug-field-wrap');
     var createCustomSlugInputWrap = document.getElementById('create-custom-slug-input-wrap');
     var createRandomSlugHint = document.getElementById('create-random-slug-hint');
+    var createRandomSlugSample = document.getElementById('create-random-slug-sample');
+    var createRandomSlugUrlPreview = document.getElementById('create-random-slug-url-preview');
     if (createSlugPreview) {
         var slugify = function (s) {
             return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
         };
+        function randomHexSample(minLen, maxLen) {
+            minLen = minLen || 10;
+            maxLen = maxLen || 30;
+            var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
+            var hex = '0123456789abcdef';
+            var out = '';
+            for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
+            return out;
+        }
         function updateCreateSlugVisibility() {
             var fromName = createSlugFromName && createSlugFromName.checked;
             if (createSlugFieldWrap) createSlugFieldWrap.style.display = fromName ? 'block' : 'none';
             if (createCustomSlugInputWrap) createCustomSlugInputWrap.style.display = fromName ? 'none' : 'block';
             if (createRandomSlugHint) createRandomSlugHint.style.display = fromName ? 'none' : 'block';
             if (!fromName && createSlug) createSlug.value = '';
+            if (!fromName) {
+                var sample = randomHexSample(10, 30);
+                if (createRandomSlugSample) createRandomSlugSample.textContent = sample;
+                if (createRandomSlugUrlPreview) createRandomSlugUrlPreview.textContent = sample;
+            }
         }
         function updateCreatePreview() {
             var fromName = createSlugFromName && createSlugFromName.checked;
             var slug = (createSlug && createSlug.value.trim()) || '';
-            if (!fromName && !slug) { createSlugPreview.textContent = '(random)'; return; }
+            if (!fromName && !slug) {
+                var sample = createRandomSlugSample ? createRandomSlugSample.textContent : randomHexSample(10, 30);
+                createSlugPreview.textContent = sample || '(random)';
+                return;
+            }
             if (!slug && createName && createName.value.trim()) {
                 slug = slugify(createName.value.trim()) || 'webhook';
             }

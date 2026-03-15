@@ -50,7 +50,7 @@ ob_start();
                 <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
             </div>
             <div class="form-group" id="random-slug-hint" style="display: none;">
-                <div class="hint">A random URL (e.g. <code id="random-slug-sample">a1b2c3d4e5f6</code>) will be generated when you create the webhook.</div>
+                <div class="hint">A random slug (e.g. <code id="random-slug-sample">a1b2c3d4e5f6</code>) will be generated. URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="random-slug-url-preview"></span></strong></div>
             </div>
         </div>
         <div class="form-section">
@@ -100,10 +100,14 @@ ob_start();
     var randomSlugHint = document.getElementById('random-slug-hint');
     var previewEl = document.getElementById('slug-preview');
     var randomSampleEl = document.getElementById('random-slug-sample');
+    var randomSlugUrlPreview = document.getElementById('random-slug-url-preview');
     function slugify(s) {
         return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
     }
-    function randomHexSample(len) {
+    function randomHexSample(minLen, maxLen) {
+        minLen = minLen || 10;
+        maxLen = maxLen || 30;
+        var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
         var hex = '0123456789abcdef';
         var out = '';
         for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
@@ -113,7 +117,11 @@ ob_start();
         var fromName = slugFromNameEl && slugFromNameEl.checked;
         if (slugFieldWrap) slugFieldWrap.style.display = fromName ? 'block' : 'none';
         if (randomSlugHint) randomSlugHint.style.display = fromName ? 'none' : 'block';
-        if (randomSampleEl) randomSampleEl.textContent = randomHexSample(16);
+        if (!fromName) {
+            var sample = randomHexSample(10, 30);
+            if (randomSampleEl) randomSampleEl.textContent = sample;
+            if (randomSlugUrlPreview) randomSlugUrlPreview.textContent = sample;
+        }
         if (!fromName && slugEl) slugEl.value = '';
     }
     function updatePreview() {
@@ -121,7 +129,8 @@ ob_start();
         var fromName = slugFromNameEl && slugFromNameEl.checked;
         var slug = (slugEl && slugEl.value.trim()) || '';
         if (!fromName && !slug) {
-            previewEl.textContent = '(random)';
+            var sample = randomSampleEl ? randomSampleEl.textContent : randomHexSample(10, 30);
+            previewEl.textContent = sample || '(random)';
             return;
         }
         if (!slug && nameEl && nameEl.value.trim()) {

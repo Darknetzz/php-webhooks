@@ -40,8 +40,8 @@ ob_start();
         <div class="form-group">
             <label class="settings-label">Default primary color</label>
             <div class="primary-color-swatches" role="group" aria-label="Default primary color">
-                <?php foreach (primary_color_presets() as $key => $colors): list($main, $hover) = $colors; ?>
-                <button type="button" class="color-swatch admin-primary-swatch" data-accent="<?= e($main) ?>" data-accent-hover="<?= e($hover) ?>" style="--swatch: <?= e($main) ?>" title="<?= e(ucfirst($key)) ?>"></button>
+                <?php foreach (primary_color_presets() as $key => $colors): list($main, $hover) = $colors; $isActive = ($main === $sitePrimaryColor && $hover === $sitePrimaryColorHover); ?>
+                <button type="button" class="color-swatch admin-primary-swatch<?= $isActive ? ' active' : '' ?>" data-accent="<?= e($main) ?>" data-accent-hover="<?= e($hover) ?>" style="--swatch: <?= e($main) ?>" title="<?= e(ucfirst($key)) ?>"></button>
                 <?php endforeach; ?>
             </div>
             <input type="color" id="admin-primary-color-picker" class="color-picker" value="<?= e($sitePrimaryColor) ?>" aria-label="Custom default primary color" title="Custom color">
@@ -67,12 +67,18 @@ ob_start();
     form.querySelectorAll('.admin-primary-swatch').forEach(function (btn) {
         btn.addEventListener('click', function () {
             setPrimary(btn.dataset.accent, btn.dataset.accentHover);
+            form.querySelectorAll('.admin-primary-swatch').forEach(function (b) {
+                b.classList.toggle('active', b === btn);
+            });
         });
     });
     if (picker) {
         picker.addEventListener('input', function () {
             accentInput.value = this.value;
             hoverInput.value = '';
+            form.querySelectorAll('.admin-primary-swatch').forEach(function (b) {
+                b.classList.remove('active');
+            });
         });
     }
 })();

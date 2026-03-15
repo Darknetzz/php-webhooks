@@ -19,21 +19,13 @@ ob_start();
     <div class="settings-row">
         <label class="settings-label">Primary color</label>
         <div class="primary-color-swatches" role="group" aria-label="Primary color">
-            <?php
-            $presets = [
-                'cyan' => ['#22d3ee', '#06b6d4'],
-                'blue' => ['#3b82f6', '#2563eb'],
-                'green' => ['#10b981', '#059669'],
-                'violet' => ['#8b5cf6', '#7c3aed'],
-                'orange' => ['#f97316', '#ea580c'],
-            ];
-            foreach ($presets as $key => $colors):
-                list($main, $hover) = $colors;
-            ?>
-            <button type="button" class="color-swatch<?= $key === 'cyan' ? ' active' : '' ?>" data-color="<?= e($key) ?>" data-accent="<?= e($main) ?>" data-accent-hover="<?= e($hover) ?>" style="--swatch: <?= e($main) ?>" title="<?= e(ucfirst($key)) ?>" aria-pressed="<?= $key === 'cyan' ? 'true' : 'false' ?>"></button>
+            <?php foreach (primary_color_presets() as $key => $colors): list($main, $hover) = $colors; ?>
+            <button type="button" class="color-swatch" data-color="<?= e($key) ?>" data-accent="<?= e($main) ?>" data-accent-hover="<?= e($hover) ?>" style="--swatch: <?= e($main) ?>" title="<?= e(ucfirst($key)) ?>" aria-pressed="false"></button>
             <?php endforeach; ?>
         </div>
-        <input type="color" id="primary-color-picker" class="color-picker" value="#22d3ee" aria-label="Custom primary color" title="Custom color">
+        <input type="color" id="primary-color-picker" class="color-picker" value="<?= e(site_primary_color()[0]) ?>" aria-label="Custom primary color" title="Custom color">
+        <button type="button" class="btn btn-ghost btn-use-site-default" id="btn-use-site-default" style="margin-left: 0.5rem;">Use site default</button>
+        <div class="hint" style="margin-top: 0.35rem;">Overrides the default set by the site admin. Clear with “Use site default” to follow the site theme.</div>
     </div>
 </section>
 
@@ -69,6 +61,7 @@ ob_start();
     var STORAGE_THEME = 'webhooks_theme';
     var STORAGE_ACCENT = 'webhooks_accent';
     var STORAGE_ACCENT_HOVER = 'webhooks_accent_hover';
+    var siteDefault = <?= json_encode(site_primary_color()) ?>;
 
     function applyTheme(theme) {
         document.documentElement.dataset.theme = theme || 'dark';
@@ -76,14 +69,14 @@ ob_start();
 
     function applyAccent(accent, accentHover) {
         var root = document.documentElement.style;
-        root.setProperty('--accent', accent || '#22d3ee');
-        root.setProperty('--accent-hover', accentHover || '#06b6d4');
+        root.setProperty('--accent', accent || siteDefault[0] || '#22d3ee');
+        root.setProperty('--accent-hover', accentHover || siteDefault[1] || '#06b6d4');
     }
 
     function loadSaved() {
         var theme = localStorage.getItem(STORAGE_THEME) || 'dark';
-        var accent = localStorage.getItem(STORAGE_ACCENT) || '#22d3ee';
-        var accentHover = localStorage.getItem(STORAGE_ACCENT_HOVER) || '#06b6d4';
+        var accent = localStorage.getItem(STORAGE_ACCENT) || siteDefault[0] || '#22d3ee';
+        var accentHover = localStorage.getItem(STORAGE_ACCENT_HOVER) || siteDefault[1] || '#06b6d4';
         applyTheme(theme);
         applyAccent(accent, accentHover);
         document.querySelectorAll('.theme-option').forEach(function (btn) {
@@ -141,6 +134,23 @@ ob_start();
                 b.classList.remove('active');
                 b.setAttribute('aria-pressed', 'false');
             });
+        });
+    }
+
+    var btnUseSiteDefault = document.getElementById('btn-use-site-default');
+    if (btnUseSiteDefault) {
+        btnUseSiteDefault.addEventListener('click', function () {
+            localStorage.removeItem(STORAGE_ACCENT);
+            localStorage.removeItem(STORAGE_ACCENT_HOVER);
+            var accent = siteDefault[0] || '#22d3ee';
+            var accentHover = siteDefault[1] || '#06b6d4';
+            applyAccent(accent, accentHover);
+            document.querySelectorAll('.color-swatch').forEach(function (b) {
+                var isActive = b.dataset.accent === accent;
+                b.classList.toggle('active', isActive);
+                b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            if (picker) picker.value = accent;
         });
     }
 

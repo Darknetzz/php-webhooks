@@ -11,10 +11,9 @@ $config = config();
     <script>
     (function(){
         var t=localStorage.getItem('webhooks_theme')||'dark';
-        var siteA='<?= e(json_encode(site_primary_color()[0])) ?>';
-        var siteH='<?= e(json_encode(site_primary_color()[1])) ?>';
-        var a=localStorage.getItem('webhooks_accent')||(siteA&&siteA!=='""'?JSON.parse(siteA):'#22d3ee');
-        var h=localStorage.getItem('webhooks_accent_hover')||(siteH&&siteH!=='""'?JSON.parse(siteH):'#06b6d4');
+        var siteDefault=<?= json_encode(site_primary_color()) ?>;
+        var a=localStorage.getItem('webhooks_accent')||siteDefault[0]||'#22d3ee';
+        var h=localStorage.getItem('webhooks_accent_hover')||siteDefault[1]||'#06b6d4';
         document.documentElement.dataset.theme=t;
         document.documentElement.style.setProperty('--accent',a);
         document.documentElement.style.setProperty('--accent-hover',h);
