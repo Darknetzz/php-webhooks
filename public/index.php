@@ -193,6 +193,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         }
     }
     $webhooks = WebhookRepository::listForUser($user->id);
+    $requestCounts = $webhooks !== [] ? WebhookRequestRepository::countByWebhookIds(array_map(fn ($w) => $w->id, $webhooks)) : [];
     require dirname(__DIR__) . '/templates/webhooks.php';
     exit;
 }
@@ -393,6 +394,7 @@ if (preg_match('#^/admin/users/(\d+)/delete$#', $uri, $m) && $_SERVER['REQUEST_M
 $currentUser = auth()->user();
 if ($currentUser) {
     $webhooks = WebhookRepository::listForUser($currentUser->id);
+    $requestCounts = $webhooks !== [] ? WebhookRequestRepository::countByWebhookIds(array_map(fn ($w) => $w->id, $webhooks)) : [];
     require dirname(__DIR__) . '/templates/webhooks.php';
 } else {
     $webhooks = WebhookRepository::listPublic();

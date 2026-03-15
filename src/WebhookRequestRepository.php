@@ -43,4 +43,27 @@ class WebhookRequestRepository
         $stmt = db()->pdo()->prepare('DELETE FROM webhook_requests WHERE webhook_id = ?');
         $stmt->execute([$webhookId]);
     }
+
+    /**
+     * Get request counts for multiple webhooks in one query.
+     * @param int[] $webhookIds
+     * @return array<int, int> webhook_id => count
+     */
+    public static function countByWebhookIds(array $webhookIds): array
+    {
+        if ($webhookIds === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($webhookIds), '?'));
+        $stmt = db()->pdo()->prepare("SELECT webhook_id, COUNT(*) AS cnt FROM webhook_requests WHERE webhook_id IN ($placeholders) GROUP BY webhook_id");
+        $stmt->execute(array_values($webhookIds));
+        $out = [];
+        foreach ($webhookIds as $id) {
+            $out[$id] = 0;
+        }
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $out[(int) $row['webhook_id']] = (int) $row['cnt'];
+        }
+        return $out;
+    }
 }

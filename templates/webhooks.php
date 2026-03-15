@@ -28,16 +28,18 @@ ob_start();
     </div>
 <?php else: ?>
     <div class="webhook-cards">
-        <?php foreach ($webhooks as $w): ?>
+        <?php foreach ($webhooks as $w):
+            $requestCount = (int) (($requestCounts ?? [])[$w->id] ?? 0);
+            ?>
             <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
                 <h3><?= e($w->name) ?></h3>
                 <?php if ($w->description): ?>
                     <p class="meta"><?= e($w->description) ?></p>
                 <?php endif; ?>
                 <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-                <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
+                <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?><?php if ($requestCount !== 0): ?> · <strong><?= $requestCount ?></strong> request<?= $requestCount === 1 ? '' : 's' ?><?php endif; ?></p>
                 <div class="card-actions">
-                    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-requests"/></svg> View requests</a>
+                    <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-requests"/></svg> View requests<?php if ($requestCount): ?> (<?= $requestCount ?>)<?php endif; ?></a>
                     <button type="button" class="btn btn-ghost btn-edit-webhook"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</button>
                     <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">
                         <button type="submit" class="btn btn-danger"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete</button>
