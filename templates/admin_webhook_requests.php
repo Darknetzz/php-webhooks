@@ -23,7 +23,7 @@ ob_start();
     <div class="requests-toolbar">
         <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
         <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/delete-all" style="display: inline;" onsubmit="return confirm('Delete all <?= count($requests) ?> request(s) for this webhook?');">
-            <button type="submit" class="btn-webhook-action btn-danger-inline" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete all</button>
+            <button type="submit" class="btn-webhook-action btn-outline-danger" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete all</button>
         </form>
     </div>
     <div class="table-wrap">
