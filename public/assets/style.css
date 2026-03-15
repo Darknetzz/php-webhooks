@@ -124,6 +124,16 @@ body {
     opacity: 0.9;
 }
 
+.created-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.created-date .icon {
+    opacity: 0.9;
+}
+
 .user-dropdown-menu a {
     display: flex;
     align-items: center;

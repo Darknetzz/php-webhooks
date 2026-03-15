@@ -53,7 +53,7 @@ ob_start();
                         </td>
                         <td><?= e($owner) ?></td>
                         <td><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Listed'; require __DIR__ . '/partials/visibility_label.php'; ?><?= $w->requests_public ? ' · Requests public' : '' ?></td>
-                        <td><?= e($w->created_at) ?></td>
+                        <td><?php $date = $w->created_at; $label = ''; require __DIR__ . '/partials/created_date.php'; ?></td>
                         <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;">Requests</a>
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost btn-icon-only" style="font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
