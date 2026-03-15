@@ -207,6 +207,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $name = trim((string) $_POST['name']);
         $rawSlug = trim((string) ($_POST['slug'] ?? ''));
+        $rawSlugRandom = trim((string) ($_POST['slug_random'] ?? ''));
         $slugFromNameChecked = isset($_POST['slug_from_name']);
         $slug = $rawSlug !== '' ? preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlug) : '';
         if ($slug === '') {
@@ -214,7 +215,12 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $slugFromName = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
                 $slug = $slugFromName !== '' ? $slugFromName : WebhookRepository::generateRandomSlug();
             } else {
-                $slug = WebhookRepository::generateRandomSlug();
+                $candidate = preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlugRandom);
+                if ($candidate !== '' && strlen($candidate) >= 10 && strlen($candidate) <= 30) {
+                    $slug = $candidate;
+                } else {
+                    $slug = WebhookRepository::generateRandomSlug();
+                }
             }
         }
         $desc = trim((string) ($_POST['description'] ?? ''));

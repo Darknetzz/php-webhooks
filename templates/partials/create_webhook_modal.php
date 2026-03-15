@@ -54,7 +54,8 @@ $fromAdmin = $fromAdmin ?? false;
                         <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-slug-preview">my-api-hook</span></strong></div>
                     </div>
                     <div class="form-group" id="create-random-slug-hint" style="display: none;">
-                        <div class="hint">A random slug (e.g. <code id="create-random-slug-sample"></code>) will be generated. URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-random-slug-url-preview"></span></strong></div>
+                        <input type="hidden" name="slug_random" id="create-slug-random" value="">
+                        <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-random-slug-url-preview"></span></strong></div>
                     </div>
                 </div>
                 <div class="form-section">
@@ -129,8 +130,8 @@ $fromAdmin = $fromAdmin ?? false;
     var createSlugFieldWrap = document.getElementById('create-slug-field-wrap');
     var createCustomSlugInputWrap = document.getElementById('create-custom-slug-input-wrap');
     var createRandomSlugHint = document.getElementById('create-random-slug-hint');
-    var createRandomSlugSample = document.getElementById('create-random-slug-sample');
     var createRandomSlugUrlPreview = document.getElementById('create-random-slug-url-preview');
+    var createSlugRandomInput = document.getElementById('create-slug-random');
     if (createSlugPreview) {
         var slugify = function (s) {
             return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
@@ -152,7 +153,7 @@ $fromAdmin = $fromAdmin ?? false;
             if (!fromName && createSlug) createSlug.value = '';
             if (!fromName) {
                 var sample = randomHexSample(10, 30);
-                if (createRandomSlugSample) createRandomSlugSample.textContent = sample;
+                if (createSlugRandomInput) createSlugRandomInput.value = sample;
                 if (createRandomSlugUrlPreview) createRandomSlugUrlPreview.textContent = sample;
             }
         }
@@ -160,7 +161,7 @@ $fromAdmin = $fromAdmin ?? false;
             var fromName = createSlugFromName && createSlugFromName.checked;
             var slug = (createSlug && createSlug.value.trim()) || '';
             if (!fromName && !slug) {
-                var sample = createRandomSlugSample ? createRandomSlugSample.textContent : randomHexSample(10, 30);
+                var sample = createSlugRandomInput ? createSlugRandomInput.value : randomHexSample(10, 30);
                 createSlugPreview.textContent = sample || '(random)';
                 return;
             }
