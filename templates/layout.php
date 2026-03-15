@@ -18,6 +18,7 @@ $config = config();
         document.documentElement.style.setProperty('--accent-hover',h);
     })();
     </script>
+    <link rel="icon" type="image/svg+xml" href="<?= e(base_url()) ?>/assets/favicon.svg">
     <link rel="stylesheet" href="<?= e(base_url()) ?>/assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
