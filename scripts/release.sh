@@ -124,8 +124,21 @@ fi
 echo "Last release: ${LAST}"
 echo ""
 
-read -r -p "Next version (e.g. 1.0.1): " VERSION
-VERSION="${VERSION:-}"
+# Default next version: patch bump (1.0.0 -> 1.0.1), or 1.0.0 if no prior release
+DEFAULT_VERSION=""
+if [[ "$LAST" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+  DEFAULT_VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((${BASH_REMATCH[3]} + 1))"
+elif [[ "$LAST" == "(none)" ]] || [[ -z "$LAST" ]]; then
+  DEFAULT_VERSION="1.0.0"
+fi
+
+if [[ -n "$DEFAULT_VERSION" ]]; then
+  read -r -p "Next version [$DEFAULT_VERSION]: " VERSION
+  VERSION="${VERSION:-$DEFAULT_VERSION}"
+else
+  read -r -p "Next version (e.g. 1.0.1): " VERSION
+  VERSION="${VERSION:-}"
+fi
 if [[ -z "$VERSION" ]]; then
   echo "Aborted (no version given)." >&2
   exit 1
