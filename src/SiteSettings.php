@@ -11,7 +11,10 @@ class SiteSettings
 {
     public const KEY_WEBHOOK_TESTING_ENABLED = 'webhook_testing_enabled';
     public const KEY_ALLOW_SPECIFY_TEST_URL = 'allow_specify_test_url';
+    public const KEY_MAX_WEBHOOKS_PER_USER = 'max_webhooks_per_user';
+    public const KEY_WEBHOOK_TEST_TIMEOUT_SECONDS = 'webhook_test_timeout_seconds';
     public const KEY_ALLOW_REGISTRATION = 'allow_registration';
+    public const KEY_SITE_NAME = 'site_name';
 
     private static ?array $cache = null;
 

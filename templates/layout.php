@@ -7,7 +7,7 @@ $config = config();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= e($title) ?></title>
+    <title><?= e(trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) !== '' ? trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')) . ' — ' . e($title) : $title) ?></title>
     <script>
     (function(){
         var t=localStorage.getItem('webhooks_theme')||'dark';
@@ -34,7 +34,8 @@ if ($showWebhookTesting):
 <?php endif; ?>
     <header class="site-header">
         <div class="container">
-            <a href="<?= e(base_url()) ?>/" class="logo"><img src="<?= e(base_url()) ?>/assets/favicon.svg" alt="" class="logo-favicon" width="24" height="24"> PHP Webhooks</a>
+            <?php $siteName = trim(site_setting(\App\SiteSettings::KEY_SITE_NAME, '')); $logoLabel = $siteName !== '' ? $siteName : 'PHP Webhooks'; ?>
+            <a href="<?= e(base_url()) ?>/" class="logo"><img src="<?= e(base_url()) ?>/assets/favicon.svg" alt="" class="logo-favicon" width="24" height="24"> <?= e($logoLabel) ?></a>
             <nav>
                 <?php $user = auth()->user(); if ($user): ?>
                     <a href="<?= e(base_url()) ?>/" class="nav-link-with-icon"><svg class="icon" aria-hidden="true"><use href="#icon-webhook"/></svg> Webhooks</a>

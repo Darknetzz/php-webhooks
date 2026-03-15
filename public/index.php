@@ -211,11 +211,9 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
             ? implode(',', array_map('strtoupper', array_filter($_POST['allowed_methods'])))
             : '';
         if ($name !== '') {
-            try {
-                WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
-                redirect(isset($_POST['from_admin']) ? base_url() . '/admin/all-webhooks' : base_url() . '/');
-            } catch (Throwable $e) {
-                $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
+            $maxWebhooks = (int) (SiteSettings::get(SiteSettings::KEY_MAX_WEBHOOKS_PER_USER, '0') ?: '0');
+            if ($maxWebhooks > 0 && count(WebhookRepository::listForUser($user->id)) >= $maxWebhooks) {
+                $createError = 'Maximum number of webhooks per user (' . $maxWebhooks . ') reached. Delete one or ask an admin to raise the limit.';
                 $createName = $name;
                 $createSlug = $rawSlug;
                 $createDescription = $desc;
@@ -225,6 +223,22 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createResponseHeaders = $responseHeaders;
                 $createResponseBody = $responseBody;
                 $createAllowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods']) ? $_POST['allowed_methods'] : [];
+            } else {
+                try {
+                    WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
+                    redirect(isset($_POST['from_admin']) ? base_url() . '/admin/all-webhooks' : base_url() . '/');
+                } catch (Throwable $e) {
+                    $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
+                    $createName = $name;
+                    $createSlug = $rawSlug;
+                    $createDescription = $desc;
+                    $createIsPublic = $isPublic;
+                    $createSlugFromName = $slugFromNameChecked;
+                    $createResponseStatusCode = $responseStatusCode;
+                    $createResponseHeaders = $responseHeaders;
+                    $createResponseBody = $responseBody;
+                    $createAllowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods']) ? $_POST['allowed_methods'] : [];
+                }
             }
         }
     }
@@ -334,9 +348,19 @@ if ($uri === '/admin/settings') {
     $user = require_admin_panel($uri);
     $settingsSaved = false;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
-        SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
-        SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');
+        $section = $_POST['settings_section'] ?? '';
+        if ($section === 'general') {
+            SiteSettings::set(SiteSettings::KEY_SITE_NAME, trim((string) ($_POST['site_name'] ?? '')));
+        } elseif ($section === 'webhooks') {
+            SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
+            SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
+            $maxWebhooks = (int) ($_POST['max_webhooks_per_user'] ?? 0);
+            SiteSettings::set(SiteSettings::KEY_MAX_WEBHOOKS_PER_USER, (string) max(0, $maxWebhooks));
+            $testTimeout = (int) ($_POST['webhook_test_timeout_seconds'] ?? 30);
+            SiteSettings::set(SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, (string) max(5, min(300, $testTimeout)));
+        } elseif ($section === 'access') {
+            SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');
+        }
         $settingsSaved = true;
     }
     require dirname(__DIR__) . '/templates/admin_settings.php';
