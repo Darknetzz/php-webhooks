@@ -14,11 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Request count icon and link**: requests (document) icon in front of “X requests”; count is a clickable link to the request log (accent color). Removed separate “View requests” button from webhook cards.
 - **Requests toolbar**: Refresh and Delete all buttons moved from the URL line into a toolbar above the requests table (admin and public request pages); buttons aligned and same size.
 - **Outline danger button**: Bootstrap-style `btn-outline-danger` for the “Delete all” button on the requests page (transparent + danger border/text, filled on hover).
+- **Response variables hint**: collapsible section in the webhook response config showing placeholders for dynamic data in response headers and body (e.g. `{{request.body.key}}`, `{{request.headers.X-Name}}`).
+- **Reusable response fields**: shared partial for response headers and body inputs used in create/edit webhook forms and modals.
+- **Cleanup workflow**: GitHub Actions workflow to clean up untagged Docker package versions.
 
 ### Changed
 
 - **Webhook cards**: meta line shows visibility icon + label, created date with calendar icon, and request count as a single link; card actions reduced to Edit and Delete.
 - **Requests page layout**: back link and webhook URL block only in the top line; Refresh and Delete all in a toolbar above the table.
+- **Webhook modal**: response headers and body fields now use the shared partial; simplified input structure and improved handling of custom header rows (names/values set correctly when adding rows).
+- **Docker publish**: README and GitHub Actions workflow clarified—images are pushed on release and on pushes to `dev`, not on every merge to main.
+- **Request templates**: admin and public request page layout and action button organization improved; consistent toolbar and button styling.
 
 ## [1.0.2] - 2026-03-15
 
