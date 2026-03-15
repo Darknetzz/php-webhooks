@@ -240,16 +240,12 @@ data/             # SQLite DB (created automatically, gitignored)
 
 ### Branch model
 
-- **`main`** – stable release branch. Write-protected; updates only via pull requests from `dev`.
-- **`dev`** – integration branch for day-to-day work. All feature work and changelog edits happen here.
+- **`main`** – stable release branch. Write-protected; updates only via pull requests from `dev`. The Docker image tag `latest` is built from `main` after each release merge.
+- **`dev`** – integration branch for day-to-day work; set as the repo **default branch** so new clones and pull requests target it. All feature work and changelog edits happen here.
 
 The `dev` branch is created from `main` and pushed once (already done for this repo).
 
-**Branch protection (one-time setup):** In **GitHub → Settings → Branches**, add a branch protection rule for `main`:
-
-- Enable **Require a pull request before merging** (e.g. require 1 approval, or allow merging without approval for a solo maintainer).
-- Optionally enable **Do not allow bypassing the above settings**.
-- Optionally **Require status checks to pass** if you add CI that runs on PRs.
+**Branch protection:** `main` has a protection rule (e.g. require a pull request before merging). Configure or adjust it in **GitHub → Settings → Branches**.
 
 ### Changelog
 
