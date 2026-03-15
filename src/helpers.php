@@ -42,6 +42,40 @@ if (!function_exists('e')) {
     }
 }
 
+/** Parse allowed_methods string (comma-separated) into uppercase list. Empty string returns []. */
+if (!function_exists('parse_allowed_methods')) {
+    function parse_allowed_methods(string $value): array
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return [];
+        }
+        $methods = array_map('trim', explode(',', $value));
+        $methods = array_filter($methods);
+        return array_values(array_map('strtoupper', $methods));
+    }
+}
+
+/** Check if request method is allowed for a webhook. Empty allowed_methods = allow all. */
+if (!function_exists('webhook_method_allowed')) {
+    function webhook_method_allowed(string $requestMethod, string $allowedMethodsStored): bool
+    {
+        $allowed = parse_allowed_methods($allowedMethodsStored);
+        if ($allowed === []) {
+            return true;
+        }
+        return in_array(strtoupper($requestMethod), $allowed, true);
+    }
+}
+
+/** Standard HTTP method options for allowed-methods UI. */
+if (!function_exists('webhook_allowed_method_options')) {
+    function webhook_allowed_method_options(): array
+    {
+        return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+    }
+}
+
 /** Base URL for links/redirects: uses APP_URL when request host matches, else derived from request (for direct access e.g. <yourserver>/webhooks/public). */
 if (!function_exists('base_url')) {
     function base_url(): string

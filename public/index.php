@@ -171,9 +171,12 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         $responseStatusCode = max(100, min(599, $responseStatusCode));
         $responseHeaders = trim((string) ($_POST['response_headers'] ?? ''));
         $responseBody = trim((string) ($_POST['response_body'] ?? ''));
+        $allowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods'])
+            ? implode(',', array_map('strtoupper', array_filter($_POST['allowed_methods'])))
+            : '';
         if ($name !== '') {
             try {
-                WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody);
+                WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
                 redirect(base_url() . '/');
             } catch (Throwable $e) {
                 $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
@@ -185,6 +188,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createResponseStatusCode = $responseStatusCode;
                 $createResponseHeaders = $responseHeaders;
                 $createResponseBody = $responseBody;
+                $createAllowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods']) ? $_POST['allowed_methods'] : [];
             }
         }
     }
@@ -206,6 +210,9 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $responseStatusCode = (int) ($_POST['response_status_code'] ?? $webhook->response_status_code);
         $responseStatusCode = max(100, min(599, $responseStatusCode));
+        $allowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods'])
+            ? implode(',', array_map('strtoupper', array_filter($_POST['allowed_methods'])))
+            : '';
         WebhookRepository::update($id, [
             'name' => trim((string) ($_POST['name'] ?? '')),
             'slug' => preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($_POST['slug'] ?? '')) ?: $webhook->slug,
@@ -214,6 +221,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
             'response_status_code' => $responseStatusCode,
             'response_headers' => trim((string) ($_POST['response_headers'] ?? '')),
             'response_body' => trim((string) ($_POST['response_body'] ?? '')),
+            'allowed_methods' => $allowedMethods,
         ]);
         redirect(base_url() . '/');
     }

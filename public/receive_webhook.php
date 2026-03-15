@@ -26,6 +26,16 @@ if (!$webhook) {
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!webhook_method_allowed($method, $webhook->allowed_methods ?? '')) {
+    $allowed = parse_allowed_methods($webhook->allowed_methods ?? '');
+    http_response_code(405);
+    header('Content-Type: application/json');
+    if ($allowed !== []) {
+        header('Allow: ' . implode(', ', $allowed));
+    }
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
 $headers = function_exists('getallheaders') ? json_encode(getallheaders()) : '';
 $body = (string) file_get_contents('php://input');
 $queryString = $_SERVER['QUERY_STRING'] ?? '';

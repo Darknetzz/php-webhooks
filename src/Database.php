@@ -81,6 +81,7 @@ class Database
         }
         $this->migrateWebhookResponseColumns();
         $this->migrateWebhookRequestResponseColumns();
+        $this->migrateWebhookAllowedMethods();
     }
 
     /** Add optional response columns to webhooks for existing installations. */
@@ -107,6 +108,24 @@ class Database
                 if (strpos($e->getMessage(), 'duplicate') === false && strpos($e->getMessage(), 'Duplicate') === false) {
                     throw $e;
                 }
+            }
+        }
+    }
+
+    /** Add allowed_methods column to webhooks for existing installations. */
+    private function migrateWebhookAllowedMethods(): void
+    {
+        if (!$this->tableExists('webhooks')) {
+            return;
+        }
+        $sql = $this->isSqlite()
+            ? 'ALTER TABLE webhooks ADD COLUMN allowed_methods TEXT'
+            : 'ALTER TABLE webhooks ADD COLUMN allowed_methods TEXT';
+        try {
+            $this->pdo->exec($sql);
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'duplicate') === false && strpos($e->getMessage(), 'Duplicate') === false) {
+                throw $e;
             }
         }
     }
@@ -161,6 +180,7 @@ class Database
                     response_status_code INTEGER NOT NULL DEFAULT 200,
                     response_headers TEXT,
                     response_body TEXT,
+                    allowed_methods TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -201,6 +221,7 @@ class Database
                 response_status_code INT NOT NULL DEFAULT 200,
                 response_headers TEXT,
                 response_body TEXT,
+                allowed_methods TEXT,
                 created_at DATETIME NOT NULL,
                 updated_at DATETIME NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

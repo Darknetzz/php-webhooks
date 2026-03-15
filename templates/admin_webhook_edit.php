@@ -28,6 +28,10 @@ ob_start();
             </label>
         </div>
         <div class="form-section" style="margin-top: 1.25rem;">
+            <h3 class="form-section-title">Allowed methods</h3>
+            <?php $selectedMethods = parse_allowed_methods($webhook->allowed_methods ?? ''); require __DIR__ . '/partials/allowed_methods_field.php'; ?>
+        </div>
+        <div class="form-section" style="margin-top: 1.25rem;">
             <h3 class="form-section-title">Response (optional)</h3>
             <p class="hint" style="margin-bottom: 0.75rem;">Customize the HTTP response when the webhook is called. Empty = default.</p>
             <div class="form-group">

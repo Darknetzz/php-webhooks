@@ -18,6 +18,8 @@ class Webhook
     public string $response_headers;
     /** @var string Response body (empty = default JSON) */
     public string $response_body;
+    /** @var string Comma-separated allowed HTTP methods (e.g. "GET,POST"). Empty = allow all. */
+    public string $allowed_methods;
     public string $created_at;
     public string $updated_at;
 
@@ -33,6 +35,7 @@ class Webhook
         $w->response_status_code = isset($row['response_status_code']) ? (int) $row['response_status_code'] : 200;
         $w->response_headers = $row['response_headers'] ?? '';
         $w->response_body = $row['response_body'] ?? '';
+        $w->allowed_methods = trim($row['allowed_methods'] ?? '');
         $w->created_at = $row['created_at'];
         $w->updated_at = $row['updated_at'];
         return $w;

@@ -12,6 +12,8 @@ $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = $createResponseStatusCode ?? 200;
 $createResponseHeaders = $createResponseHeaders ?? '';
 $createResponseBody = $createResponseBody ?? '';
+$createAllowedMethods = $createAllowedMethods ?? [];
+$allowedMethodOptions = webhook_allowed_method_options();
 ob_start();
 ?>
 <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
@@ -27,7 +29,7 @@ ob_start();
 <?php else: ?>
     <div class="webhook-cards">
         <?php foreach ($webhooks as $w): ?>
-            <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>">
+            <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
                 <h3><?= e($w->name) ?></h3>
                 <?php if ($w->description): ?>
                     <p class="meta"><?= e($w->description) ?></p>
@@ -94,6 +96,10 @@ ob_start();
                     </div>
                 </div>
                 <div class="form-section">
+                    <h3 class="form-section-title">Allowed methods</h3>
+                    <?php $selectedMethods = $createAllowedMethods; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
+                </div>
+                <div class="form-section">
                     <h3 class="form-section-title">Response (optional)</h3>
                     <div class="form-group">
                         <label for="create-response_status_code">Status code</label>
@@ -142,6 +148,10 @@ ob_start();
                         <input type="checkbox" name="is_public" value="1" id="edit-is_public">
                         List on public page
                     </label>
+                </div>
+                <div class="form-section">
+                    <h3 class="form-section-title">Allowed methods</h3>
+                    <?php $selectedMethods = []; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
                 </div>
                 <div class="form-section">
                     <h3 class="form-section-title">Response (optional)</h3>
@@ -206,6 +216,10 @@ ob_start();
             document.getElementById('edit-response_headers').value = card.dataset.responseHeaders || '';
             document.getElementById('edit-response_body').value = card.dataset.responseBody || '';
             document.getElementById('edit-slug-preview').textContent = card.dataset.slug || '';
+            var allowed = (card.dataset.allowedMethods || '').split(',').map(function (m) { return m.trim(); }).filter(Boolean);
+            document.querySelectorAll('#edit-modal input[name="allowed_methods[]"]').forEach(function (cb) {
+                cb.checked = allowed.indexOf(cb.value) !== -1;
+            });
             document.getElementById('edit-webhook-form').action = baseUrl + '/admin/webhooks/' + id + '/edit';
             openModal('edit-modal');
         });
