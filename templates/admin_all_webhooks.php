@@ -32,7 +32,7 @@ ob_start();
                     <tr>
                         <td><?= e($w->name) ?></td>
                         <td>
-                            <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
+                            <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
                         </td>
                         <td><?= e($owner) ?></td>
                         <td><?= $w->is_public ? 'Public' : 'Private' ?></td>

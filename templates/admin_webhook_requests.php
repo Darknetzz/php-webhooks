@@ -11,7 +11,7 @@ ob_start();
 <p class="meta requests-url-line" style="margin-bottom: 1rem;">
     <a href="<?= e($baseUrl) ?>/">← Webhooks</a>
     <span aria-hidden="true">·</span>
-    <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; require __DIR__ . '/partials/webhook_url_block.php'; ?>
+    <?php $webhookUrl = $webhookBaseUrl . '/w/' . $webhook->slug; $wrapTag = 'span'; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
     <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests" class="btn-webhook-action" title="Refresh list"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg> Refresh</a>
     <?php if (!empty($requests)): ?>
     <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= (int) $webhook->id ?>/requests/delete-all" style="display: inline;" onsubmit="return confirm('Delete all <?= count($requests) ?> request(s) for this webhook?');">
