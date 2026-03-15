@@ -1,0 +1,25 @@
+# Optional: delete untagged container image versions from GitHub Container Registry.
+# Run manually (Actions → Cleanup untagged packages → Run workflow).
+# Requires: Settings → Actions → General → "Read and write permissions" for GITHUB_TOKEN.
+# Deletes up to 100 untagged versions per run; re-run if you have more.
+
+name: Cleanup untagged packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  delete-untagged:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete untagged container versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          delete-only-untagged-versions: true
+          min-versions-to-keep: 0
