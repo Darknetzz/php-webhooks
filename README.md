@@ -236,6 +236,34 @@ templates/        # PHP templates
 data/             # SQLite DB (created automatically, gitignored)
 ```
 
+## Development and release
+
+### Branch model
+
+- **`main`** – stable release branch. Write-protected; updates only via pull requests from `dev`.
+- **`dev`** – integration branch for day-to-day work. All feature work and changelog edits happen here.
+
+Create the `dev` branch once from `main` and push it. Configure branch protection for `main` in **GitHub → Settings → Branches**: add a rule for `main` and enable “Require a pull request before merging” (and optionally “Require status checks to pass” if you add CI on PRs).
+
+### Changelog
+
+[CHANGELOG.md](CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/). Keep the **\[Unreleased\]** section updated with changes as you work on `dev`. The release workflow turns that section into a versioned entry when you cut a release.
+
+### Releasing a new version
+
+1. **Run the Release workflow**  
+   In GitHub: **Actions → Release → Run workflow**. Enter the version (e.g. `1.1.0`, no `v` prefix). The workflow will:
+   - Update CHANGELOG.md on `dev` (replace `[Unreleased]` with the new version and date, add a new `[Unreleased]`).
+   - Commit and push to `dev`.
+   - Open a pull request **dev → main**.
+   - Create tag `vX.Y.Z` and publish a GitHub Release (which triggers the Docker build and push).
+
+2. **Merge the release PR**  
+   Merge the created PR (dev → main) in the GitHub UI. That syncs `main` with the release; the Docker “publish on push to main” run will update the `latest` image.
+
+3. **Optional local script**  
+   You can run `./scripts/release-changelog.sh <version> [YYYY-MM-DD]` locally to update CHANGELOG only (e.g. for a manual release); the workflow does this automatically.
+
 ## Publishing the image
 
 ### Local pre-push hook (no GitHub Actions)

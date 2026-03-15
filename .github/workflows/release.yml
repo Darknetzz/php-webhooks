@@ -1,0 +1,74 @@
+# Release workflow: update CHANGELOG on dev, create PR dev→main, tag and publish GitHub Release.
+# Docker image is built by docker-publish.yml on release published.
+# Manual step: merge the created PR to sync main with the release.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (semver, e.g. 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate version
+        run: |
+          V="${{ github.event.inputs.version }}"
+          if ! [[ "$V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must be semver (e.g. 1.0.0), got: $V"
+            exit 1
+          fi
+          if git rev-parse "v$V" 2>/dev/null; then
+            echo "::error::Tag v$V already exists"
+            exit 1
+          fi
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+
+      - name: Update CHANGELOG
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          ./scripts/release-changelog.sh "${{ env.VERSION }}" "$DATE"
+
+      - name: Commit and push to dev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet && exit 0
+          git commit -m "Release v${{ env.VERSION }}"
+          git push origin dev
+
+      - name: Create Pull Request (dev → main)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head dev \
+            --title "Release v${{ env.VERSION }}" \
+            --body "Release v${{ env.VERSION }}. Merge to sync main with the release. Docker image will be built when the release is published; this PR does not trigger a new release by itself."
+
+      - name: Create tag and GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: v${{ env.VERSION }}
+          generate_release_notes: true
+          target_commitish: dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
