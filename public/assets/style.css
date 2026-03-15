@@ -489,8 +489,24 @@ h1, h2 {
 
 .card-actions {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
+}
+
+/* Same height and alignment for all card action buttons (text + icon-only) */
+.card-actions .btn {
+    min-height: 2.25rem;
+}
+.card-actions .btn-icon-only {
+    width: 2.25rem;
+    padding: 0;
+    min-height: 2.25rem;
+    flex-shrink: 0;
+}
+.card-actions form {
+    display: inline-flex;
+    align-items: center;
 }
 
 .webhook-url-wrap {
