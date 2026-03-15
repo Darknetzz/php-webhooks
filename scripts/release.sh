@@ -44,9 +44,9 @@ update_changelog() {
       if (/^## /) {
         in_unreleased = 0
         done = 1
+        printf "## [Unreleased]\n\n"
         printf "## [%s] - %s\n\n", version, date
         if (unreleased_content != "") printf "%s", unreleased_content
-        printf "## [Unreleased]\n\n"
         print
         next
       }
@@ -56,9 +56,9 @@ update_changelog() {
     { print }
     END {
       if (in_unreleased) {
+        printf "## [Unreleased]\n\n"
         printf "## [%s] - %s\n\n", version, date
         if (unreleased_content != "") printf "%s", unreleased_content
-        printf "## [Unreleased]\n\n"
       }
     }
   ' "$CHANGELOG" > "$CHANGELOG.tmp"
