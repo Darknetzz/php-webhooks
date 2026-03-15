@@ -399,13 +399,13 @@ h1, h2 {
     border-color: var(--danger);
 }
 
-/* Bootstrap-style outline danger: transparent bg, danger border/text; hover fill */
-.btn-outline-danger {
+/* Bootstrap-style outline danger: transparent bg, red text + border; hover fill */
+.btn-webhook-action.btn-outline-danger {
     background: transparent;
     color: var(--danger);
     border: 1px solid var(--danger);
 }
-.btn-outline-danger:hover {
+.btn-webhook-action.btn-outline-danger:hover {
     background: var(--danger);
     color: white;
     border-color: var(--danger);
