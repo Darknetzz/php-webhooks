@@ -10,7 +10,6 @@ ob_start();
 ?>
 <h1>Users</h1>
 <?php require __DIR__ . '/partials/admin_nav_pills.php'; ?>
-<p class="meta" style="margin-bottom: 1rem;"><a href="<?= e($baseUrl) ?>/admin">Admin</a></p>
 
 <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
     <span></span>

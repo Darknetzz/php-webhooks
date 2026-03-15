@@ -8,7 +8,7 @@ ob_start();
 ?>
 <h1>All Webhooks</h1>
 <?php require __DIR__ . '/partials/admin_nav_pills.php'; ?>
-<p class="meta" style="margin-bottom: 1rem;"><a href="<?= e($baseUrl) ?>/">Webhooks</a></p>
+
 <?php if (empty($webhooksWithOwners)): ?>
     <div class="empty-state">
         <p>No webhooks exist yet.</p>
