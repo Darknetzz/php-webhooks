@@ -82,6 +82,20 @@ class Database
         $this->migrateWebhookResponseColumns();
         $this->migrateWebhookRequestResponseColumns();
         $this->migrateWebhookAllowedMethods();
+        $this->migrateSiteSettings();
+    }
+
+    /** Create site_settings table for existing installations. */
+    private function migrateSiteSettings(): void
+    {
+        if ($this->tableExists('site_settings')) {
+            return;
+        }
+        if ($this->isSqlite()) {
+            $this->pdo->exec('CREATE TABLE site_settings (name VARCHAR(255) PRIMARY KEY, value TEXT)');
+        } else {
+            $this->pdo->exec('CREATE TABLE site_settings (name VARCHAR(255) PRIMARY KEY, value TEXT)');
+        }
     }
 
     /** Add optional response columns to webhooks for existing installations. */
@@ -199,6 +213,7 @@ class Database
                     created_at TEXT NOT NULL,
                     FOREIGN KEY (webhook_id) REFERENCES webhooks(id) ON DELETE CASCADE
                 )",
+                "CREATE TABLE IF NOT EXISTS site_settings (name VARCHAR(255) PRIMARY KEY, value TEXT)",
             ];
         }
 
@@ -240,6 +255,7 @@ class Database
                 created_at DATETIME NOT NULL,
                 FOREIGN KEY (webhook_id) REFERENCES webhooks(id) ON DELETE CASCADE
             )",
+            "CREATE TABLE IF NOT EXISTS site_settings (name VARCHAR(255) PRIMARY KEY, value TEXT)",
         ];
     }
 
