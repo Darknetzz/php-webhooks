@@ -8,6 +8,7 @@
     --accent-hover: #06b6d4;
     --danger: #f43f5e;
     --success: #10b981;
+    --form-heading: #67e8f9;
     --radius: 8px;
     --font: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 }
@@ -18,6 +19,7 @@
     --border: #e4e4e7;
     --text: #18181b;
     --muted: #71717a;
+    --form-heading: #0e7490;
 }
 
 * {
@@ -864,6 +866,11 @@ th {
 
 .modal-body {
     padding: 1.25rem;
+}
+
+.modal .form-section-title,
+.modal .form-group label {
+    color: var(--form-heading);
 }
 
 /* Nav pills (tabs) */
