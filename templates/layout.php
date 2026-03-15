@@ -56,7 +56,7 @@ if ($showWebhookTesting):
                     <a href="<?= e(base_url()) ?>/" class="nav-link-with-icon"><svg class="icon" aria-hidden="true"><use href="#icon-webhook"/></svg> Webhooks</a>
                     <a href="<?= e(base_url()) ?>/login" class="nav-link-with-icon"><svg class="icon" aria-hidden="true"><use href="#icon-login"/></svg> Log in</a>
                     <?php if (site_setting_bool(\App\SiteSettings::KEY_ALLOW_REGISTRATION, false)): ?>
-                        <a href="<?= e(base_url()) ?>/register" class="nav-link-with-icon">Register</a>
+                        <a href="<?= e(base_url()) ?>/register" class="nav-link-with-icon"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg> Register</a>
                     <?php endif; ?>
                 <?php endif; ?>
             </nav>
