@@ -26,16 +26,6 @@ if (!$webhook) {
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-if (!webhook_method_allowed($method, $webhook->allowed_methods ?? '')) {
-    $allowed = parse_allowed_methods($webhook->allowed_methods ?? '');
-    http_response_code(405);
-    header('Content-Type: application/json');
-    if ($allowed !== []) {
-        header('Allow: ' . implode(', ', $allowed));
-    }
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
-}
 $headers = function_exists('getallheaders') ? json_encode(getallheaders()) : '';
 $body = (string) file_get_contents('php://input');
 $queryString = $_SERVER['QUERY_STRING'] ?? '';
@@ -43,6 +33,22 @@ $queryString = $_SERVER['QUERY_STRING'] ?? '';
 $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? null;
 if (is_string($ip) && strpos($ip, ',') !== false) {
     $ip = trim(explode(',', $ip)[0]);
+}
+
+if (!webhook_method_allowed($method, $webhook->allowed_methods ?? '')) {
+    $allowed = parse_allowed_methods($webhook->allowed_methods ?? '');
+    $responseBody405 = json_encode(['error' => 'Method not allowed']);
+    $responseHeaders405 = ['Content-Type' => 'application/json'];
+    if ($allowed !== []) {
+        $responseHeaders405['Allow'] = implode(', ', $allowed);
+    }
+    WebhookRequestRepository::log($webhook->id, $method, $headers, $body, $queryString, $ip, 405, json_encode($responseHeaders405), $responseBody405);
+    http_response_code(405);
+    foreach ($responseHeaders405 as $name => $value) {
+        header(sprintf('%s: %s', $name, $value), true);
+    }
+    echo $responseBody405;
+    exit;
 }
 
 // Build response (so we can log it before sending)

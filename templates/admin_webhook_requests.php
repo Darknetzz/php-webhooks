@@ -23,7 +23,7 @@ ob_start();
 <?php if (empty($requests)): ?>
     <div class="empty-state">
         <p>No requests yet. Send a request to the webhook URL to see it here.</p>
-        <?php $code = 'curl -X POST "' . $webhookBaseUrl . '/w/' . $webhook->slug . '" -d \'{"test": true}\''; $language = 'bash'; require __DIR__ . '/partials/codebox.php'; ?>
+        <?php $code = 'curl -X POST "' . $webhookBaseUrl . '/w/' . $webhook->slug . '" -H "Content-Type: application/json" -d \'{"test": true}\''; $language = 'bash'; require __DIR__ . '/partials/codebox.php'; ?>
     </div>
 <?php else: ?>
     <div class="table-wrap">
