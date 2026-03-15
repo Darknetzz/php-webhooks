@@ -7,7 +7,8 @@ $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
-$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : false;
+$createRequestsPublic = $createRequestsPublic ?? false;
 $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = $createResponseStatusCode ?? 200;
 $createResponseHeaders = $createResponseHeaders ?? '';
@@ -31,13 +32,13 @@ ob_start();
         <?php foreach ($webhooks as $w):
             $requestCount = (int) (($requestCounts ?? [])[$w->id] ?? 0);
             ?>
-            <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
+            <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-requests-public="<?= $w->requests_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
                 <h3><?= e($w->name) ?></h3>
                 <?php if ($w->description): ?>
                     <p class="meta"><?= e($w->description) ?></p>
                 <?php endif; ?>
                 <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-                <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?><?php if ($requestCount !== 0): ?> · <strong><?= $requestCount ?></strong> request<?= $requestCount === 1 ? '' : 's' ?><?php endif; ?></p>
+                <p class="meta"><?= $w->is_public ? 'Listed publicly' : 'Private' ?><?= $w->requests_public ? ' · Requests public' : '' ?> · Created <?= e($w->created_at) ?><?php if ($requestCount !== 0): ?> · <strong><?= $requestCount ?></strong> request<?= $requestCount === 1 ? '' : 's' ?><?php endif; ?></p>
                 <div class="card-actions">
                     <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost"><svg class="icon" aria-hidden="true"><use href="#icon-requests"/></svg> View requests<?php if ($requestCount): ?> (<?= $requestCount ?>)<?php endif; ?></a>
                     <button type="button" class="btn btn-ghost btn-edit-webhook"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</button>
@@ -78,6 +79,12 @@ ob_start();
                     <label class="checkbox-label">
                         <input type="checkbox" name="is_public" value="1" id="edit-is_public">
                         List on public page
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="requests_public" value="1" id="edit-requests_public">
+                        Show requests publicly
                     </label>
                 </div>
                 <div class="form-section">
@@ -138,6 +145,7 @@ ob_start();
             document.getElementById('edit-slug').value = card.dataset.slug || '';
             document.getElementById('edit-description').value = card.dataset.description || '';
             document.getElementById('edit-is_public').checked = card.dataset.isPublic === '1';
+            document.getElementById('edit-requests_public').checked = card.dataset.requestsPublic === '1';
             document.getElementById('edit-response_status_code').value = card.dataset.responseStatusCode || '200';
             document.getElementById('edit-response_headers').value = card.dataset.responseHeaders || '';
             document.getElementById('edit-response_body').value = card.dataset.responseBody || '';

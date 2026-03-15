@@ -5,7 +5,8 @@ $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
-$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : false;
+$createRequestsPublic = $createRequestsPublic ?? false;
 $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = (int) ($createResponseStatusCode ?? 200);
 $createResponseHeaders = $createResponseHeaders ?? '';
@@ -61,6 +62,12 @@ $fromAdmin = $fromAdmin ?? false;
                         <label class="checkbox-label">
                             <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                             List on public page
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
+                            Show requests publicly
                         </label>
                     </div>
                 </div>
