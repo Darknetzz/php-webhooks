@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-03-15
+
+
 ### Added
 
 - **Primary color settings**: admin can set a primary/brand color for the UI; presets and hex color picker with live preview.
