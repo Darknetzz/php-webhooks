@@ -504,6 +504,15 @@ a.btn-webhook-action {
     overflow-x: auto;
 }
 
+/* Right-align Actions column in tables */
+th.table-cell-actions,
+td.table-cell-actions {
+    text-align: right;
+}
+td.table-cell-actions .card-actions {
+    justify-content: flex-end;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

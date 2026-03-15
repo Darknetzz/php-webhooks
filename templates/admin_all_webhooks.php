@@ -24,7 +24,7 @@ ob_start();
                     <th>Owner</th>
                     <th>Visibility</th>
                     <th>Created</th>
-                    <th>Actions</th>
+                    <th class="table-cell-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,7 +37,7 @@ ob_start();
                         <td><?= e($owner) ?></td>
                         <td><?= $w->is_public ? 'Public' : 'Private' ?></td>
                         <td><?= e($w->created_at) ?></td>
-                        <td class="card-actions">
+                        <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;">Requests</a>
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;">Edit</a>
                             <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">

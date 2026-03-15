@@ -30,7 +30,7 @@ ob_start();
                     <th>Username</th>
                     <th>Role</th>
                     <th>Created</th>
-                    <th>Actions</th>
+                    <th class="table-cell-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,7 +39,7 @@ ob_start();
                         <td><?= e($u->username) ?></td>
                         <td><?= e($u->role) ?></td>
                         <td><?= e($u->created_at) ?></td>
-                        <td class="card-actions">
+                        <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</a>
                             <?php if ($currentUser && $currentUser->isSuperAdmin() && $u->id !== $currentUser->id): ?>
                                 <?php $isLastSuperadmin = $u->isSuperAdmin() && \App\UserRepository::countSuperAdmins() <= 1; ?>
