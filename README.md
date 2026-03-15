@@ -243,7 +243,13 @@ data/             # SQLite DB (created automatically, gitignored)
 - **`main`** – stable release branch. Write-protected; updates only via pull requests from `dev`.
 - **`dev`** – integration branch for day-to-day work. All feature work and changelog edits happen here.
 
-Create the `dev` branch once from `main` and push it. Configure branch protection for `main` in **GitHub → Settings → Branches**: add a rule for `main` and enable “Require a pull request before merging” (and optionally “Require status checks to pass” if you add CI on PRs).
+The `dev` branch is created from `main` and pushed once (already done for this repo).
+
+**Branch protection (one-time setup):** In **GitHub → Settings → Branches**, add a branch protection rule for `main`:
+
+- Enable **Require a pull request before merging** (e.g. require 1 approval, or allow merging without approval for a solo maintainer).
+- Optionally enable **Do not allow bypassing the above settings**.
+- Optionally **Require status checks to pass** if you add CI that runs on PRs.
 
 ### Changelog
 
