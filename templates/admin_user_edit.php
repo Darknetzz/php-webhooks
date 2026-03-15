@@ -18,7 +18,8 @@ ob_start();
         </div>
         <div class="form-group">
             <label for="role">Role</label>
-            <select id="role" name="role">
+            <?php $role = $editUser->role; require __DIR__ . '/partials/role_display.php'; ?>
+            <select id="role" name="role" style="margin-top: 0.5rem;">
                 <option value="<?= e(\App\User::ROLE_USER) ?>" <?= $editUser->role === \App\User::ROLE_USER ? 'selected' : '' ?>>User</option>
                 <option value="<?= e(\App\User::ROLE_ADMIN) ?>" <?= $editUser->role === \App\User::ROLE_ADMIN ? 'selected' : '' ?>>Admin</option>
                 <option value="<?= e(\App\User::ROLE_SUPERADMIN) ?>" <?= $editUser->role === \App\User::ROLE_SUPERADMIN ? 'selected' : '' ?>>Superadmin</option>

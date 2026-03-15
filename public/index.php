@@ -178,7 +178,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
         if ($name !== '') {
             try {
                 WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
-                redirect(base_url() . '/');
+                redirect(isset($_POST['from_admin']) ? base_url() . '/admin/all-webhooks' : base_url() . '/');
             } catch (Throwable $e) {
                 $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
                 $createName = $name;

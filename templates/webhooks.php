@@ -50,78 +50,7 @@ ob_start();
     </div>
 <?php endif; ?>
 
-<!-- Create modal -->
-<div class="modal-overlay" id="create-modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title" <?= $createError ? ' aria-describedby="create-error"' : '' ?>>
-    <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h2 id="create-modal-title">Create webhook</h2>
-            <button type="button" class="modal-close" data-close="create-modal" aria-label="Close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <?php if ($createError): ?>
-                <div class="error-msg" id="create-error"><?= e($createError) ?></div>
-            <?php endif; ?>
-            <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks" id="create-webhook-form">
-                <div class="form-section">
-                    <div class="form-group">
-                        <label for="create-name">Name</label>
-                        <input type="text" id="create-name" name="name" required placeholder="My API hook" value="<?= e($createName) ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="create-description">Description (optional)</label>
-                        <textarea id="create-description" name="description" placeholder="What this webhook is for"><?= e($createDescription) ?></textarea>
-                    </div>
-                </div>
-                <div class="form-section">
-                    <h3 class="form-section-title">URL</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="slug_from_name" id="create-slug_from_name" value="1" <?= $createSlugFromName ? 'checked' : '' ?>>
-                            Create slug from name
-                        </label>
-                    </div>
-                    <div class="form-group" id="create-slug-field-wrap">
-                        <label for="create-slug">Custom slug (optional)</label>
-                        <input type="text" id="create-slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" value="<?= e($createSlug) ?>">
-                        <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-slug-preview">my-api-hook</span></strong></div>
-                    </div>
-                    <div class="form-group" id="create-random-slug-hint" style="display: none;">
-                        <div class="hint">A random slug will be generated.</div>
-                    </div>
-                </div>
-                <div class="form-section">
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
-                            List on public page
-                        </label>
-                    </div>
-                </div>
-                <div class="form-section">
-                    <h3 class="form-section-title">Allowed methods</h3>
-                    <?php $selectedMethods = $createAllowedMethods; $specifyToggleId = 'create-specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
-                </div>
-                <div class="form-section">
-                    <h3 class="form-section-title">Response (optional)</h3>
-                    <div class="form-group">
-                        <label for="create-response_status_code">Status code</label>
-                        <input type="number" id="create-response_status_code" name="response_status_code" min="100" max="599" value="<?= (int) $createResponseStatusCode ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="create-response_headers">Response headers (JSON)</label>
-                        <textarea id="create-response_headers" name="response_headers" rows="2" placeholder='{"Content-Type": "application/json"}'><?= e($createResponseHeaders) ?></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="create-response_body">Response body</label>
-                        <textarea id="create-response_body" name="response_body" rows="3" placeholder="Leave empty for default"><?= e($createResponseBody) ?></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Create</button>
-                <button type="button" class="btn btn-ghost" data-close="create-modal">Cancel</button>
-            </form>
-        </div>
-    </div>
-</div>
+<?php require __DIR__ . '/partials/create_webhook_modal.php'; ?>
 
 <!-- Edit modal -->
 <div class="modal-overlay" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
@@ -198,12 +127,6 @@ ob_start();
             closeModal(this.id);
         });
     });
-    function addOpenHandlers() {
-        document.querySelectorAll('#btn-add-webhook, #btn-add-webhook-empty').forEach(function (btn) {
-            btn.onclick = function () { openModal('create-modal'); };
-        });
-    }
-    addOpenHandlers();
 
     document.querySelectorAll('.btn-edit-webhook').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -234,42 +157,6 @@ ob_start();
     document.getElementById('edit-slug').addEventListener('input', function () {
         document.getElementById('edit-slug-preview').textContent = this.value || '';
     });
-
-    var slugify = function (s) {
-        return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
-    };
-    var createSlugFromName = document.getElementById('create-slug_from_name');
-    var createName = document.getElementById('create-name');
-    var createSlug = document.getElementById('create-slug');
-    var createSlugPreview = document.getElementById('create-slug-preview');
-    var createSlugFieldWrap = document.getElementById('create-slug-field-wrap');
-    var createRandomSlugHint = document.getElementById('create-random-slug-hint');
-    function updateCreateSlugVisibility() {
-        var fromName = createSlugFromName && createSlugFromName.checked;
-        if (createSlugFieldWrap) createSlugFieldWrap.style.display = fromName ? 'block' : 'none';
-        if (createRandomSlugHint) createRandomSlugHint.style.display = fromName ? 'none' : 'block';
-        if (!fromName && createSlug) createSlug.value = '';
-    }
-    function updateCreatePreview() {
-        if (!createSlugPreview) return;
-        var fromName = createSlugFromName && createSlugFromName.checked;
-        var slug = (createSlug && createSlug.value.trim()) || '';
-        if (!fromName && !slug) { createSlugPreview.textContent = '(random)'; return; }
-        if (!slug && createName && createName.value.trim()) {
-            slug = slugify(createName.value.trim()) || 'webhook';
-        }
-        if (!slug) slug = 'my-api-hook';
-        createSlugPreview.textContent = slug;
-    }
-    if (createSlugFromName) createSlugFromName.addEventListener('change', function () { updateCreateSlugVisibility(); updateCreatePreview(); });
-    if (createName) { createName.addEventListener('input', updateCreatePreview); createName.addEventListener('change', updateCreatePreview); }
-    if (createSlug) createSlug.addEventListener('input', updateCreatePreview);
-    updateCreateSlugVisibility();
-    updateCreatePreview();
-
-    <?php if ($createError): ?>
-    openModal('create-modal');
-    <?php endif; ?>
 })();
 </script>
 <?php

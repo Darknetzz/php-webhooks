@@ -36,7 +36,7 @@ ob_start();
                 <?php foreach ($users as $u): ?>
                     <tr>
                         <td><?= e($u->username) ?></td>
-                        <td><?= e($u->role) ?></td>
+                        <td><?php $role = $u->role; require __DIR__ . '/partials/role_display.php'; ?></td>
                         <td><?= e($u->created_at) ?></td>
                         <td class="table-cell-actions card-actions">
                             <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</a>

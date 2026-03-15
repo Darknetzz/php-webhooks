@@ -4,15 +4,31 @@ $config = config();
 $baseUrl = rtrim(base_url(), '/');
 $webhookBaseUrl = rtrim(webhook_base_url(), '/');
 $adminActive = 'webhooks';
+$fromAdmin = true;
+$createError = null;
+$createName = '';
+$createSlug = '';
+$createDescription = '';
+$createIsPublic = true;
+$createSlugFromName = true;
+$createResponseStatusCode = 200;
+$createResponseHeaders = '';
+$createResponseBody = '';
+$createAllowedMethods = [];
 ob_start();
 ?>
-<h1>All Webhooks</h1>
+<div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <h1 style="margin: 0;">All Webhooks</h1>
+    <button type="button" class="btn btn-primary btn-add-webhook" id="btn-add-webhook" aria-controls="create-modal"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
+</div>
 <?php require __DIR__ . '/partials/admin_nav_pills.php'; ?>
+
+<?php require __DIR__ . '/partials/create_webhook_modal.php'; ?>
 
 <?php if (empty($webhooksWithOwners)): ?>
     <div class="empty-state">
         <p>No webhooks exist yet.</p>
-        <a href="<?= e($baseUrl) ?>/" class="btn btn-primary">Create webhook</a>
+        <button type="button" class="btn btn-primary btn-add-webhook"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
     </div>
 <?php else: ?>
     <div class="table-wrap">
