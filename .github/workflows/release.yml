@@ -42,7 +42,7 @@ jobs:
       - name: Update CHANGELOG
         run: |
           DATE=$(date -u +%Y-%m-%d)
-          ./scripts/release-changelog.sh "${{ env.VERSION }}" "$DATE"
+          ./scripts/release.sh "${{ env.VERSION }}" "$DATE"
 
       - name: Commit and push to dev
         run: |
