@@ -5,11 +5,15 @@ $baseUrl = rtrim(base_url(), '/');
 $currentUser = auth()->user();
 $createError = $createError ?? null;
 $createUsername = $createUsername ?? '';
+$listError = $listError ?? null;
 $adminActive = 'users';
 ob_start();
 ?>
 <h1>Users</h1>
 <?php require __DIR__ . '/partials/admin_nav_pills.php'; ?>
+<?php if ($listError): ?>
+    <div class="error-msg" style="margin-bottom: 1rem;"><?= e($listError) ?></div>
+<?php endif; ?>
 
 <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
     <span></span>
@@ -39,12 +43,14 @@ ob_start();
                         <td><?php $role = $u->role; require __DIR__ . '/partials/role_display.php'; ?></td>
                         <td><?= e($u->created_at) ?></td>
                         <td class="table-cell-actions card-actions">
-                            <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg> Edit</a>
+                            <?php if ($currentUser && $u->id !== $currentUser->id): ?>
+                                <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost btn-icon-only" style="font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
+                            <?php endif; ?>
                             <?php if ($currentUser && $currentUser->isSuperAdmin() && $u->id !== $currentUser->id): ?>
                                 <?php $isLastSuperadmin = $u->isSuperAdmin() && \App\UserRepository::countSuperAdmins() <= 1; ?>
                                 <?php if (!$isLastSuperadmin): ?>
                                     <form method="post" action="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete user <?= e(addslashes($u->username)) ?>? Their webhooks will be deleted too.');">
-                                        <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.85rem;"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete</button>
+                                        <button type="submit" class="btn btn-danger btn-icon-only" style="font-size: 0.85rem;" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                                     </form>
                                 <?php endif; ?>
                             <?php endif; ?>

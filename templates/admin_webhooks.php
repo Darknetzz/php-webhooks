@@ -7,7 +7,8 @@ $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
-$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : false;
+$createRequestsPublic = $createRequestsPublic ?? false;
 $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = $createResponseStatusCode ?? 200;
 $createResponseHeaders = $createResponseHeaders ?? '';
@@ -49,7 +50,8 @@ ob_start();
                 <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
             </div>
             <div class="form-group" id="random-slug-hint" style="display: none;">
-                <div class="hint">A random URL (e.g. <code id="random-slug-sample">a1b2c3d4e5f6</code>) will be generated when you create the webhook.</div>
+                <input type="hidden" name="slug_random" id="slug-random" value="">
+                <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="random-slug-url-preview"></span></strong></div>
             </div>
         </div>
         <div class="form-section">
@@ -58,6 +60,12 @@ ob_start();
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                     List on public page (anyone can see the URL)
+                </label>
+            </div>
+            <div class="form-group js-requests-public-wrap">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
+                    Show requests publicly
                 </label>
             </div>
         </div>
@@ -92,11 +100,15 @@ ob_start();
     var slugFieldWrap = document.getElementById('slug-field-wrap');
     var randomSlugHint = document.getElementById('random-slug-hint');
     var previewEl = document.getElementById('slug-preview');
-    var randomSampleEl = document.getElementById('random-slug-sample');
+    var slugRandomInput = document.getElementById('slug-random');
+    var randomSlugUrlPreview = document.getElementById('random-slug-url-preview');
     function slugify(s) {
         return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
     }
-    function randomHexSample(len) {
+    function randomHexSample(minLen, maxLen) {
+        minLen = minLen || 10;
+        maxLen = maxLen || 30;
+        var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
         var hex = '0123456789abcdef';
         var out = '';
         for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
@@ -106,7 +118,11 @@ ob_start();
         var fromName = slugFromNameEl && slugFromNameEl.checked;
         if (slugFieldWrap) slugFieldWrap.style.display = fromName ? 'block' : 'none';
         if (randomSlugHint) randomSlugHint.style.display = fromName ? 'none' : 'block';
-        if (randomSampleEl) randomSampleEl.textContent = randomHexSample(16);
+        if (!fromName) {
+            var sample = randomHexSample(10, 30);
+            if (slugRandomInput) slugRandomInput.value = sample;
+            if (randomSlugUrlPreview) randomSlugUrlPreview.textContent = sample;
+        }
         if (!fromName && slugEl) slugEl.value = '';
     }
     function updatePreview() {
@@ -114,7 +130,8 @@ ob_start();
         var fromName = slugFromNameEl && slugFromNameEl.checked;
         var slug = (slugEl && slugEl.value.trim()) || '';
         if (!fromName && !slug) {
-            previewEl.textContent = '(random)';
+            var sample = slugRandomInput ? slugRandomInput.value : randomHexSample(10, 30);
+            previewEl.textContent = sample || '(random)';
             return;
         }
         if (!slug && nameEl && nameEl.value.trim()) {
@@ -138,22 +155,24 @@ ob_start();
 <?php else: ?>
     <h2 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem;">Your webhooks</h2>
     <?php foreach ($webhooks as $w): ?>
-        <div class="card">
+        <div class="card webhook-card" data-id="<?= (int) $w->id ?>" data-name="<?= e($w->name) ?>" data-slug="<?= e($w->slug) ?>" data-description="<?= e($w->description) ?>" data-is-public="<?= $w->is_public ? '1' : '0' ?>" data-requests-public="<?= $w->requests_public ? '1' : '0' ?>" data-response-status-code="<?= (int) $w->response_status_code ?>" data-response-headers="<?= e($w->response_headers) ?>" data-response-body="<?= e($w->response_body) ?>" data-allowed-methods="<?= e($w->allowed_methods ?? '') ?>">
             <h3><?= e($w->name) ?></h3>
             <?php if ($w->description): ?>
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; $iconOnly = true; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-            <p class="meta"><?= $w->is_public ? 'Public' : 'Private' ?> · Created <?= e($w->created_at) ?></p>
+            <p class="meta"><?php $isPublic = (bool) $w->is_public; $publicLabel = 'Public'; require __DIR__ . '/partials/visibility_label.php'; ?> · <?php $date = $w->created_at; $label = 'Created '; require __DIR__ . '/partials/created_date.php'; ?></p>
             <div class="card-actions">
-                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost">View requests</a>
-                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/edit" class="btn btn-ghost">Edit</a>
+                <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost btn-icon-only" aria-label="View requests" title="View requests"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg></a>
+                <button type="button" class="btn btn-ghost btn-icon-only btn-edit-webhook" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
                 <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger btn-icon-only" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                 </form>
             </div>
         </div>
     <?php endforeach; ?>
+    <?php require __DIR__ . '/partials/edit_webhook_modal.php'; ?>
+    <?php require __DIR__ . '/partials/edit_webhook_modal_script.php'; ?>
 <?php endif; ?>
 <?php
 $content = ob_get_clean();

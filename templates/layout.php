@@ -11,8 +11,9 @@ $config = config();
     <script>
     (function(){
         var t=localStorage.getItem('webhooks_theme')||'dark';
-        var a=localStorage.getItem('webhooks_accent')||'#22d3ee';
-        var h=localStorage.getItem('webhooks_accent_hover')||'#06b6d4';
+        var siteDefault=<?= json_encode(site_primary_color()) ?>;
+        var a=localStorage.getItem('webhooks_accent')||siteDefault[0]||'#22d3ee';
+        var h=localStorage.getItem('webhooks_accent_hover')||siteDefault[1]||'#06b6d4';
         document.documentElement.dataset.theme=t;
         document.documentElement.style.setProperty('--accent',a);
         document.documentElement.style.setProperty('--accent-hover',h);
@@ -45,7 +46,6 @@ if ($showWebhookTesting):
                         <button type="button" class="user-dropdown-trigger" aria-expanded="false" aria-haspopup="true" aria-controls="user-menu" id="user-dropdown-btn">
                             <span class="user-avatar" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($user->username, 0, 1))) ?></span>
                             <span class="user-name"><?= e($user->username) ?></span>
-                            <?php $role = $user->role; require __DIR__ . '/partials/role_display.php'; ?>
                         </button>
                         <div class="user-dropdown-menu" id="user-menu" role="menu" aria-labelledby="user-dropdown-btn" hidden>
                             <div class="user-dropdown-menu-role" aria-hidden="true">
@@ -154,6 +154,23 @@ if ($showWebhookTesting):
     })();
 
     (function () {
+        document.querySelectorAll('form').forEach(function (form) {
+            var isPublic = form.querySelector('input[name="is_public"]');
+            var wrap = form.querySelector('.js-requests-public-wrap');
+            if (!isPublic || !wrap) return;
+            function update() {
+                wrap.style.display = isPublic.checked ? '' : 'none';
+                if (!isPublic.checked) {
+                    var reqPub = form.querySelector('input[name="requests_public"]');
+                    if (reqPub) reqPub.checked = false;
+                }
+            }
+            isPublic.addEventListener('change', update);
+            update();
+        });
+    })();
+
+    (function () {
         var trigger = document.getElementById('user-dropdown-btn');
         var menu = document.getElementById('user-menu');
         if (!trigger || !menu) return;
@@ -183,6 +200,7 @@ if ($showWebhookTesting):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script>
+    <?php require __DIR__ . '/partials/response_headers_body_script.php'; ?>
     (function () {
         document.querySelectorAll('code.json-beautify').forEach(function (code) {
             var raw = code.textContent.trim();

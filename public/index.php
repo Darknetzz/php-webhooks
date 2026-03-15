@@ -45,6 +45,22 @@ if ($config['debug'] && $uri === '/--db-check') {
     exit;
 }
 
+// Public requests list (no auth) — must be before /w/{slug} receive route
+if (preg_match('#^/w/([a-zA-Z0-9_-]+)/requests$#', $uri, $m)) {
+    $slug = $m[1];
+    $webhook = WebhookRepository::findBySlug($slug);
+    if (!$webhook || !$webhook->requests_public) {
+        header('HTTP/1.1 404 Not Found');
+        require dirname(__DIR__) . '/templates/404.php';
+        exit;
+    }
+    $requests = WebhookRequestRepository::listForWebhook($webhook->id);
+    $baseUrl = rtrim(base_url(), '/');
+    $publicRequests = true;
+    require dirname(__DIR__) . '/templates/public_webhook_requests.php';
+    exit;
+}
+
 if (preg_match('#^/w/([a-zA-Z0-9_-]+)$#', $uri, $m)) {
     $slug = $m[1];
     require dirname(__DIR__) . '/public/receive_webhook.php';
@@ -191,6 +207,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $name = trim((string) $_POST['name']);
         $rawSlug = trim((string) ($_POST['slug'] ?? ''));
+        $rawSlugRandom = trim((string) ($_POST['slug_random'] ?? ''));
         $slugFromNameChecked = isset($_POST['slug_from_name']);
         $slug = $rawSlug !== '' ? preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlug) : '';
         if ($slug === '') {
@@ -198,11 +215,17 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $slugFromName = trim(preg_replace('/[^a-z0-9]+/', '-', strtolower($name)), '-');
                 $slug = $slugFromName !== '' ? $slugFromName : WebhookRepository::generateRandomSlug();
             } else {
-                $slug = WebhookRepository::generateRandomSlug();
+                $candidate = preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlugRandom);
+                if ($candidate !== '' && strlen($candidate) >= 10 && strlen($candidate) <= 30) {
+                    $slug = $candidate;
+                } else {
+                    $slug = WebhookRepository::generateRandomSlug();
+                }
             }
         }
         $desc = trim((string) ($_POST['description'] ?? ''));
         $isPublic = isset($_POST['is_public']);
+        $requestsPublic = isset($_POST['requests_public']);
         $responseStatusCode = (int) ($_POST['response_status_code'] ?? 200);
         $responseStatusCode = max(100, min(599, $responseStatusCode));
         $responseHeaders = trim((string) ($_POST['response_headers'] ?? ''));
@@ -218,6 +241,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createSlug = $rawSlug;
                 $createDescription = $desc;
                 $createIsPublic = $isPublic;
+                $createRequestsPublic = $requestsPublic;
                 $createSlugFromName = $slugFromNameChecked;
                 $createResponseStatusCode = $responseStatusCode;
                 $createResponseHeaders = $responseHeaders;
@@ -225,7 +249,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $createAllowedMethods = isset($_POST['allowed_methods']) && is_array($_POST['allowed_methods']) ? $_POST['allowed_methods'] : [];
             } else {
                 try {
-                    WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
+                    WebhookRepository::create($user->id, $slug, $name, $desc, $isPublic, $requestsPublic, $responseStatusCode, $responseHeaders, $responseBody, $allowedMethods);
                     redirect(isset($_POST['from_admin']) ? base_url() . '/admin/all-webhooks' : base_url() . '/');
                 } catch (Throwable $e) {
                     $createError = $config['debug'] ? $e->getMessage() : 'A webhook with this slug already exists. Choose a different slug.';
@@ -233,6 +257,7 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                     $createSlug = $rawSlug;
                     $createDescription = $desc;
                     $createIsPublic = $isPublic;
+                    $createRequestsPublic = $requestsPublic;
                     $createSlugFromName = $slugFromNameChecked;
                     $createResponseStatusCode = $responseStatusCode;
                     $createResponseHeaders = $responseHeaders;
@@ -269,6 +294,7 @@ if (preg_match('#^/admin/webhooks/(\d+)/edit$#', $uri, $m)) {
             'slug' => preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($_POST['slug'] ?? '')) ?: $webhook->slug,
             'description' => trim((string) ($_POST['description'] ?? '')),
             'is_public' => isset($_POST['is_public']),
+            'requests_public' => isset($_POST['requests_public']),
             'response_status_code' => $responseStatusCode,
             'response_headers' => trim((string) ($_POST['response_headers'] ?? '')),
             'response_body' => trim((string) ($_POST['response_body'] ?? '')),
@@ -351,6 +377,12 @@ if ($uri === '/admin/settings') {
         $section = $_POST['settings_section'] ?? '';
         if ($section === 'general') {
             SiteSettings::set(SiteSettings::KEY_SITE_NAME, trim((string) ($_POST['site_name'] ?? '')));
+            $accent = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) ($_POST['primary_color'] ?? '')) ? trim((string) $_POST['primary_color']) : null;
+            if ($accent !== null) {
+                $hover = preg_match('/^#[0-9A-Fa-f]{6}$/', (string) ($_POST['primary_color_hover'] ?? '')) ? trim((string) $_POST['primary_color_hover']) : null;
+                SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR, $accent);
+                SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR_HOVER, $hover ?? hex_darken($accent, -12));
+            }
             $settingsSaved = true;
         } elseif ($section === 'webhooks') {
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
@@ -385,6 +417,7 @@ if ($uri === '/admin/users') {
     $users = UserRepository::listAll();
     $createError = $createError ?? null;
     $createUsername = $createUsername ?? '';
+    $listError = (isset($_GET['error']) && $_GET['error'] === 'edit_self') ? 'You cannot edit your own user here. Use Settings to change your password.' : null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_username'], $_POST['create_password'])) {
         $username = trim((string) $_POST['create_username']);
         $password = (string) $_POST['create_password'];
@@ -409,10 +442,13 @@ if ($uri === '/admin/users') {
     exit;
 }
 
-// Admin: edit user — admin panel only
+// Admin: edit user — admin panel only (cannot edit self)
 if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
     $user = require_admin_panel($uri);
     $id = (int) $m[1];
+    if ($id === $user->id) {
+        redirect(base_url() . '/admin/users?error=edit_self');
+    }
     $editUser = UserRepository::find($id);
     if (!$editUser) {
         redirect(base_url() . '/admin/users');

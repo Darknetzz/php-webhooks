@@ -5,7 +5,8 @@ $createError = $createError ?? null;
 $createName = $createName ?? '';
 $createSlug = $createSlug ?? '';
 $createDescription = $createDescription ?? '';
-$createIsPublic = isset($createIsPublic) ? $createIsPublic : true;
+$createIsPublic = isset($createIsPublic) ? $createIsPublic : false;
+$createRequestsPublic = $createRequestsPublic ?? false;
 $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = (int) ($createResponseStatusCode ?? 200);
 $createResponseHeaders = $createResponseHeaders ?? '';
@@ -46,12 +47,15 @@ $fromAdmin = $fromAdmin ?? false;
                         </label>
                     </div>
                     <div class="form-group" id="create-slug-field-wrap">
-                        <label for="create-slug">Custom slug (optional)</label>
-                        <input type="text" id="create-slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" value="<?= e($createSlug) ?>">
+                        <div id="create-custom-slug-input-wrap">
+                            <label for="create-slug">Custom slug (optional)</label>
+                            <input type="text" id="create-slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" value="<?= e($createSlug) ?>">
+                        </div>
                         <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-slug-preview">my-api-hook</span></strong></div>
                     </div>
                     <div class="form-group" id="create-random-slug-hint" style="display: none;">
-                        <div class="hint">A random slug will be generated.</div>
+                        <input type="hidden" name="slug_random" id="create-slug-random" value="">
+                        <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="create-random-slug-url-preview"></span></strong></div>
                     </div>
                 </div>
                 <div class="form-section">
@@ -59,6 +63,12 @@ $fromAdmin = $fromAdmin ?? false;
                         <label class="checkbox-label">
                             <input type="checkbox" name="is_public" value="1" <?= $createIsPublic ? 'checked' : '' ?>>
                             List on public page
+                        </label>
+                    </div>
+                    <div class="form-group js-requests-public-wrap">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="requests_public" value="1" <?= $createRequestsPublic ? 'checked' : '' ?>>
+                            Show requests publicly
                         </label>
                     </div>
                 </div>
@@ -73,14 +83,7 @@ $fromAdmin = $fromAdmin ?? false;
                         <label for="create-response_status_code">Status code</label>
                         <input type="number" id="create-response_status_code" name="response_status_code" min="100" max="599" value="<?= $createResponseStatusCode ?>">
                     </div>
-                    <div class="form-group">
-                        <label for="create-response_headers">Response headers (JSON)</label>
-                        <textarea id="create-response_headers" name="response_headers" rows="2" placeholder='{"Content-Type": "application/json"}'><?= e($createResponseHeaders) ?></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="create-response_body">Response body</label>
-                        <textarea id="create-response_body" name="response_body" rows="3" placeholder="Leave empty for default"><?= e($createResponseBody) ?></textarea>
-                    </div>
+                    <?php $prefix = 'create-'; $responseHeadersValue = $createResponseHeaders; $responseBodyValue = $createResponseBody; require __DIR__ . '/response_headers_body_fields.php'; ?>
                 </div>
                 <button type="submit" class="btn btn-primary">Create</button>
                 <button type="button" class="btn btn-ghost" data-close="create-modal">Cancel</button>
@@ -118,21 +121,43 @@ $fromAdmin = $fromAdmin ?? false;
     var createSlug = document.getElementById('create-slug');
     var createSlugPreview = document.getElementById('create-slug-preview');
     var createSlugFieldWrap = document.getElementById('create-slug-field-wrap');
+    var createCustomSlugInputWrap = document.getElementById('create-custom-slug-input-wrap');
     var createRandomSlugHint = document.getElementById('create-random-slug-hint');
+    var createRandomSlugUrlPreview = document.getElementById('create-random-slug-url-preview');
+    var createSlugRandomInput = document.getElementById('create-slug-random');
     if (createSlugPreview) {
         var slugify = function (s) {
             return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
         };
+        function randomHexSample(minLen, maxLen) {
+            minLen = minLen || 10;
+            maxLen = maxLen || 30;
+            var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
+            var hex = '0123456789abcdef';
+            var out = '';
+            for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
+            return out;
+        }
         function updateCreateSlugVisibility() {
             var fromName = createSlugFromName && createSlugFromName.checked;
             if (createSlugFieldWrap) createSlugFieldWrap.style.display = fromName ? 'block' : 'none';
+            if (createCustomSlugInputWrap) createCustomSlugInputWrap.style.display = fromName ? 'none' : 'block';
             if (createRandomSlugHint) createRandomSlugHint.style.display = fromName ? 'none' : 'block';
             if (!fromName && createSlug) createSlug.value = '';
+            if (!fromName) {
+                var sample = randomHexSample(10, 30);
+                if (createSlugRandomInput) createSlugRandomInput.value = sample;
+                if (createRandomSlugUrlPreview) createRandomSlugUrlPreview.textContent = sample;
+            }
         }
         function updateCreatePreview() {
             var fromName = createSlugFromName && createSlugFromName.checked;
             var slug = (createSlug && createSlug.value.trim()) || '';
-            if (!fromName && !slug) { createSlugPreview.textContent = '(random)'; return; }
+            if (!fromName && !slug) {
+                var sample = createSlugRandomInput ? createSlugRandomInput.value : randomHexSample(10, 30);
+                createSlugPreview.textContent = sample || '(random)';
+                return;
+            }
             if (!slug && createName && createName.value.trim()) {
                 slug = slugify(createName.value.trim()) || 'webhook';
             }

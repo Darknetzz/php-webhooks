@@ -15,6 +15,8 @@ class SiteSettings
     public const KEY_WEBHOOK_TEST_TIMEOUT_SECONDS = 'webhook_test_timeout_seconds';
     public const KEY_ALLOW_REGISTRATION = 'allow_registration';
     public const KEY_SITE_NAME = 'site_name';
+    public const KEY_PRIMARY_COLOR = 'primary_color';
+    public const KEY_PRIMARY_COLOR_HOVER = 'primary_color_hover';
 
     private static ?array $cache = null;
 

@@ -1,14 +1,18 @@
 # Build and push Docker image to ghcr.io and Docker Hub
 #
-# ghcr.io: uses GITHUB_TOKEN; enable "Read and write packages" in repo Settings → Actions → General.
-# Docker Hub: add one secret DOCKERHUB_TOKEN (Access Token from hub.docker.com). Username and image
-#   are set below in env; override with repo variables DOCKERHUB_USERNAME / DOCKERHUB_IMAGE if needed.
+# ghcr.io: uses GITHUB_TOKEN; image is ghcr.io/<github.repository> (e.g. ghcr.io/Darknetzz/webhooks).
+#   Enable "Read and write packages" in repo Settings → Actions → General.
+# Docker Hub: add secret DOCKERHUB_TOKEN and repo variable PUBLISH_TO_DOCKER_HUB=true (Settings →
+#   Secrets and variables → Actions). Username can differ from GitHub (e.g. darknetz vs Darknetzz).
+#
+# We only push on release and on push to dev to avoid a new digest on every merge to main (which
+# created many untagged digests). Result: :latest and semver on release; :dev on push to dev.
 
 name: Docker publish
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
   release:
     types: [published]
 
@@ -44,7 +48,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
@@ -69,7 +73,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Docker meta (Docker Hub)
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
+        if: github.event_name != 'pull_request' && vars.PUBLISH_TO_DOCKER_HUB == 'true'
         id: meta-dh
         uses: docker/metadata-action@v5
         with:
@@ -78,17 +82,17 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.event_name == 'release' }}
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
+        if: github.event_name != 'pull_request' && vars.PUBLISH_TO_DOCKER_HUB == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME || env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push to Docker Hub
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_TOKEN != ''
+        if: github.event_name != 'pull_request' && vars.PUBLISH_TO_DOCKER_HUB == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .

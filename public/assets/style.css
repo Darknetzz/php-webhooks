@@ -114,6 +114,46 @@ body {
     opacity: 0.9;
 }
 
+.visibility-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.visibility-label .icon {
+    opacity: 0.9;
+}
+
+.created-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.created-date .icon {
+    opacity: 0.9;
+}
+
+.request-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.request-count .icon {
+    opacity: 0.9;
+}
+
+.request-count--link {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.request-count--link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
 .user-dropdown-menu a {
     display: flex;
     align-items: center;
@@ -359,6 +399,24 @@ h1, h2 {
     border-color: var(--danger);
 }
 
+/* Bootstrap-style outline danger: transparent bg, red text + border; hover fill */
+.btn-webhook-action.btn-outline-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+.btn-webhook-action.btn-outline-danger:hover {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+/* Icon-only buttons: same size square */
+.btn-icon-only {
+    padding: 0.5rem;
+    justify-content: center;
+}
+
 .form-section {
     margin-bottom: 1.5rem;
 }
@@ -441,6 +499,74 @@ h1, h2 {
     margin-top: 0.25rem;
 }
 
+/* Variables collapse (response headers/body forms) */
+.variables-collapse {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+.variables-collapse[open] {
+    border-color: var(--accent);
+}
+.variables-toggle {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+    font-family: var(--font);
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.variables-toggle::-webkit-details-marker { display: none; }
+.variables-toggle::before {
+    content: '▶';
+    font-size: 0.7rem;
+    transition: transform 0.15s ease;
+}
+.variables-collapse[open] .variables-toggle::before {
+    transform: rotate(90deg);
+}
+.variables-toggle:hover {
+    color: var(--accent-hover);
+}
+.variables-panel {
+    padding: 0.75rem 1rem 1rem;
+    border-top: 1px solid var(--border);
+}
+.variables-intro {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 0.75rem;
+}
+.variables-list {
+    margin: 0;
+    font-size: 0.85rem;
+}
+.variables-list dt {
+    margin-top: 0.5rem;
+    margin-bottom: 0.15rem;
+}
+.variables-list dt:first-of-type { margin-top: 0; }
+.variables-list dd {
+    margin-left: 0;
+    color: var(--muted);
+}
+.variable-placeholder {
+    color: var(--accent);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    border: 1px solid var(--accent);
+    background: var(--bg);
+}
+[data-theme="light"] .variable-placeholder {
+    background: var(--surface);
+    color: var(--form-heading);
+    border-color: var(--form-heading);
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -473,8 +599,24 @@ h1, h2 {
 
 .card-actions {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
+}
+
+/* Same height and alignment for all card action buttons (text + icon-only) */
+.card-actions .btn {
+    min-height: 2.25rem;
+}
+.card-actions .btn-icon-only {
+    width: 2.25rem;
+    padding: 0;
+    min-height: 2.25rem;
+    flex-shrink: 0;
+}
+.card-actions form {
+    display: inline-flex;
+    align-items: center;
 }
 
 .webhook-url-wrap {
@@ -539,6 +681,21 @@ a.btn-webhook-action {
 .btn-copy-webhook.copied {
     color: var(--success);
     border-color: var(--success);
+}
+
+.requests-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.requests-toolbar .btn-webhook-action {
+    min-height: 2rem;
+    line-height: 1.25;
+    padding: 0.35rem 0.6rem;
+    box-sizing: border-box;
 }
 
 .table-wrap {
@@ -894,6 +1051,7 @@ th {
 .modal {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
     border-radius: var(--radius);
     max-width: 520px;
     width: 100%;
@@ -913,6 +1071,7 @@ th {
 .modal-header h2 {
     margin: 0;
     font-size: 1.1rem;
+    color: var(--accent);
 }
 
 .modal-close {
@@ -928,7 +1087,7 @@ th {
 }
 
 .modal-close:hover {
-    color: var(--text);
+    color: var(--accent);
     background: var(--border);
 }
 
@@ -938,7 +1097,7 @@ th {
 
 .modal .form-section-title,
 .modal .form-group label {
-    color: var(--form-heading);
+    color: var(--accent);
 }
 
 .modal--wide {

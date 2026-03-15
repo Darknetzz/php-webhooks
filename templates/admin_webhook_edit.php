@@ -27,6 +27,12 @@ ob_start();
                 List on public page
             </label>
         </div>
+        <div class="form-group js-requests-public-wrap">
+            <label class="checkbox-label">
+                <input type="checkbox" name="requests_public" value="1" <?= $webhook->requests_public ? 'checked' : '' ?>>
+                Show requests publicly
+            </label>
+        </div>
         <div class="form-section" style="margin-top: 1.25rem;">
             <h3 class="form-section-title">Allowed methods</h3>
             <?php $selectedMethods = parse_allowed_methods($webhook->allowed_methods ?? ''); $specifyToggleId = 'specify-allowed-methods'; require __DIR__ . '/partials/allowed_methods_field.php'; ?>
@@ -39,14 +45,7 @@ ob_start();
                 <label for="response_status_code">Status code</label>
                 <input type="number" id="response_status_code" name="response_status_code" min="100" max="599" value="<?= (int) $webhook->response_status_code ?>" placeholder="200">
             </div>
-            <div class="form-group">
-                <label for="response_headers">Response headers (JSON)</label>
-                <textarea id="response_headers" name="response_headers" rows="3" placeholder='{"Content-Type": "application/json"}'><?= e($webhook->response_headers) ?></textarea>
-            </div>
-            <div class="form-group">
-                <label for="response_body">Response body</label>
-                <textarea id="response_body" name="response_body" rows="4" placeholder="Leave empty for default"><?= e($webhook->response_body) ?></textarea>
-            </div>
+            <?php $prefix = ''; $responseHeadersValue = $webhook->response_headers ?? ''; $responseBodyValue = $webhook->response_body ?? ''; require __DIR__ . '/partials/response_headers_body_fields.php'; ?>
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
         <a href="<?= e($baseUrl) ?>/admin/webhooks" class="btn btn-ghost">Cancel</a>

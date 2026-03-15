@@ -27,6 +27,7 @@ if (!$webhook) {
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+// One value per header name (duplicates normalized in WebhookVariableSubstitutor)
 $headers = function_exists('getallheaders') ? json_encode(getallheaders()) : '';
 $body = (string) file_get_contents('php://input');
 $queryString = $_SERVER['QUERY_STRING'] ?? '';

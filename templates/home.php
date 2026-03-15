@@ -20,7 +20,7 @@ ob_start();
                 <p class="meta"><?= e($w->description) ?></p>
             <?php endif; ?>
             <?php $webhookUrl = $webhookBaseUrl . '/w/' . $w->slug; require __DIR__ . '/partials/webhook_url_block.php'; ?>
-            <p class="meta">POST, GET, or any method — requests are logged for the owner.</p>
+            <p class="meta">POST, GET, or any method — requests are logged for the owner.<?php if ($w->requests_public): ?> <a href="<?= e($baseUrl) ?>/w/<?= e($w->slug) ?>/requests">View requests</a><?php endif; ?></p>
         </div>
     <?php endforeach; ?>
 <?php endif; ?>

@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-03-15
+
+
+### Added
+
+- **Visibility icons**: lock icon for private webhooks and globe icon for public/listed; reusable `visibility_label` partial used in webhook list, admin webhooks, and admin all webhooks.
+- **Created date icon**: calendar icon in front of “Created” date; reusable `created_date` partial for meta lines and table cells.
+- **Request count icon and link**: requests (document) icon in front of “X requests”; count is a clickable link to the request log (accent color). Removed separate “View requests” button from webhook cards.
+- **Requests toolbar**: Refresh and Delete all buttons moved from the URL line into a toolbar above the requests table (admin and public request pages); buttons aligned and same size.
+- **Outline danger button**: Bootstrap-style `btn-outline-danger` for the “Delete all” button on the requests page (transparent + danger border/text, filled on hover).
+- **Response variables hint**: collapsible section in the webhook response config showing placeholders for dynamic data in response headers and body (e.g. `{{request.body.key}}`, `{{request.headers.X-Name}}`).
+- **Reusable response fields**: shared partial for response headers and body inputs used in create/edit webhook forms and modals.
+- **Cleanup workflow**: GitHub Actions workflow to clean up untagged Docker package versions.
+
+### Changed
+
+- **Delete all button**: “Delete all” in the requests toolbar now consistently shows red text and red outline (CSS specificity fix for `.btn-outline-danger` with `.btn-webhook-action`).
+- **Webhook cards**: meta line shows visibility icon + label, created date with calendar icon, and request count as a single link; card actions reduced to Edit and Delete.
+- **Requests page layout**: back link and webhook URL block only in the top line; Refresh and Delete all in a toolbar above the table.
+- **Webhook modal**: response headers and body fields now use the shared partial; simplified input structure and improved handling of custom header rows (names/values set correctly when adding rows).
+- **Docker publish**: README and GitHub Actions workflow clarified—images are pushed on release and on pushes to `dev`, not on every merge to main.
+- **Request templates**: admin and public request page layout and action button organization improved; consistent toolbar and button styling.
+
+## [1.0.2] - 2026-03-15
+
+
+### Added
+
+- **Primary color settings**: admin can set a primary/brand color for the UI; presets and hex color picker with live preview.
+- **Random slug generation**: option to generate a random slug when creating a webhook.
+- **Requests public**: per-webhook option to allow unauthenticated viewing of request history (public request log).
+- **Release script**: optional Docker image push step in release workflow.
+
+### Changed
+
+- **UI**: icon-only button styling for consistency; improved button accessibility and styling in admin templates.
+- **Webhook modal**: custom slug input refactored for better visibility.
+- **Layout**: JavaScript color management refactored for primary color theming.
+
+## [1.0.1] - 2026-03-15
+
+### Added
+
+- **Release script** (`scripts/release.sh`): interactive release helper that shows last version, prompts for next tag, summarizes changelog, and optionally commits, tags, and pushes. Non-interactive form still used by GitHub Actions.
+
+### Changed
+
+- **Docker**: configuration and documentation updated for improved publishing workflow.
+- **User management**: user self-edit restriction and enhanced admin user edit functionality.
+- **UI**: role display removed from user dropdown in layout template.
+- **Documentation**: README updated to clarify branch model and protection rules.
+
 ## [1.0.0] - 2025-03-15
 
 ### Added

@@ -12,6 +12,7 @@ class Webhook
     public string $name;
     public string $description;
     public bool $is_public;
+    public bool $requests_public;
     /** @var int HTTP status code for webhook response (default 200) */
     public int $response_status_code;
     /** @var string JSON object of response headers, e.g. {"Content-Type": "application/json"} */
@@ -31,7 +32,8 @@ class Webhook
         $w->slug = $row['slug'];
         $w->name = $row['name'];
         $w->description = $row['description'] ?? '';
-        $w->is_public = (bool) ($row['is_public'] ?? 1);
+        $w->is_public = (bool) ($row['is_public'] ?? 0);
+        $w->requests_public = (bool) ($row['requests_public'] ?? 0);
         $w->response_status_code = isset($row['response_status_code']) ? (int) $row['response_status_code'] : 200;
         $w->response_headers = $row['response_headers'] ?? '';
         $w->response_body = $row['response_body'] ?? '';

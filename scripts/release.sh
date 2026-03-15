@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+# Release helper: update CHANGELOG, optionally create and push tag.
+#
+# Non-interactive (for CI / hooks): scripts/release.sh <version> [date]
+#   Updates CHANGELOG only. Use in GitHub Actions or scripts.
+#
+# Interactive: scripts/release.sh
+#   Shows last release, asks for next version, shows unreleased changelog,
+#   prompts for confirmation, then updates CHANGELOG, commits, tags, and pushes.
+#   Optionally prompts to push Docker image and to update main (merge dev into main).
+#
+# Version: semver (e.g. 1.0.0). Date: YYYY-MM-DD (default: today UTC).
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || REPO_ROOT="."
+CHANGELOG="$REPO_ROOT/CHANGELOG.md"
+
+# --- Shared: semver check ---
+validate_semver() {
+  local v="$1"
+  if ! [[ "$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: version must be semver (e.g. 1.0.0), got: $v" >&2
+    return 1
+  fi
+  return 0
+}
+
+# --- Shared: update CHANGELOG (Unreleased -> version) ---
+update_changelog() {
+  local version="$1"
+  local date="$2"
+  if [[ ! -f "$CHANGELOG" ]]; then
+    echo "Error: CHANGELOG.md not found at $CHANGELOG" >&2
+    return 1
+  fi
+  awk -v version="$version" -v date="$date" '
+    BEGIN { done = 0; in_unreleased = 0; unreleased_content = "" }
+    /^## \[Unreleased\]/ && !done {
+      in_unreleased = 1
+      unreleased_content = ""
+      next
+    }
+    in_unreleased {
+      if (/^## /) {
+        in_unreleased = 0
+        done = 1
+        printf "## [Unreleased]\n\n"
+        printf "## [%s] - %s\n\n", version, date
+        if (unreleased_content != "") printf "%s", unreleased_content
+        print
+        next
+      }
+      unreleased_content = unreleased_content $0 "\n"
+      next
+    }
+    { print }
+    END {
+      if (in_unreleased) {
+        printf "## [Unreleased]\n\n"
+        printf "## [%s] - %s\n\n", version, date
+        if (unreleased_content != "") printf "%s", unreleased_content
+      }
+    }
+  ' "$CHANGELOG" > "$CHANGELOG.tmp"
+  if ! grep -q '^## \[' "$CHANGELOG.tmp"; then
+    echo "Error: CHANGELOG.md had no ## [Unreleased] or structure changed" >&2
+    rm -f "$CHANGELOG.tmp"
+    return 1
+  fi
+  mv "$CHANGELOG.tmp" "$CHANGELOG"
+  echo "Updated CHANGELOG.md: ## [Unreleased] -> ## [$version] - $date"
+}
+
+# --- Interactive: get last release version from CHANGELOG ---
+get_last_version_from_changelog() {
+  awk '
+    /^## \[Unreleased\]/ { next }
+    /^## \[([0-9]+\.[0-9]+\.[0-9]+)\]/ { print substr($2, 2, length($2)-2); exit }
+  ' "$CHANGELOG"
+}
+
+# --- Interactive: get unreleased changelog body (for summary) ---
+get_unreleased_content() {
+  awk '
+    /^## \[Unreleased\]/ { in_unreleased = 1; next }
+    in_unreleased {
+      if (/^## /) { exit }
+      print
+    }
+  ' "$CHANGELOG"
+}
+
+# --- Interactive: merge dev into main locally and push (fallback when gh not used) ---
+update_main_local() {
+  set +e
+  git checkout main || { echo "Update main failed (could not checkout main). Merge dev → main manually." >&2; set -e; return 1; }
+  git pull origin main || { echo "Update main failed (could not pull main). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git merge dev -m "Merge dev into main (release v${VERSION:-})" || { echo "Update main failed (merge conflict?). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git push origin main || { echo "Update main failed (branch protection?). Merge dev → main manually." >&2; git checkout dev; set -e; return 1; }
+  git checkout dev || true
+  set -e
+  echo "Merged dev into main and pushed."
+}
+
+# --- Non-interactive entry: version (and optional date) passed as args ---
+if [[ -n "${1:-}" ]]; then
+  VERSION="$1"
+  DATE="${2:-$(date -u +%Y-%m-%d)}"
+  validate_semver "$VERSION" || exit 1
+  update_changelog "$VERSION" "$DATE"
+  exit 0
+fi
+
+# --- Interactive: require TTY so we don't block CI ---
+if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
+  echo "Error: interactive mode requires a TTY. Use: $0 <version> [date]" >&2
+  exit 1
+fi
+
+if [[ ! -f "$CHANGELOG" ]]; then
+  echo "Error: CHANGELOG.md not found at $CHANGELOG" >&2
+  exit 1
+fi
+
+LAST="$(get_last_version_from_changelog)"
+if [[ -z "$LAST" ]]; then
+  # Fallback to latest git tag
+  LAST_TAG="$(git tag -l 'v*' --sort=-v:refname 2>/dev/null | head -1)"
+  if [[ -n "$LAST_TAG" ]]; then
+    LAST="${LAST_TAG#v}"
+  else
+    LAST="(none)"
+  fi
+fi
+
+echo "Last release: ${LAST}"
+echo ""
+
+# Default next version: patch bump (1.0.0 -> 1.0.1), or 1.0.0 if no prior release
+DEFAULT_VERSION=""
+if [[ "$LAST" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+  DEFAULT_VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((${BASH_REMATCH[3]} + 1))"
+elif [[ "$LAST" == "(none)" ]] || [[ -z "$LAST" ]]; then
+  DEFAULT_VERSION="1.0.0"
+fi
+
+if [[ -n "$DEFAULT_VERSION" ]]; then
+  read -r -p "Next version [$DEFAULT_VERSION]: " VERSION
+  VERSION="${VERSION:-$DEFAULT_VERSION}"
+else
+  read -r -p "Next version (e.g. 1.0.1): " VERSION
+  VERSION="${VERSION:-}"
+fi
+if [[ -z "$VERSION" ]]; then
+  echo "Aborted (no version given)." >&2
+  exit 1
+fi
+validate_semver "$VERSION" || exit 1
+
+if git rev-parse "v$VERSION" &>/dev/null; then
+  echo "Error: tag v$VERSION already exists." >&2
+  exit 1
+fi
+
+UNRELEASED="$(get_unreleased_content)"
+echo ""
+echo "--- Unreleased changelog ---"
+if [[ -n "$UNRELEASED" ]]; then
+  echo "$UNRELEASED"
+else
+  echo "(no entries under ## [Unreleased])"
+fi
+echo "---"
+echo ""
+
+read -r -p "Create release v$VERSION, update CHANGELOG, commit, tag and push? [y/N] " CONFIRM
+if [[ ! "$CONFIRM" =~ ^[yY] ]]; then
+  echo "Aborted."
+  exit 0
+fi
+
+DATE="$(date -u +%Y-%m-%d)"
+update_changelog "$VERSION" "$DATE"
+
+cd "$REPO_ROOT"
+git add CHANGELOG.md
+git diff --staged --quiet && { echo "No changelog diff (already up to date?)." >&2; exit 1; }
+git commit -m "Release v$VERSION"
+git tag "v$VERSION"
+echo "Committed and tagged v$VERSION. Pushing branch and tag..."
+git push origin HEAD
+git push origin "v$VERSION"
+echo "Release v$VERSION created and pushed."
+
+read -r -p "Push Docker image for v$VERSION? [y/N] " PUSH_DOCKER
+if [[ "$PUSH_DOCKER" =~ ^[yY] ]]; then
+  if [[ -x "$REPO_ROOT/scripts/docker-build-push.sh" ]]; then
+    "$REPO_ROOT/scripts/docker-build-push.sh"
+  else
+    echo "Warning: scripts/docker-build-push.sh not found or not executable." >&2
+  fi
+fi
+
+# --- Optional: update main branch (merge dev into main) ---
+CURRENT_BRANCH="$(git branch --show-current)"
+if [[ "$CURRENT_BRANCH" != "dev" ]]; then
+  echo "Skipping main-branch update (current branch is '$CURRENT_BRANCH', not dev)."
+else
+  read -r -p "Update main branch (merge dev into main)? [y/N] " UPDATE_MAIN
+  if [[ "$UPDATE_MAIN" =~ ^[yY] ]]; then
+    if command -v gh &>/dev/null && git remote get-url origin 2>/dev/null | grep -q github; then
+      if gh pr create --base main --head dev --title "Release v$VERSION" --body "Release v$VERSION. Merge to sync main with the release." 2>/dev/null; then
+        PR_URL="$(gh pr view --json url -q .url 2>/dev/null)"
+        if gh pr merge --merge 2>/dev/null; then
+          echo "Merged dev into main via PR."
+        else
+          echo "PR created: $PR_URL — merge it manually (e.g. branch protection requires review)." >&2
+        fi
+      else
+        echo "Update main via PR failed. Trying local merge..." >&2
+        update_main_local || true
+      fi
+    else
+      update_main_local || true
+    fi
+  fi
+fi
+
+echo "Done."

@@ -58,6 +58,61 @@ if (!function_exists('site_setting_bool')) {
     }
 }
 
+/** Default accent when no site or user override is set. */
+const DEFAULT_ACCENT = '#22d3ee';
+const DEFAULT_ACCENT_HOVER = '#06b6d4';
+
+/** Get site default primary color [accent, accentHover]. Used by layout and user settings. */
+if (!function_exists('site_primary_color')) {
+    function site_primary_color(): array
+    {
+        $accent = site_setting(\App\SiteSettings::KEY_PRIMARY_COLOR, DEFAULT_ACCENT);
+        $hover = site_setting(\App\SiteSettings::KEY_PRIMARY_COLOR_HOVER, DEFAULT_ACCENT_HOVER);
+        $accent = (preg_match('/^#[0-9A-Fa-f]{6}$/', $accent ?? '') ? $accent : null) ?? DEFAULT_ACCENT;
+        $hover = (preg_match('/^#[0-9A-Fa-f]{6}$/', $hover ?? '') ? $hover : null) ?? DEFAULT_ACCENT_HOVER;
+        return [$accent, $hover];
+    }
+}
+
+/** Preset primary colors [key => [accent, accentHover]]. Shared by admin and user settings. */
+if (!function_exists('primary_color_presets')) {
+    function primary_color_presets(): array
+    {
+        return [
+            'cyan' => ['#22d3ee', '#06b6d4'],
+            'blue' => ['#3b82f6', '#2563eb'],
+            'green' => ['#10b981', '#059669'],
+            'violet' => ['#8b5cf6', '#7c3aed'],
+            'orange' => ['#f97316', '#ea580c'],
+        ];
+    }
+}
+
+/** Darken a #rrggbb hex color by a percentage (e.g. -12 for 12% darker). */
+if (!function_exists('hex_darken')) {
+    function hex_darken(string $hex, int $pct = -12): string
+    {
+        if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $hex)) {
+            return $hex;
+        }
+        $num = (int) hexdec(substr($hex, 1));
+        $r = ($num >> 16) & 0xff;
+        $g = ($num >> 8) & 0xff;
+        $b = $num & 0xff;
+        $f = 1 - min(100, abs($pct)) / 100;
+        if ($pct < 0) {
+            $r = (int) round($r * $f);
+            $g = (int) round($g * $f);
+            $b = (int) round($b * $f);
+        } else {
+            $r = (int) round($r + (255 - $r) * (1 - $f));
+            $g = (int) round($g + (255 - $g) * (1 - $f));
+            $b = (int) round($b + (255 - $b) * (1 - $f));
+        }
+        return '#' . str_pad(dechex(($r << 16) + ($g << 8) + $b), 6, '0', STR_PAD_LEFT);
+    }
+}
+
 /**
  * Return HTML for an HTTP response status code with a semantic CSS class for color.
  * Use the same class names in JS (e.g. test modal) for consistent styling.

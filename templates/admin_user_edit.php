@@ -11,7 +11,7 @@ ob_start();
     <div class="error-msg"><?= e($editError) ?></div>
 <?php endif; ?>
 <div class="card" style="max-width: 500px;">
-    <form method="post" action="">
+    <form method="post" action="<?= e($baseUrl) ?>/admin/users/<?= (int) $editUser->id ?>/edit">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required value="<?= e($editUser->username) ?>">

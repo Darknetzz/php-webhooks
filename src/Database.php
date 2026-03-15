@@ -82,6 +82,7 @@ class Database
         $this->migrateWebhookResponseColumns();
         $this->migrateWebhookRequestResponseColumns();
         $this->migrateWebhookAllowedMethods();
+        $this->migrateWebhookRequestsPublic();
         $this->migrateSiteSettings();
     }
 
@@ -144,6 +145,24 @@ class Database
         }
     }
 
+    /** Add requests_public column to webhooks for existing installations. */
+    private function migrateWebhookRequestsPublic(): void
+    {
+        if (!$this->tableExists('webhooks')) {
+            return;
+        }
+        $sql = $this->isSqlite()
+            ? 'ALTER TABLE webhooks ADD COLUMN requests_public INTEGER NOT NULL DEFAULT 0'
+            : 'ALTER TABLE webhooks ADD COLUMN requests_public TINYINT(1) NOT NULL DEFAULT 0';
+        try {
+            $this->pdo->exec($sql);
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'duplicate') === false && strpos($e->getMessage(), 'Duplicate') === false) {
+                throw $e;
+            }
+        }
+    }
+
     /** Add optional response columns to webhook_requests for existing installations. */
     private function migrateWebhookRequestResponseColumns(): void
     {
@@ -190,7 +209,8 @@ class Database
                     slug VARCHAR(64) NOT NULL UNIQUE,
                     name VARCHAR(255) NOT NULL,
                     description TEXT,
-                    is_public INTEGER NOT NULL DEFAULT 1,
+                    is_public INTEGER NOT NULL DEFAULT 0,
+                    requests_public INTEGER NOT NULL DEFAULT 0,
                     response_status_code INTEGER NOT NULL DEFAULT 200,
                     response_headers TEXT,
                     response_body TEXT,
@@ -232,7 +252,8 @@ class Database
                 slug VARCHAR(64) NOT NULL UNIQUE,
                 name VARCHAR(255) NOT NULL,
                 description TEXT,
-                is_public TINYINT(1) NOT NULL DEFAULT 1,
+                is_public TINYINT(1) NOT NULL DEFAULT 0,
+                requests_public TINYINT(1) NOT NULL DEFAULT 0,
                 response_status_code INT NOT NULL DEFAULT 200,
                 response_headers TEXT,
                 response_body TEXT,
