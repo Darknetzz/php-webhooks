@@ -105,6 +105,23 @@ $config = config();
     });
 
     (function () {
+        function escapeHtml(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        document.querySelectorAll('.codebox-code[data-highlight="curl"]').forEach(function (el) {
+            var text = el.textContent || '';
+            var s = escapeHtml(text)
+                .replace(/^(curl)\b/, '<span class="sh-cmd">$1</span>')
+                .replace(/\b(-X\s+[A-Z]+)\b/g, '<span class="sh-opt">$1</span>')
+                .replace(/\b(-H)\b/g, '<span class="sh-opt">$1</span>')
+                .replace(/\b(-d)\b/g, '<span class="sh-opt">$1</span>')
+                .replace(/&quot;(.*?)&quot;/, '<span class="sh-str">&quot;$1&quot;</span>')
+                .replace(/&#39;(.*?)&#39;/g, '<span class="sh-str">&#39;$1&#39;</span>');
+            el.innerHTML = s;
+        });
+    })();
+
+    (function () {
         var trigger = document.getElementById('user-dropdown-btn');
         var menu = document.getElementById('user-menu');
         if (!trigger || !menu) return;

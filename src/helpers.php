@@ -220,23 +220,6 @@ if (!function_exists('git_repo_url')) {
     }
 }
 
-/**
- * Return HTML for a curl command line with simple syntax-style spans (command, options, strings).
- * Used for display only; copy uses raw text from the code element. Escapes captured content.
- */
-if (!function_exists('highlight_curl_for_display')) {
-    function highlight_curl_for_display(string $line): string
-    {
-        // Wrap command, options, and quoted strings; escape only the inner content for HTML safety
-        $line = preg_replace_callback('/^(curl)\b/', fn ($m) => '<span class="sh-cmd">' . e($m[1]) . '</span>', $line, 1);
-        $line = preg_replace_callback('/\b(-X\s+[A-Z]+)\b/', fn ($m) => '<span class="sh-opt">' . e($m[1]) . '</span>', $line);
-        $line = preg_replace_callback('/\b(-d)\b/', fn ($m) => '<span class="sh-opt">' . e($m[1]) . '</span>', $line);
-        // Only the first double-quoted string is the URL; limit to 1 so we don't highlight JSON keys inside -d payload
-        $line = preg_replace_callback('/"([^"]*)"/', fn ($m) => '<span class="sh-str">"' . e($m[1]) . '"</span>', $line, 1);
-        $line = preg_replace_callback("/'([^']*)'/", fn ($m) => '<span class="sh-str">&#39;' . e($m[1]) . '&#39;</span>', $line);
-        return $line;
-    }
-}
 
 /**
  * Repo name for display (e.g. "owner/repo" from repo URL).
