@@ -178,4 +178,14 @@ git tag "v$VERSION"
 echo "Committed and tagged v$VERSION. Pushing branch and tag..."
 git push origin HEAD
 git push origin "v$VERSION"
-echo "Done. Release v$VERSION created and pushed."
+echo "Release v$VERSION created and pushed."
+
+read -r -p "Push Docker image for v$VERSION? [y/N] " PUSH_DOCKER
+if [[ "$PUSH_DOCKER" =~ ^[yY] ]]; then
+  if [[ -x "$REPO_ROOT/scripts/docker-build-push.sh" ]]; then
+    "$REPO_ROOT/scripts/docker-build-push.sh"
+  else
+    echo "Warning: scripts/docker-build-push.sh not found or not executable." >&2
+  fi
+fi
+echo "Done."
