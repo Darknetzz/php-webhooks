@@ -419,6 +419,13 @@ if ($uri === '/admin/users') {
     $createError = $createError ?? null;
     $createUsername = $createUsername ?? '';
     $listError = (isset($_GET['error']) && $_GET['error'] === 'edit_self') ? 'You cannot edit your own user here. Use Settings to change your password.' : null;
+    $editId = isset($_GET['edit_id']) ? (int) $_GET['edit_id'] : null;
+    $editUser = null;
+    $editError = null;
+    if ($editId) {
+        $editUser = UserRepository::find($editId);
+        $editError = isset($_GET['edit_error']) ? (string) $_GET['edit_error'] : null;
+    }
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_username'], $_POST['create_password'])) {
         $username = trim((string) $_POST['create_username']);
         $password = (string) $_POST['create_password'];
@@ -443,7 +450,7 @@ if ($uri === '/admin/users') {
     exit;
 }
 
-// Admin: edit user — admin panel only (cannot edit self)
+// Admin: edit user — admin panel only (cannot edit self). GET redirects to users list; POST from edit modal.
 if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
     $user = require_admin_panel($uri);
     $id = (int) $m[1];
@@ -454,34 +461,34 @@ if (preg_match('#^/admin/users/(\d+)/edit$#', $uri, $m)) {
     if (!$editUser) {
         redirect(base_url() . '/admin/users');
     }
-    $editError = $editError ?? null;
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = trim((string) ($_POST['username'] ?? ''));
-        $role = trim((string) ($_POST['role'] ?? $editUser->role));
-        if (!in_array($role, [User::ROLE_USER, User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
-            $role = $editUser->role;
-        }
-        // Do not demote the last superadmin
-        if ($editUser->isSuperAdmin() && UserRepository::countSuperAdmins() <= 1 && $role !== User::ROLE_SUPERADMIN) {
-            $role = User::ROLE_SUPERADMIN;
-        }
-        if ($username !== '') {
-            $newPassword = (string) ($_POST['password'] ?? '');
-            try {
-                UserRepository::update($id, [
-                    'username' => $username,
-                    'role' => $role,
-                    'password' => $newPassword,
-                ]);
-                redirect(base_url() . '/admin/users');
-            } catch (Throwable $e) {
-                $editError = $config['debug'] ? $e->getMessage() : 'Update failed (username may already exist).';
-            }
-        } else {
-            $editError = 'Username is required.';
-        }
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(base_url() . '/admin/users');
     }
-    require dirname(__DIR__) . '/templates/admin_user_edit.php';
+    $username = trim((string) ($_POST['username'] ?? ''));
+    $role = trim((string) ($_POST['role'] ?? $editUser->role));
+    if (!in_array($role, [User::ROLE_USER, User::ROLE_ADMIN, User::ROLE_SUPERADMIN], true)) {
+        $role = $editUser->role;
+    }
+    // Do not demote the last superadmin
+    if ($editUser->isSuperAdmin() && UserRepository::countSuperAdmins() <= 1 && $role !== User::ROLE_SUPERADMIN) {
+        $role = User::ROLE_SUPERADMIN;
+    }
+    if ($username !== '') {
+        $newPassword = (string) ($_POST['password'] ?? '');
+        try {
+            UserRepository::update($id, [
+                'username' => $username,
+                'role' => $role,
+                'password' => $newPassword,
+            ]);
+            redirect(base_url() . '/admin/users');
+        } catch (Throwable $e) {
+            $editError = $config['debug'] ? $e->getMessage() : 'Update failed (username may already exist).';
+            redirect(base_url() . '/admin/users?edit_id=' . $id . '&edit_error=' . urlencode($editError));
+        }
+    } else {
+        redirect(base_url() . '/admin/users?edit_id=' . $id . '&edit_error=' . urlencode('Username is required.'));
+    }
     exit;
 }
 

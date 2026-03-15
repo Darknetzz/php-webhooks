@@ -6,6 +6,8 @@ $currentUser = auth()->user();
 $createError = $createError ?? null;
 $createUsername = $createUsername ?? '';
 $listError = $listError ?? null;
+$editUser = $editUser ?? null;
+$editError = $editError ?? null;
 $adminActive = 'users';
 ob_start();
 ?>
@@ -38,13 +40,13 @@ ob_start();
             </thead>
             <tbody>
                 <?php foreach ($users as $u): ?>
-                    <tr>
+                    <tr data-user-id="<?= (int) $u->id ?>" data-username="<?= e($u->username) ?>" data-role="<?= e($u->role) ?>">
                         <td><?= e($u->username) ?></td>
                         <td><?php $role = $u->role; require __DIR__ . '/partials/role_display.php'; ?></td>
                         <td><?= e($u->created_at) ?></td>
                         <td class="table-cell-actions card-actions">
                             <?php if ($currentUser && $u->id !== $currentUser->id): ?>
-                                <a href="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/edit" class="btn btn-ghost btn-icon-only" style="font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></a>
+                                <button type="button" class="btn btn-ghost btn-icon-only btn-edit-user" style="font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
                             <?php endif; ?>
                             <?php if ($currentUser && $currentUser->isSuperAdmin() && $u->id !== $currentUser->id): ?>
                                 <?php $isLastSuperadmin = $u->isSuperAdmin() && \App\UserRepository::countSuperAdmins() <= 1; ?>
@@ -120,6 +122,9 @@ ob_start();
     <?php endif; ?>
 })();
 </script>
+
+<?php require __DIR__ . '/partials/edit_user_modal.php'; ?>
+<?php require __DIR__ . '/partials/edit_user_modal_script.php'; ?>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/layout.php';

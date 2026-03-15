@@ -40,7 +40,7 @@ ob_start();
                         <td><?= e($r->method) ?></td>
                         <td><?= e($r->ip ?? '-') ?></td>
                         <td>
-                            <a href="#" class="btn btn-ghost" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;" onclick="toggleDetail(<?= $r->id ?>); return false;">Details</a>
+                            <a href="#" class="btn btn-ghost" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;" onclick="toggleDetail(<?= $r->id ?>); return false;"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg> Details</a>
                         </td>
                     </tr>
                     <tr id="detail-<?= $r->id ?>" style="display: none;" class="detail-row">

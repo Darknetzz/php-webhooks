@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Visibility label**: "Requests public" is combined with listing visibility in one phrase (e.g. "Listed publicly & requests public"); single `visibility_label` partial handles both. Private webhooks never show public requests.
 - **Public requests**: Private (unlisted) webhooks can no longer have public request logs: enforced in create/update (requests_public forced false when not listed), public requests route requires listing, and UI only shows "Show requests publicly" when "List on public page" is checked.
+- **Edit user modal**: Admin user editing is now done in a modal on the Users list (same pattern as webhook edit); dedicated edit user page removed. Validation errors redirect back to the list with the modal reopened and error shown.
 
 ## [1.0.3] - 2026-03-15
 
