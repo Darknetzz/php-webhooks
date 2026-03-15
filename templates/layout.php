@@ -24,8 +24,12 @@ $config = config();
 </head>
 <body>
 <?php require __DIR__ . '/partials/icons.php'; ?>
-<?php if (site_setting_bool(\App\SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, true)): ?>
-<?php $allowSpecifyTestUrl = site_setting_bool(\App\SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, true); ?>
+<?php
+$user = auth()->user();
+$showWebhookTesting = site_setting_bool(\App\SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, true) || ($user && $user->isAdmin());
+if ($showWebhookTesting):
+    $allowSpecifyTestUrl = site_setting_bool(\App\SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, true);
+?>
 <?php require __DIR__ . '/partials/webhook_test_modal.php'; ?>
 <?php endif; ?>
     <header class="site-header">
