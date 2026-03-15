@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Primary color settings**: admin can set a primary/brand color for the UI; presets and hex color picker with live preview.
+- **Random slug generation**: option to generate a random slug when creating a webhook.
+- **Requests public**: per-webhook option to allow unauthenticated viewing of request history (public request log).
+- **Release script**: optional Docker image push step in release workflow.
+
+### Changed
+
+- **UI**: icon-only button styling for consistency; improved button accessibility and styling in admin templates.
+- **Webhook modal**: custom slug input refactored for better visibility.
+- **Layout**: JavaScript color management refactored for primary color theming.
+
 ## [1.0.1] - 2026-03-15
 
 ### Added
