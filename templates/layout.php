@@ -88,7 +88,7 @@ $config = config();
             var codebox = btn.closest('.codebox');
             var codeEl = codebox && codebox.querySelector('.codebox-code');
             if (codeEl) {
-                var text = codeEl.textContent.trim();
+                var text = (codeEl.getAttribute('data-copy') || codeEl.textContent || '').trim();
                 navigator.clipboard.writeText(text).then(function () {
                     var label = btn.innerHTML;
                     btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#icon-copy"/></svg> Copied!';
