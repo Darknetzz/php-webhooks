@@ -103,9 +103,10 @@ if ($showWebhookTesting):
         var btn = e.target.closest('.btn-copy-webhook');
         if (btn) {
             var wrap = btn.closest('.webhook-url-wrap');
+            var openBtn = wrap && wrap.querySelector('.btn-open-webhook');
             var urlEl = wrap && wrap.querySelector('.webhook-url');
-            if (urlEl) {
-                var url = urlEl.textContent.trim();
+            var url = (openBtn && openBtn.dataset.url) || (urlEl && urlEl.textContent.trim()) || '';
+            if (url) {
                 navigator.clipboard.writeText(url).then(function () {
                     var label = btn.textContent;
                     btn.textContent = 'Copied!';
