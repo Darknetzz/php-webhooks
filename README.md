@@ -47,9 +47,9 @@ services:
       - "8567:80"
     environment:
       APP_SECRET: ${APP_SECRET}
-      APP_ENV: ${APP_ENV:-production}
-      APP_DEBUG: ${APP_DEBUG:-0}
-      APP_URL: ${APP_URL:-http://localhost/webhooks/public}
+      APP_ENV: production
+      APP_DEBUG: 0
+      APP_URL: http://localhost:8567
       # APP_URL_PUBLIC: ${APP_URL_PUBLIC:-https://webhooks.example.com}
       # APP_BASE_PATH: ${APP_BASE_PATH:-webhooks/public}
       DB_DRIVER: ${DB_DRIVER:-sqlite}
@@ -61,6 +61,7 @@ services:
 volumes:
   webhooks_data:
 ```
+   If you map a different host port (e.g. `5030:80`), set `APP_URL` to that URL (e.g. `http://localhost:5030`), or the app will use the port you're visiting from for links and assets.
 
 **Option 1: Pre-built images**
 

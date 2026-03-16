@@ -15,7 +15,8 @@ services:
     environment:
       APP_ENV: production
       APP_DEBUG: 0
-      APP_URL: http://localhost/webhooks/public
+      # Use the same host:port you use in the browser (e.g. http://localhost:5030 if you map "5030:80").
+      APP_URL: http://localhost:8567
       # APP_URL_PUBLIC: https://webhooks.example.com
       # APP_BASE_PATH: webhooks/public
       DB_DRIVER: sqlite

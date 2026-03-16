@@ -190,6 +190,15 @@ if (!function_exists('base_url')) {
             $configuredHost = parse_url($configured, PHP_URL_HOST);
             $requestHost = parse_url('http://' . $host, PHP_URL_HOST) ?: $host;
             if ($configuredHost !== null && $configuredHost !== false && strcasecmp($configuredHost, $requestHost) === 0) {
+                // If the request has a non-default port (e.g. localhost:5030) but APP_URL has no port or default port,
+                // use request base so asset/link URLs work (avoids net::ERR_CONNECTION_REFUSED when running in Docker).
+                $requestPort = parse_url('http://' . $host, PHP_URL_PORT);
+                $configuredPort = parse_url($configured, PHP_URL_PORT);
+                $requestHasNonDefaultPort = $requestPort !== null && $requestPort !== 80 && $requestPort !== 443;
+                $configuredHasNoPortOrDefault = $configuredPort === null || $configuredPort === 80 || $configuredPort === 443;
+                if ($requestHasNonDefaultPort && $configuredHasNoPortOrDefault) {
+                    return $requestBase;
+                }
                 $configuredPath = parse_url($configured, PHP_URL_PATH);
                 $configuredHasPath = $configuredPath !== null && $configuredPath !== '' && $configuredPath !== '/';
                 $hasSubpath = $scriptDir !== '' && $scriptDir !== '/';
