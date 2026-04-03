@@ -1,0 +1,4 @@
+# Block .env (credentials); also blocked globally in Apache security.conf
+<FilesMatch "^\.env$">
+    Require all denied
+</FilesMatch>
