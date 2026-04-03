@@ -92,14 +92,14 @@ ob_start();
         <input type="hidden" name="settings_section" value="webhooks">
         <div class="form-group">
             <label class="checkbox-label">
-                <input type="checkbox" name="webhook_testing_enabled" value="1" <?= $webhookTestingEnabled ? 'checked' : '' ?>>
+                <input type="checkbox" id="webhook_testing_enabled" name="webhook_testing_enabled" value="1" <?= $webhookTestingEnabled ? 'checked' : '' ?>>
                 Enable webhook testing
             </label>
             <div class="hint">When enabled, users see a “Test” button next to webhook URLs that opens a modal to send a trial request.</div>
         </div>
         <div class="form-group">
             <label class="checkbox-label">
-                <input type="checkbox" name="allow_specify_test_url" value="1" <?= $allowSpecifyTestUrl ? 'checked' : '' ?> <?= !$webhookTestingEnabled ? 'disabled' : '' ?>>
+                <input type="checkbox" id="allow_specify_test_url" name="allow_specify_test_url" value="1" <?= $allowSpecifyTestUrl ? 'checked' : '' ?> <?= !$webhookTestingEnabled ? 'disabled' : '' ?>>
                 Allow specifying test URL
             </label>
             <div class="hint">When enabled, the URL in the test modal can be edited (e.g. to point to a different endpoint). When disabled, the URL is fixed to the webhook URL.</div>
@@ -122,6 +122,29 @@ ob_start();
         <button type="submit" class="btn btn-primary">Save Webhooks</button>
     </form>
 </section>
+<script>
+(function () {
+    var testing = document.getElementById('webhook_testing_enabled');
+    var allowSpecify = document.getElementById('allow_specify_test_url');
+    if (!testing || !allowSpecify) return;
+    var stashedAllowSpecify = null;
+    function syncAllowSpecifyWithTesting() {
+        if (testing.checked) {
+            allowSpecify.disabled = false;
+            if (stashedAllowSpecify !== null) {
+                allowSpecify.checked = stashedAllowSpecify;
+                stashedAllowSpecify = null;
+            }
+        } else {
+            stashedAllowSpecify = allowSpecify.checked;
+            allowSpecify.disabled = true;
+            allowSpecify.checked = false;
+        }
+    }
+    testing.addEventListener('change', syncAllowSpecifyWithTesting);
+    syncAllowSpecifyWithTesting();
+})();
+</script>
 
 <section class="settings-section card">
     <h2 class="settings-section-title">Access &amp; security</h2>
