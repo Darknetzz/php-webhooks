@@ -28,7 +28,7 @@ ob_start();
         <button type="button" class="btn btn-primary" id="btn-add-user-empty">Add user</button>
     </div>
 <?php else: ?>
-    <div class="table-wrap">
+    <div class="table-wrap admin-table-wrap">
         <table>
             <thead>
                 <tr>

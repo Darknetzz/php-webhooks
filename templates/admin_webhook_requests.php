@@ -26,7 +26,7 @@ ob_start();
             <button type="submit" class="btn-webhook-action btn-outline-danger" aria-label="Delete all requests" title="Delete all requests"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg> Delete all</button>
         </form>
     </div>
-    <div class="table-wrap">
+    <div class="table-wrap admin-table-wrap">
         <table>
             <thead>
                 <tr>

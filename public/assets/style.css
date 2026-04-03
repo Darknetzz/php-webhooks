@@ -765,6 +765,19 @@ th {
     font-size: 0.85rem;
 }
 
+/* Admin panel data tables: stronger column headers */
+.admin-table-wrap thead th {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+}
+
 .request-body {
     max-height: 400px;
     overflow: auto;

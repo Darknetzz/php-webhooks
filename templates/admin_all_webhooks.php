@@ -32,7 +32,7 @@ ob_start();
         <button type="button" class="btn btn-primary btn-add-webhook"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg> Add webhook</button>
     </div>
 <?php else: ?>
-    <div class="table-wrap">
+    <div class="table-wrap admin-table-wrap">
         <table>
             <thead>
                 <tr>
