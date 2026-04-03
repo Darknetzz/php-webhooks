@@ -14,6 +14,7 @@ $createResponseBody = $createResponseBody ?? '';
 $createAllowedMethods = $createAllowedMethods ?? [];
 $allowedMethodOptions = $allowedMethodOptions ?? webhook_allowed_method_options();
 $fromAdmin = $fromAdmin ?? false;
+$randomSlugLength = isset($randomSlugLength) ? (int) $randomSlugLength : \App\WebhookRepository::randomSlugLength();
 ?>
 <!-- Create webhook modal -->
 <div class="modal-overlay" id="create-modal" role="dialog" aria-modal="true" aria-labelledby="create-modal-title" <?= $createError ? ' aria-describedby="create-error"' : '' ?>>
@@ -132,13 +133,11 @@ $fromAdmin = $fromAdmin ?? false;
     var createRandomSlugUrlPreview = document.getElementById('create-random-slug-url-preview');
     var createSlugRandomInput = document.getElementById('create-slug-random');
     if (createSlugPreview) {
+        var slugLen = <?= (int) $randomSlugLength ?>;
         var slugify = function (s) {
             return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
         };
-        function randomHexSample(minLen, maxLen) {
-            minLen = minLen || 10;
-            maxLen = maxLen || 30;
-            var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
+        function randomHexSample(len) {
             var hex = '0123456789abcdef';
             var out = '';
             for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
@@ -151,7 +150,7 @@ $fromAdmin = $fromAdmin ?? false;
             if (createRandomSlugHint) createRandomSlugHint.style.display = fromName ? 'none' : 'block';
             if (!fromName && createSlug) createSlug.value = '';
             if (!fromName) {
-                var sample = randomHexSample(10, 30);
+                var sample = randomHexSample(slugLen);
                 if (createSlugRandomInput) createSlugRandomInput.value = sample;
                 if (createRandomSlugUrlPreview) createRandomSlugUrlPreview.textContent = sample;
             }
@@ -160,7 +159,7 @@ $fromAdmin = $fromAdmin ?? false;
             var fromName = createSlugFromName && createSlugFromName.checked;
             var slug = (createSlug && createSlug.value.trim()) || '';
             if (!fromName && !slug) {
-                var sample = createSlugRandomInput ? createSlugRandomInput.value : randomHexSample(10, 30);
+                var sample = createSlugRandomInput ? createSlugRandomInput.value : randomHexSample(slugLen);
                 createSlugPreview.textContent = sample || '(random)';
                 return;
             }

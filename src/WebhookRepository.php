@@ -123,21 +123,29 @@ class WebhookRepository
         return $stmt->fetch() !== false;
     }
 
-    /** Generate a random URL-safe slug (hex, 10–30 chars). Retries until unique. */
-    public static function generateRandomSlug(int $minLength = 10, int $maxLength = 30): string
+    public const RANDOM_SLUG_LENGTH_MIN = 8;
+    public const RANDOM_SLUG_LENGTH_MAX = 64;
+
+    /** Length for random hex slugs (Site settings → Webhooks). Default 20. */
+    public static function randomSlugLength(): int
     {
-        $minLength = max(10, min(30, $minLength));
-        $maxLength = max($minLength, min(30, $maxLength));
+        $raw = SiteSettings::get(SiteSettings::KEY_RANDOM_SLUG_LENGTH, '20');
+        $n = (int) ($raw !== null && $raw !== '' ? $raw : 20);
+        return max(self::RANDOM_SLUG_LENGTH_MIN, min(self::RANDOM_SLUG_LENGTH_MAX, $n));
+    }
+
+    /** Generate a random URL-safe slug (hex). Length follows {@see randomSlugLength()}. Retries until unique. */
+    public static function generateRandomSlug(): string
+    {
+        $len = self::randomSlugLength();
         $maxAttempts = 20;
         for ($i = 0; $i < $maxAttempts; $i++) {
-            $len = random_int($minLength, $maxLength);
             $slug = bin2hex(random_bytes((int) ceil($len / 2)));
             $slug = substr($slug, 0, $len);
             if (self::findBySlug($slug) === null) {
                 return $slug;
             }
         }
-        // Fallback: add timestamp to reduce collision chance
-        return bin2hex(random_bytes(8)) . substr((string) time(), -4);
+        return substr(bin2hex(random_bytes(32)), 0, $len);
     }
 }

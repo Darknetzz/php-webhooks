@@ -13,6 +13,7 @@ $createSlugFromName = $createSlugFromName ?? true;
 $createResponseStatusCode = $createResponseStatusCode ?? 200;
 $createResponseHeaders = $createResponseHeaders ?? '';
 $createResponseBody = $createResponseBody ?? '';
+$randomSlugLength = \App\WebhookRepository::randomSlugLength();
 ob_start();
 ?>
 <h1>Create Webhook</h1>
@@ -41,7 +42,7 @@ ob_start();
                     <input type="checkbox" name="slug_from_name" id="slug_from_name" value="1" <?= $createSlugFromName ? 'checked' : '' ?>>
                     Create slug from name
                 </label>
-                <div class="hint">When checked, the URL path is derived from the name if you leave the slug empty. When unchecked, a random slug (10–30 characters) is generated.</div>
+                <div class="hint">When checked, the URL path is derived from the name if you leave the slug empty. When unchecked, a random hexadecimal slug (<?= (int) $randomSlugLength ?> characters, set in Admin → Site settings) is generated.</div>
             </div>
             <div class="form-group" id="slug-field-wrap">
                 <label for="slug">Custom slug (optional)</label>
@@ -99,6 +100,7 @@ ob_start();
 </div>
 <script>
 (function () {
+    var slugLen = <?= (int) $randomSlugLength ?>;
     var form = document.getElementById('create-webhook-form');
     var nameEl = document.getElementById('name');
     var slugEl = document.getElementById('slug');
@@ -111,10 +113,7 @@ ob_start();
     function slugify(s) {
         return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
     }
-    function randomHexSample(minLen, maxLen) {
-        minLen = minLen || 10;
-        maxLen = maxLen || 30;
-        var len = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
+    function randomHexSample(len) {
         var hex = '0123456789abcdef';
         var out = '';
         for (var i = 0; i < len; i++) out += hex[Math.floor(Math.random() * 16)];
@@ -125,7 +124,7 @@ ob_start();
         if (slugFieldWrap) slugFieldWrap.style.display = fromName ? 'block' : 'none';
         if (randomSlugHint) randomSlugHint.style.display = fromName ? 'none' : 'block';
         if (!fromName) {
-            var sample = randomHexSample(10, 30);
+            var sample = randomHexSample(slugLen);
             if (slugRandomInput) slugRandomInput.value = sample;
             if (randomSlugUrlPreview) randomSlugUrlPreview.textContent = sample;
         }
@@ -136,7 +135,7 @@ ob_start();
         var fromName = slugFromNameEl && slugFromNameEl.checked;
         var slug = (slugEl && slugEl.value.trim()) || '';
         if (!fromName && !slug) {
-            var sample = slugRandomInput ? slugRandomInput.value : randomHexSample(10, 30);
+            var sample = slugRandomInput ? slugRandomInput.value : randomHexSample(slugLen);
             previewEl.textContent = sample || '(random)';
             return;
         }

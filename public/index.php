@@ -229,8 +229,10 @@ if (preg_match('#^/admin/webhooks$#', $uri)) {
                 $slug = $slugFromName !== '' ? $slugFromName : WebhookRepository::generateRandomSlug();
             } else {
                 $candidate = preg_replace('/[^a-zA-Z0-9_-]/', '', $rawSlugRandom);
-                if ($candidate !== '' && strlen($candidate) >= 10 && strlen($candidate) <= 30) {
-                    $slug = $candidate;
+                $randLen = WebhookRepository::randomSlugLength();
+                $hexOk = $candidate !== '' && strlen($candidate) === $randLen && ctype_xdigit($candidate);
+                if ($hexOk) {
+                    $slug = strtolower($candidate);
                 } else {
                     $slug = WebhookRepository::generateRandomSlug();
                 }
@@ -405,6 +407,9 @@ if ($uri === '/admin/settings') {
             SiteSettings::set(SiteSettings::KEY_MAX_WEBHOOKS_PER_USER, (string) max(0, $maxWebhooks));
             $testTimeout = (int) ($_POST['webhook_test_timeout_seconds'] ?? 30);
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, (string) max(5, min(300, $testTimeout)));
+            $randomSlugLen = (int) ($_POST['random_slug_length'] ?? 20);
+            $randomSlugLen = max(WebhookRepository::RANDOM_SLUG_LENGTH_MIN, min(WebhookRepository::RANDOM_SLUG_LENGTH_MAX, $randomSlugLen));
+            SiteSettings::set(SiteSettings::KEY_RANDOM_SLUG_LENGTH, (string) $randomSlugLen);
             redirect($base . '/admin/settings?saved=1');
         } elseif ($section === 'access') {
             SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');

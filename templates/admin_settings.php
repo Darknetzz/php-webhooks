@@ -15,6 +15,8 @@ $maxWebhooksPerUser = (int) (site_setting(\App\SiteSettings::KEY_MAX_WEBHOOKS_PE
 $webhookTestTimeoutSeconds = (int) (site_setting(\App\SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, '30') ?: '30');
 $webhookTestTimeoutSeconds = max(5, min(300, $webhookTestTimeoutSeconds));
 
+$randomSlugLength = \App\WebhookRepository::randomSlugLength();
+
 // Access & security
 $allowRegistration = site_setting_bool(\App\SiteSettings::KEY_ALLOW_REGISTRATION, false);
 
@@ -111,6 +113,11 @@ ob_start();
             <label for="max_webhooks_per_user">Max webhooks per user</label>
             <input type="number" id="max_webhooks_per_user" name="max_webhooks_per_user" value="<?= $maxWebhooksPerUser ?: '' ?>" min="0" step="1" placeholder="0">
             <div class="hint">Maximum webhooks each user can create. Use 0 for unlimited.</div>
+        </div>
+        <div class="form-group">
+            <label for="random_slug_length">Random slug length (characters)</label>
+            <input type="number" id="random_slug_length" name="random_slug_length" value="<?= (int) $randomSlugLength ?>" min="<?= (int) \App\WebhookRepository::RANDOM_SLUG_LENGTH_MIN ?>" max="<?= (int) \App\WebhookRepository::RANDOM_SLUG_LENGTH_MAX ?>" step="1">
+            <div class="hint">When users create a webhook without a custom slug, a random hexadecimal slug of this length is used.</div>
         </div>
         <button type="submit" class="btn btn-primary">Save Webhooks</button>
     </form>
