@@ -171,24 +171,37 @@ if ($uri === '/settings') {
     if (!$user) {
         redirect(base_url() . '/login?redirect=' . urlencode($uri));
     }
-    $passwordError = null;
-    $passwordSuccess = false;
+    $base = rtrim(base_url(), '/');
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
         $current = (string) ($_POST['current_password'] ?? '');
         $newPass = (string) ($_POST['new_password'] ?? '');
         $confirm = (string) ($_POST['new_password_confirm'] ?? '');
         if ($current === '' || $newPass === '' || $confirm === '') {
-            $passwordError = 'All fields are required.';
-        } elseif (strlen($newPass) < 8) {
-            $passwordError = 'New password must be at least 8 characters.';
-        } elseif ($newPass !== $confirm) {
-            $passwordError = 'New password and confirmation do not match.';
-        } elseif (!password_verify($current, UserRepository::getPasswordHash($user->id))) {
-            $passwordError = 'Current password is incorrect.';
-        } else {
-            UserRepository::update($user->id, ['password' => $newPass]);
-            $passwordSuccess = true;
+            redirect($base . '/settings?password_err=empty');
         }
+        if (strlen($newPass) < 8) {
+            redirect($base . '/settings?password_err=len');
+        }
+        if ($newPass !== $confirm) {
+            redirect($base . '/settings?password_err=match');
+        }
+        if (!password_verify($current, UserRepository::getPasswordHash($user->id))) {
+            redirect($base . '/settings?password_err=current');
+        }
+        UserRepository::update($user->id, ['password' => $newPass]);
+        redirect($base . '/settings?password=ok');
+    }
+    $passwordError = null;
+    $passwordSuccess = isset($_GET['password']) && (string) $_GET['password'] === 'ok';
+    $err = isset($_GET['password_err']) ? (string) $_GET['password_err'] : '';
+    if ($err !== '') {
+        $passwordError = match ($err) {
+            'empty' => 'All fields are required.',
+            'len' => 'New password must be at least 8 characters.',
+            'match' => 'New password and confirmation do not match.',
+            'current' => 'Current password is incorrect.',
+            default => null,
+        };
     }
     require dirname(__DIR__) . '/templates/settings.php';
     exit;
@@ -373,7 +386,7 @@ if ($uri === '/admin') {
 // Admin: site settings — admin panel only
 if ($uri === '/admin/settings') {
     $user = require_admin_panel($uri);
-    $settingsSaved = false;
+    $base = rtrim(base_url(), '/');
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $section = $_POST['settings_section'] ?? '';
         if ($section === 'general') {
@@ -384,7 +397,7 @@ if ($uri === '/admin/settings') {
                 SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR, $accent);
                 SiteSettings::set(SiteSettings::KEY_PRIMARY_COLOR_HOVER, $hover ?? hex_darken($accent, -12));
             }
-            $settingsSaved = true;
+            redirect($base . '/admin/settings?saved=1');
         } elseif ($section === 'webhooks') {
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TESTING_ENABLED, isset($_POST['webhook_testing_enabled']) ? '1' : '0');
             SiteSettings::set(SiteSettings::KEY_ALLOW_SPECIFY_TEST_URL, isset($_POST['allow_specify_test_url']) ? '1' : '0');
@@ -392,12 +405,13 @@ if ($uri === '/admin/settings') {
             SiteSettings::set(SiteSettings::KEY_MAX_WEBHOOKS_PER_USER, (string) max(0, $maxWebhooks));
             $testTimeout = (int) ($_POST['webhook_test_timeout_seconds'] ?? 30);
             SiteSettings::set(SiteSettings::KEY_WEBHOOK_TEST_TIMEOUT_SECONDS, (string) max(5, min(300, $testTimeout)));
-            $settingsSaved = true;
+            redirect($base . '/admin/settings?saved=1');
         } elseif ($section === 'access') {
             SiteSettings::set(SiteSettings::KEY_ALLOW_REGISTRATION, isset($_POST['allow_registration']) ? '1' : '0');
-            $settingsSaved = true;
+            redirect($base . '/admin/settings?saved=1');
         }
     }
+    $settingsSaved = isset($_GET['saved']) && (string) $_GET['saved'] === '1';
     require dirname(__DIR__) . '/templates/admin_settings.php';
     exit;
 }
