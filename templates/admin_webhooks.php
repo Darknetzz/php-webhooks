@@ -47,11 +47,17 @@ ob_start();
                 <label for="slug">Custom slug (optional)</label>
                 <input type="text" id="slug" name="slug" placeholder="my-api-hook" pattern="[a-zA-Z0-9_-]+" title="Letters, numbers, underscore, hyphen only" value="<?= e($createSlug) ?>">
                 <div class="hint">Letters, numbers, underscore, hyphen only. Overrides “Create slug from name” when set.</div>
-                <div class="hint" id="slug-preview-wrap" style="margin-top: 0.25rem;">URL will be: <strong><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></strong></div>
+                <div class="webhook-url-preview" id="slug-preview-wrap" role="status" aria-live="polite" aria-atomic="true">
+                    <div class="webhook-url-preview-label">Webhook URL</div>
+                    <div class="webhook-url-preview-value"><?= e($webhookBaseUrl) ?>/w/<span id="slug-preview">my-api-hook</span></div>
+                </div>
             </div>
             <div class="form-group" id="random-slug-hint" style="display: none;">
                 <input type="hidden" name="slug_random" id="slug-random" value="">
-                <div class="hint">URL: <strong><?= e($webhookBaseUrl) ?>/w/<span id="random-slug-url-preview"></span></strong></div>
+                <div class="webhook-url-preview" role="status" aria-live="polite" aria-atomic="true">
+                    <div class="webhook-url-preview-label">Webhook URL</div>
+                    <div class="webhook-url-preview-value"><?= e($webhookBaseUrl) ?>/w/<span id="random-slug-url-preview"></span></div>
+                </div>
             </div>
         </div>
         <div class="form-section">
