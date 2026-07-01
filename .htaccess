@@ -11,6 +11,9 @@
 # Block direct HTTP access to sensitive directories when doc root is the project root
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /webhooks/
+    # App lives in public/; avoid 403 on bare /webhooks/ (no index file at repo root)
+    RewriteRule ^$ public/ [L,R=301]
     RewriteRule ^\.git(/|$) - [F,L]
     RewriteRule ^(?:data|config|src|templates|scripts)(/|$) - [F,L]
 </IfModule>
