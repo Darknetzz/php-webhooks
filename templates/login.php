@@ -10,6 +10,7 @@ ob_start();
         <div class="error-msg"><?= e($loginError) ?></div>
     <?php endif; ?>
     <form method="post" action="">
+        <?php csrf_field(); ?>
         <input type="hidden" name="redirect" value="<?= e($redirect) ?>">
         <div class="form-group">
             <label for="username">Username</label>

@@ -236,6 +236,79 @@ if (!function_exists('redirect')) {
     }
 }
 
+/** Return a safe in-app redirect path (must start with /, no protocol-relative or off-site URLs). */
+if (!function_exists('safe_redirect_path')) {
+    function safe_redirect_path(string $path): string
+    {
+        $path = trim($path);
+        if ($path === '' || $path[0] !== '/' || str_contains($path, '//') || str_contains($path, ':')
+            || str_contains($path, "\n") || str_contains($path, "\r") || str_contains($path, '@')) {
+            return '/';
+        }
+        return $path;
+    }
+}
+
+/** CSRF token for the current session. */
+if (!function_exists('csrf_token')) {
+    function csrf_token(): string
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            auth();
+        }
+        if (empty($_SESSION['_csrf_token']) || !is_string($_SESSION['_csrf_token'])) {
+            $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['_csrf_token'];
+    }
+}
+
+/** Hidden input for CSRF protection in forms. */
+if (!function_exists('csrf_field')) {
+    function csrf_field(): void
+    {
+        echo '<input type="hidden" name="_csrf" value="' . e(csrf_token()) . '">';
+    }
+}
+
+/** Verify CSRF token on POST; aborts with 403 on failure. */
+if (!function_exists('csrf_verify')) {
+    function csrf_verify(): void
+    {
+        $token = $_POST['_csrf'] ?? '';
+        if (!is_string($token) || $token === '' || !hash_equals(csrf_token(), $token)) {
+            http_response_code(403);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Invalid or missing CSRF token. Please go back and try again.';
+            exit;
+        }
+    }
+}
+
+/** Header names redacted from webhook request logs (case-insensitive). */
+if (!function_exists('sensitive_log_header_names')) {
+    function sensitive_log_header_names(): array
+    {
+        return ['cookie', 'authorization', 'proxy-authorization', 'x-api-key', 'x-auth-token'];
+    }
+}
+
+/** Redact sensitive values before persisting or displaying request headers. */
+if (!function_exists('sanitize_logged_headers')) {
+    function sanitize_logged_headers(array $headers): array
+    {
+        $sensitive = sensitive_log_header_names();
+        $out = [];
+        foreach ($headers as $name => $value) {
+            if (!is_string($name)) {
+                continue;
+            }
+            $out[$name] = in_array(strtolower($name), $sensitive, true) ? '[redacted]' : $value;
+        }
+        return $out;
+    }
+}
+
 /** Require admin/superadmin for admin panel; redirect to home if logged in as non-admin, else to login. Returns the admin user. */
 if (!function_exists('require_admin_panel')) {
     function require_admin_panel(string $requestUri = '/'): \App\User

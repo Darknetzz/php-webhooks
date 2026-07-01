@@ -10,6 +10,7 @@ ob_start();
         <div class="error-msg"><?= e($createError) ?></div>
     <?php endif; ?>
     <form method="post" action="">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required autofocus placeholder="e.g. admin" value="<?= e($_POST['username'] ?? '') ?>">

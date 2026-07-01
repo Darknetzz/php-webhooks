@@ -10,6 +10,7 @@
         </div>
         <div class="modal-body">
             <form method="post" id="edit-webhook-form" action="">
+                <?php csrf_field(); ?>
                 <div class="form-group">
                     <label for="edit-name">Name</label>
                     <input type="text" id="edit-name" name="name" required>

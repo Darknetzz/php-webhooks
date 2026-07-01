@@ -58,6 +58,7 @@ ob_start();
                             <a href="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/requests" class="btn btn-ghost btn-icon-only" style="font-size: 0.85rem;" aria-label="View requests" title="View requests"><svg class="icon" aria-hidden="true"><use href="#icon-eye"/></svg></a>
                             <button type="button" class="btn btn-ghost btn-icon-only btn-edit-webhook" style="font-size: 0.85rem;" aria-label="Edit"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg></button>
                             <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks/<?= $w->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete this webhook and all its request history?');">
+                                <?php csrf_field(); ?>
                                 <button type="submit" class="btn btn-danger btn-icon-only" style="font-size: 0.85rem;" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                             </form>
                         </td>

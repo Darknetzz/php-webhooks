@@ -14,6 +14,7 @@ $editError = $editError ?? null;
                 <div class="error-msg" style="margin-bottom: 1rem;"><?= e($editError) ?></div>
             <?php endif; ?>
             <form method="post" id="edit-user-form" action="">
+                <?php csrf_field(); ?>
                 <div class="form-group">
                     <label for="edit-username">Username</label>
                     <input type="text" id="edit-username" name="username" required value="<?= $editUser ? e($editUser->username) : '' ?>">

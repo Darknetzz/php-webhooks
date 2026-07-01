@@ -8,6 +8,7 @@ ob_start();
 <h1>Edit webhook</h1>
 <div class="card" style="max-width: 500px;">
     <form method="post" action="">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" required value="<?= e($webhook->name) ?>">

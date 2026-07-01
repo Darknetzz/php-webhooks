@@ -28,6 +28,7 @@ $randomSlugLength = isset($randomSlugLength) ? (int) $randomSlugLength : \App\We
                 <div class="error-msg" id="create-error"><?= e($createError) ?></div>
             <?php endif; ?>
             <form method="post" action="<?= e($baseUrl) ?>/admin/webhooks" id="create-webhook-form">
+                <?php csrf_field(); ?>
                 <?php if ($fromAdmin): ?><input type="hidden" name="from_admin" value="1"><?php endif; ?>
                 <div class="form-section">
                     <div class="form-group">

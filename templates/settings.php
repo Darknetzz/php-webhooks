@@ -39,6 +39,7 @@ ob_start();
         <div class="error-msg settings-flash"><?= e($passwordError) ?></div>
     <?php endif; ?>
     <form method="post" action="" class="settings-form">
+        <?php csrf_field(); ?>
         <input type="hidden" name="change_password" value="1">
         <div class="form-group">
             <label for="current_password">Current password</label>

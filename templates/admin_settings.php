@@ -33,6 +33,7 @@ ob_start();
 <section class="settings-section card">
     <h2 class="settings-section-title">General</h2>
     <form method="post" action="<?= e($baseUrl) ?>/admin/settings" class="settings-form" id="settings-form-general">
+        <?php csrf_field(); ?>
         <input type="hidden" name="settings_section" value="general">
         <div class="form-group">
             <label for="site_name">Site name</label>
@@ -89,6 +90,7 @@ ob_start();
 <section class="settings-section card">
     <h2 class="settings-section-title">Webhooks</h2>
     <form method="post" action="<?= e($baseUrl) ?>/admin/settings" class="settings-form" id="settings-form-webhooks">
+        <?php csrf_field(); ?>
         <input type="hidden" name="settings_section" value="webhooks">
         <div class="form-group">
             <label class="checkbox-label">
@@ -149,6 +151,7 @@ ob_start();
 <section class="settings-section card">
     <h2 class="settings-section-title">Access &amp; security</h2>
     <form method="post" action="<?= e($baseUrl) ?>/admin/settings" class="settings-form" id="settings-form-access">
+        <?php csrf_field(); ?>
         <input type="hidden" name="settings_section" value="access">
         <div class="form-group">
             <label class="checkbox-label">

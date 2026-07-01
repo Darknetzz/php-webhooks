@@ -15,9 +15,16 @@ class Auth
             if (isset($cfg['name'])) {
                 session_name($cfg['name']);
             }
-            if (isset($cfg['lifetime'])) {
-                session_set_cookie_params($cfg['lifetime']);
-            }
+            $lifetime = (int) ($cfg['lifetime'] ?? 0);
+            $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+            session_set_cookie_params([
+                'lifetime' => $lifetime,
+                'path' => '/',
+                'httponly' => true,
+                'secure' => $secure,
+                'samesite' => 'Lax',
+            ]);
             session_start();
         }
     }

@@ -27,8 +27,8 @@ if (!$webhook) {
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-// One value per header name (duplicates normalized in WebhookVariableSubstitutor)
-$headers = function_exists('getallheaders') ? json_encode(getallheaders()) : '';
+$rawHeaders = function_exists('getallheaders') ? getallheaders() : [];
+$headers = is_array($rawHeaders) ? json_encode(sanitize_logged_headers($rawHeaders)) : '';
 $body = (string) file_get_contents('php://input');
 $queryString = $_SERVER['QUERY_STRING'] ?? '';
 // Prefer X-Forwarded-For when behind a reverse proxy (client IP); fall back to REMOTE_ADDR (direct connection)

@@ -52,6 +52,7 @@ ob_start();
                                 <?php $isLastSuperadmin = $u->isSuperAdmin() && \App\UserRepository::countSuperAdmins() <= 1; ?>
                                 <?php if (!$isLastSuperadmin): ?>
                                     <form method="post" action="<?= e($baseUrl) ?>/admin/users/<?= $u->id ?>/delete" style="display: inline;" onsubmit="return confirm('Delete user <?= e(addslashes($u->username)) ?>? Their webhooks will be deleted too.');">
+                                        <?php csrf_field(); ?>
                                         <button type="submit" class="btn btn-danger btn-icon-only" style="font-size: 0.85rem;" aria-label="Delete"><svg class="icon" aria-hidden="true"><use href="#icon-trash"/></svg></button>
                                     </form>
                                 <?php endif; ?>
@@ -76,6 +77,7 @@ ob_start();
                 <div class="error-msg" style="margin-bottom: 1rem;"><?= e($createError) ?></div>
             <?php endif; ?>
             <form method="post" action="">
+                <?php csrf_field(); ?>
                 <div class="form-group">
                     <label for="create_username">Username</label>
                     <input type="text" id="create_username" name="create_username" required value="<?= e($createUsername) ?>">

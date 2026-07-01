@@ -70,6 +70,10 @@ if (preg_match('#^/w/([a-zA-Z0-9_-]+)$#', $uri, $m)) {
 // Start session before any output (templates call auth() which needs session)
 auth();
 
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    csrf_verify();
+}
+
 // Ensure DB and tables exist
 try {
     db()->migrate();
@@ -109,7 +113,7 @@ if ($uri === '/login') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = auth()->login((string) ($_POST['username'] ?? ''), (string) ($_POST['password'] ?? ''));
         if ($user) {
-            redirect(base_url() . ($_POST['redirect'] ?? '/'));
+            redirect(base_url() . safe_redirect_path((string) ($_POST['redirect'] ?? '/')));
         }
         $loginError = 'Invalid username or password.';
     }
