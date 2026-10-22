@@ -1,5 +1,6 @@
 # PHP Webhooks – run with document root = public/
-FROM php:8.2-apache
+# Keep major in sync with absolute latest stable (php:8.5-* tracks 8.5.x).
+FROM php:8.5-apache
 
 # Build-time version and repo (pass from docker build --build-arg or CI)
 ARG GIT_COMMIT=unknown
