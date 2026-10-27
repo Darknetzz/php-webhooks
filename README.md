@@ -1,5 +1,8 @@
 # PHP Webhooks
 
+<p align="center"><img src="docs/images/banner-gradient.png" alt="php-webhooks" width="720"></p>
+
+
 A simple self-hosted app to create, edit, and delete webhooks and view requests sent to them.
 
 ## Features
